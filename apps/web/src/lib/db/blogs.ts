@@ -73,3 +73,17 @@ export async function updateBlog(id: string, input: BlogInput) {
 }
 
 export const deleteBlog = (id: string) => db().send(new DeleteCommand({ TableName: T(), Key: { id } }));
+
+/* ── Public reads: tiny per-instance cache so traffic never hammers DynamoDB (scheduled posts appear within ~30 s) ── */
+let liveCache: { at: number; data: Blog[] } | undefined;
+export async function listLiveBlogsCached(ttlMs = 30_000): Promise<Blog[]> {
+  if (liveCache && Date.now() - liveCache.at < ttlMs) return liveCache.data;
+  const data = await listLiveBlogs();
+  liveCache = { at: Date.now(), data };
+  return data;
+}
+
+export async function getLiveBlogByUrl(url: string): Promise<Blog | null> {
+  const blog = await getBlogByUrl(url.toLowerCase());
+  return blog && isBlogLive(blog) ? blog : null;
+}

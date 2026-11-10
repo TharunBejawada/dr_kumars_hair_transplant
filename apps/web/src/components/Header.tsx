@@ -2,12 +2,16 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { FaPhone } from "react-icons/fa6";
 import { clinic, nav } from "@/lib/content";
 import ScrollLink from "./ScrollLink";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
+  const onHome = usePathname() === "/";
+  // On inner pages, in-page anchors point back to the home page sections.
+  const link = (href: string) => (href.startsWith("#") && !onHome ? `/${href}` : href);
 
   const pick = (tab?: string) => {
     if (tab) window.dispatchEvent(new CustomEvent("select-treatment-tab", { detail: tab }));
@@ -17,7 +21,7 @@ export default function Header() {
   return (
     <>
       <div className="mx-auto flex h-[142px] w-full max-w-[1440px] items-start justify-between px-5 pt-[34px] md:px-8 xl:px-[110px]">
-        <a href="#home" aria-label="Dr. Kumar's Hair Transplant – home" className="shrink-0">
+        <a href="/" aria-label="Dr. Kumar's Hair Transplant – home" className="shrink-0">
           <Image src="/images/logo.webp" alt="Dr. Kumar's Hair Transplant – Advanced Hair Transplantation Centre" width={268} height={77} priority className="h-auto w-[200px] md:w-[268px]" />
         </a>
         <a
@@ -54,7 +58,7 @@ export default function Header() {
             {nav.map((item) => (
               <li key={item.label} className="[&:last-child]:-ml-[11px]">
                 <ScrollLink
-                  href={item.href}
+                  href={link(item.href)}
                   onNavigate={() => pick("tab" in item ? item.tab : undefined)}
                   className="relative block py-[11px] text-[18px] font-medium leading-[27px] after:absolute after:inset-x-0 after:bottom-[8px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 hover:after:scale-x-100"
                 >
@@ -68,7 +72,7 @@ export default function Header() {
           <ul className="absolute inset-x-0 top-[50px] bg-brand px-5 pb-4 shadow-lg lg:hidden">
             {nav.map((item) => (
               <li key={item.label} className="border-t border-white/20">
-                <ScrollLink href={item.href} onNavigate={() => pick("tab" in item ? item.tab : undefined)} className="block py-3 text-[17px] font-medium">
+                <ScrollLink href={link(item.href)} onNavigate={() => pick("tab" in item ? item.tab : undefined)} className="block py-3 text-[17px] font-medium">
                   {item.label}
                 </ScrollLink>
               </li>

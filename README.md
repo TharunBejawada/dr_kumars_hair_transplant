@@ -32,6 +32,7 @@ Home page built from the Figma frame at 1440px with responsive tablet/mobile lay
 - `/admin` – sign-in, dashboard, appointment bookings (status + notes), blogs (add / list / edit / delete).
 - Blog fields mirror the TX Hospitals admin (image, title, categories, author, timeline, rich-text sections, FAQs, SEO, URL) minus branch, plus **status** (draft / scheduled / published / inactive) and **publish date-time (IST)**.
 - Scheduling needs no cron: a blog is public when `status` is published/scheduled **and** `publishAt <= now`, evaluated on every public request (cached ≤60 s).
+- Public pages: `/blogs` (search, category filter, load more) and `/blogs/{url}` (sections, FAQs, share links, related posts, medical disclaimer, SEO metadata, Article + FAQ JSON-LD, sitemap). Only live blogs resolve; drafts, inactive and not-yet-due scheduled blogs return 404. Lists are cached ~30 s per server instance.
 - Public API: `GET /api/blogs`, `GET /api/blogs/{url}` (live blogs only). Images are served via `/api/media/*` from a private S3 bucket.
 - Auth: bcrypt password hashes in DynamoDB, 8 h JWT (HS256) in an httpOnly, Secure, SameSite=Strict cookie, middleware + per-handler verification, same-origin checks on mutations, login rate-limit and 5-attempt/15-min lockout, sanitised rich text.
 - Superadmin: set `SEED_ADMIN_EMAIL`/`SEED_ADMIN_PASSWORD` in Amplify, sign in once, then delete both variables. Credentials are never committed.

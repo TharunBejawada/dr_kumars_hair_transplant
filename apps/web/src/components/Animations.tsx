@@ -32,11 +32,13 @@ export default function Animations() {
 
     const ctx = gsap.context(() => {
       // Hero intro plays on load, not on scroll.
-      const intro = gsap.timeline({ defaults: { ease: "power3.out" }, delay: 0.15 });
-      intro
-        .from("[data-hero-img]", { x: -120, opacity: 0, duration: 1.2 })
-        .from("[data-hero-line]", { yPercent: 110, opacity: 0, duration: 0.9, stagger: 0.14 }, "-=0.8")
-        .from("[data-hero-sub]", { y: 24, opacity: 0, duration: 0.8 }, "-=0.5");
+      if (document.querySelector("[data-hero-line]")) {
+        const intro = gsap.timeline({ defaults: { ease: "power3.out" }, delay: 0.15 });
+        intro
+          .from("[data-hero-img]", { x: -120, opacity: 0, duration: 1.2 })
+          .from("[data-hero-line]", { yPercent: 110, opacity: 0, duration: 0.9, stagger: 0.14 }, "-=0.8")
+          .from("[data-hero-sub]", { y: 24, opacity: 0, duration: 0.8 }, "-=0.5");
+      }
 
       const staggerParents = new Set<Element>();
       gsap.utils.toArray<HTMLElement>("[data-stagger]").forEach((parent) => {
