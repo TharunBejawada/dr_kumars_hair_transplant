@@ -46,7 +46,7 @@ export default async function Dashboard() {
           <ul className="mt-3 divide-y">
             {appts.slice(0, 6).map((a) => (
               <li key={a.id} className="flex items-center justify-between gap-3 py-2.5 text-[14px]">
-                <div className="min-w-0"><p className="truncate font-medium">{a.name}</p><p className="text-gray-500">{a.phone} · prefers {a.preferredDate}</p></div>
+                <div className="min-w-0"><p className="truncate font-medium">{a.name}</p><p className="text-gray-500">{a.phone}{a.preferredDate ? ` · prefers ${a.preferredDate}` : ""}{a.concern ? ` · ${a.concern}` : ""}</p></div>
                 <span className="shrink-0 rounded-full bg-brand/10 px-2.5 py-0.5 text-[12px] font-medium capitalize text-brand">{a.status}</span>
               </li>
             ))}

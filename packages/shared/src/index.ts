@@ -5,20 +5,44 @@ import { z } from "zod";
 export const appointmentStatuses = ["new", "contacted", "confirmed", "completed", "cancelled"] as const;
 export type AppointmentStatus = (typeof appointmentStatuses)[number];
 
-/** Appointment request submitted from the public home page. Shared by the form (client) and API (server). */
+export const appointmentConcerns = [
+  "Hair Loss & Thinning",
+  "Acne & Skin Problems",
+  "Pigmentation & Dark Spots",
+  "Anti-Ageing & Aesthetic Care",
+  "Other",
+] as const;
+
+/**
+ * Server-side schema for appointment requests (home-page form and the consultation popup).
+ * Lenient on email/date (the popup doesn't require them); each form enforces its own stricter rules client-side.
+ */
 export const appointmentSchema = z.object({
   name: z.string().trim().min(2, "Please enter your name").max(100),
-  email: z.string().trim().email("Enter a valid email").max(200),
+  email: z.union([z.literal(""), z.string().trim().email("Enter a valid email").max(200)]).optional().default(""),
   phone: z
     .string()
     .trim()
     .regex(/^\+?[0-9\s-]{7,15}$/, "Enter a valid phone number"),
-  preferredDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Choose a preferred date"),
+  preferredDate: z.union([z.literal(""), z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Choose a valid date")]).optional().default(""),
+  concern: z.enum(appointmentConcerns).optional(),
   message: z.string().trim().max(1000).optional().default(""),
+  source: z.enum(["home", "popup"]).optional().default("home"),
   /** Honeypot: real users never fill this. */
   website: z.string().max(0).optional().default(""),
 });
 export type AppointmentInput = z.infer<typeof appointmentSchema>;
+
+/** Home-page form: email and preferred date are mandatory. */
+export const appointmentFormSchema = appointmentSchema.extend({
+  email: z.string().trim().email("Enter a valid email").max(200),
+  preferredDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Choose a preferred date"),
+});
+
+/** Consultation popup: name, phone and concern are mandatory. */
+export const popupFormSchema = appointmentSchema.extend({
+  concern: z.enum(appointmentConcerns, { message: "Select your concern" }),
+});
 
 export const appointmentUpdateSchema = z.object({
   status: z.enum(appointmentStatuses).optional(),

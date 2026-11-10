@@ -17,7 +17,7 @@ export const clinic = {
 
 export const nav = [
   { label: "Home", href: "#home" },
-  { label: "About Us", href: "#about" },
+  { label: "About Us", href: "/about" },
   { label: "Hair", href: "#treatments", tab: "Hair" },
   { label: "Skin & Cosmetic", href: "#treatments", tab: "Skin" },
   { label: "Dermatology", href: "#dermatology" },

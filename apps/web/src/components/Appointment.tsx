@@ -3,14 +3,14 @@
 import Image from "next/image";
 import { useState } from "react";
 import { FaArrowRight } from "react-icons/fa6";
-import { appointmentSchema } from "@drkumar/shared";
+import { appointmentFormSchema } from "@drkumar/shared";
 import { clinic } from "@/lib/content";
 
 type Status = "idle" | "sending" | "done" | "error";
 const field =
   "h-[38px] w-full rounded-[7px] border border-ink bg-white px-[20px] text-[12px] outline-none transition-shadow placeholder:text-ink focus:border-brand focus:shadow-[0_0_0_3px_rgba(11,147,136,0.2)]";
 
-export default function Appointment() {
+export default function Appointment({ gapAbove = 31, gapBelow = 23 }: { gapAbove?: number; gapBelow?: number }) {
   const [status, setStatus] = useState<Status>("idle");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [serverMsg, setServerMsg] = useState("");
@@ -19,7 +19,7 @@ export default function Appointment() {
     e.preventDefault();
     const form = e.currentTarget;
     const raw = Object.fromEntries(new FormData(form)) as Record<string, string>;
-    const parsed = appointmentSchema.safeParse(raw);
+    const parsed = appointmentFormSchema.safeParse(raw);
     if (!parsed.success) {
       const map: Record<string, string> = {};
       parsed.error.issues.forEach((i) => (map[String(i.path[0])] ??= i.message));
@@ -32,7 +32,7 @@ export default function Appointment() {
       const res = await fetch("/api/appointments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(parsed.data),
+        body: JSON.stringify({ ...parsed.data, source: "home" }),
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(body.error ?? "Something went wrong. Please call us instead.");
@@ -48,7 +48,7 @@ export default function Appointment() {
   const today = new Date().toISOString().slice(0, 10);
 
   return (
-    <section id="contact" className="mb-[23px] mt-[31px] bg-mint-2 pb-[37px] pt-[27px]">
+    <section id="contact" style={{ marginTop: gapAbove, marginBottom: gapBelow }} className="bg-mint-2 pb-[37px] pt-[27px]">
       <div className="mx-auto grid max-w-[1440px] gap-[9px] px-5 md:px-8 lg:grid-cols-2 xl:pl-[134px] xl:pr-[101px]">
         <div data-reveal="left" className="rounded-[16px] bg-white px-[25px] py-[33px] lg:h-[438px]">
           <p className="text-[14px] font-medium uppercase leading-[21px] tracking-[3.2px] text-brand-2 md:text-[16px]">Book an Appointment</p>
