@@ -1,0 +1,9 @@
+node_modules
+.next
+.turbo
+.env*
+!.env.example
+amplify_outputs.json
+.amplify
+*.tsbuildinfo
+.DS_Store
