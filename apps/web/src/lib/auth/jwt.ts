@@ -6,6 +6,8 @@ export const SESSION_SECONDS = 8 * 60 * 60;
 export interface Session {
   email: string;
   role: "superadmin" | "admin";
+  /** Issued-at (epoch seconds) – used to invalidate sessions after a password change. */
+  iat: number;
 }
 
 function secret() {
@@ -14,7 +16,7 @@ function secret() {
   return new TextEncoder().encode(s);
 }
 
-export async function signSession(s: Session) {
+export async function signSession(s: Pick<Session, "email" | "role">) {
   return new SignJWT({ role: s.role })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(s.email)
@@ -35,7 +37,7 @@ export async function verifySession(token: string | undefined | null): Promise<S
       audience: "drkumar-admin",
     });
     if (!payload.sub || (payload.role !== "superadmin" && payload.role !== "admin")) return null;
-    return { email: payload.sub, role: payload.role };
+    return { email: payload.sub, role: payload.role, iat: payload.iat ?? 0 };
   } catch {
     return null;
   }

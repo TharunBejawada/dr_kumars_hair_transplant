@@ -39,6 +39,29 @@ export const loginSchema = z.object({
   password: z.string().min(1).max(200),
 });
 
+/** Password rules for admin accounts. */
+export const passwordRules = [
+  { id: "len", label: "At least 10 characters", test: (p: string) => p.length >= 10 },
+  { id: "lower", label: "A lowercase letter", test: (p: string) => /[a-z]/.test(p) },
+  { id: "upper", label: "An uppercase letter", test: (p: string) => /[A-Z]/.test(p) },
+  { id: "digit", label: "A number", test: (p: string) => /\d/.test(p) },
+  { id: "special", label: "A special character", test: (p: string) => /[^A-Za-z0-9]/.test(p) },
+] as const;
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Enter your current password").max(200),
+    newPassword: z.string().max(128, "Too long"),
+  })
+  .superRefine((v, ctx) => {
+    if (!passwordRules.every((r) => r.test(v.newPassword))) {
+      ctx.addIssue({ code: "custom", path: ["newPassword"], message: "Password doesn't meet the requirements" });
+    }
+    if (v.newPassword === v.currentPassword) {
+      ctx.addIssue({ code: "custom", path: ["newPassword"], message: "New password must be different from the current one" });
+    }
+  });
+
 /* ───────────── Blogs ───────────── */
 
 /** draft = not public · scheduled = goes live at publishAt · published = live · inactive = hidden */

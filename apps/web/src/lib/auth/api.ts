@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { COOKIE_NAME, verifySession, type Session } from "./jwt";
+import { isSessionCurrent } from "../db/users";
 
 export const json = (body: unknown, status = 200, headers?: HeadersInit) =>
   NextResponse.json(body, { status, headers: { "Cache-Control": "no-store", ...headers } });
@@ -24,7 +25,7 @@ export function withAdmin<P = Record<string, string>>(
   return async (req: NextRequest, ctx: Ctx<P>) => {
     if (!sameOrigin(req)) return json({ error: "Forbidden" }, 403);
     const session = await verifySession(req.cookies.get(COOKIE_NAME)?.value).catch(() => null);
-    if (!session) return json({ error: "Unauthorized" }, 401);
+    if (!session || !(await isSessionCurrent(session).catch(() => false))) return json({ error: "Unauthorized" }, 401);
     try {
       return await handler(req, session, ctx);
     } catch (e) {

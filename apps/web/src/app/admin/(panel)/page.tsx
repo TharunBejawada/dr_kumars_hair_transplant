@@ -26,7 +26,13 @@ export default async function Dashboard() {
 
   return (
     <div className="mx-auto max-w-[1100px]">
-      <h1 className="text-[26px] font-semibold">Dashboard</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-[26px] font-semibold">Dashboard</h1>
+        <div className="flex gap-2">
+          <Link href="/admin/blogs/new" className="rounded-lg bg-brand px-4 py-2 text-[14px] font-semibold text-white hover:bg-brand-2">+ New blog</Link>
+          <Link href="/admin/appointments" className="rounded-lg border border-brand px-4 py-2 text-[14px] font-semibold text-brand hover:bg-brand/5">View appointments</Link>
+        </div>
+      </div>
       <div className="mt-5 grid grid-cols-2 gap-4 lg:grid-cols-4">
         <Stat label="New appointments" value={appts.filter((a) => a.status === "new").length} href="/admin/appointments" tone="text-red-600" />
         <Stat label="Total appointments" value={appts.length} href="/admin/appointments" />

@@ -1,11 +1,12 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { blogStatuses, type Blog, type BlogStatus } from "@drkumar/shared";
 import { isoToIstInput, istInputToIso, slugify } from "@/lib/ist";
 import { uploadImage } from "@/lib/upload-client";
 import RichTextEditor from "./RichTextEditor";
+import { useToast } from "./Toast";
 
 type Section = { heading: string; description: string };
 type Faq = { question: string; answer: string };
@@ -22,6 +23,8 @@ const card = "rounded-xl bg-white p-5 shadow-sm md:p-6";
 
 export default function BlogForm({ blog }: { blog?: Blog }) {
   const router = useRouter();
+  const toast = useToast();
+  const [dirty, setDirty] = useState(false);
   const [title, setTitle] = useState(blog?.blogTitle ?? "");
   const [url, setUrl] = useState(blog?.url ?? "");
   const urlTouched = useRef(!!blog);
@@ -42,6 +45,14 @@ export default function BlogForm({ blog }: { blog?: Blog }) {
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
+
+  // Warn before leaving with unsaved changes.
+  useEffect(() => {
+    if (!dirty) return;
+    const h = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = ""; };
+    window.addEventListener("beforeunload", h);
+    return () => window.removeEventListener("beforeunload", h);
+  }, [dirty]);
 
   const err = (k: string) => errors[k]?.[0] && <p role="alert" className="mt-1 text-[13px] text-red-600">{errors[k][0]}</p>;
 
@@ -78,12 +89,15 @@ export default function BlogForm({ blog }: { blog?: Blog }) {
     const data = await res?.json().catch(() => ({}));
     setBusy(false);
     if (res?.ok) {
-      setMessage({ ok: true, text: "Saved." });
+      setDirty(false);
+      toast(blog ? "Blog updated" : status === "scheduled" ? "Blog scheduled" : status === "published" ? "Blog published" : "Blog saved");
+      setMessage(null);
       if (!blog) router.replace(`/admin/blogs/${data.blog.id}`);
       else router.refresh();
       return;
     }
     setErrors(data?.issues ?? {});
+    toast(data?.error ?? "Could not save. Please try again.", "error");
     setMessage({ ok: false, text: data?.error ?? "Could not save. Please try again." });
   }
 
@@ -93,7 +107,7 @@ export default function BlogForm({ blog }: { blog?: Blog }) {
   };
 
   return (
-    <form onSubmit={onSubmit} className="space-y-5">
+    <form onSubmit={onSubmit} onChangeCapture={() => setDirty(true)} onInputCapture={() => setDirty(true)} className="space-y-5">
       {/* Publishing */}
       <section className={card}>
         <h2 className="mb-3 text-[17px] font-semibold">Publishing</h2>
@@ -205,11 +219,11 @@ export default function BlogForm({ blog }: { blog?: Blog }) {
       <section className={card}>
         <h2 className="mb-3 text-[17px] font-semibold">SEO</h2>
         <div className="grid gap-4">
-          <div><label className={label} htmlFor="seoTitle">SEO title</label><input id="seoTitle" value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} className={field} /></div>
-          <div><label className={label} htmlFor="metaDescription">Meta description</label><textarea id="metaDescription" rows={2} value={metaDescription} onChange={(e) => setMetaDescription(e.target.value)} className={field} /></div>
+          <div><label className={label} htmlFor="seoTitle">SEO title</label><input id="seoTitle" value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} className={field} /><p className={`mt-1 text-[12px] ${seoTitle.length > 60 ? "text-amber-600" : "text-gray-500"}`}>{seoTitle.length}/60 characters recommended</p></div>
+          <div><label className={label} htmlFor="metaDescription">Meta description</label><textarea id="metaDescription" rows={2} value={metaDescription} onChange={(e) => setMetaDescription(e.target.value)} className={field} /><p className={`mt-1 text-[12px] ${metaDescription.length > 160 ? "text-amber-600" : "text-gray-500"}`}>{metaDescription.length}/160 characters recommended</p></div>
           <div><label className={label} htmlFor="metaKeywords">Meta keywords</label><input id="metaKeywords" value={metaKeywords} onChange={(e) => setMetaKeywords(e.target.value)} className={field} /></div>
           <div><label className={label} htmlFor="url">URL (slug)</label>
-            <div className="flex items-center gap-2"><span className="text-gray-500">/blogs/</span><input id="url" value={url} onChange={(e) => { urlTouched.current = true; setUrl(slugify(e.target.value)); }} className={field} placeholder="my-blog-url" /></div>
+            <div className="flex items-center gap-2"><span className="whitespace-nowrap text-gray-500">/blogs/</span><input id="url" value={url} onChange={(e) => { urlTouched.current = true; setUrl(slugify(e.target.value)); }} className={field} placeholder="my-blog-url" /></div>
             {err("url")}</div>
         </div>
       </section>
@@ -218,7 +232,9 @@ export default function BlogForm({ blog }: { blog?: Blog }) {
         <button disabled={busy || uploading} className="rounded-lg bg-brand px-8 py-3 text-[16px] font-semibold text-white hover:bg-brand-2 disabled:opacity-60">
           {busy ? "Saving…" : blog ? "Save changes" : status === "scheduled" ? "Schedule blog" : status === "published" ? "Publish blog" : "Save blog"}
         </button>
-        <button type="button" onClick={() => router.push("/admin/blogs")} className="rounded-lg border border-gray-300 px-6 py-3 font-medium">Back to list</button>
+        <button type="button" onClick={() => { if (dirty && !confirm("Discard unsaved changes?")) return; router.push("/admin/blogs"); }} className="rounded-lg border border-gray-300 px-6 py-3 font-medium">Back to list</button>
+        {blog && blog.status !== "draft" && blog.status !== "inactive" && new Date(blog.publishAt ?? 0) <= new Date() && <a href={`/blogs/${blog.url}`} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-brand px-6 py-3 font-medium text-brand">View live ↗</a>}
+        {dirty && <span className="text-[13px] text-amber-600">Unsaved changes</span>}
         {message && <p role="status" className={`text-[14px] ${message.ok ? "text-green-700" : "text-red-600"}`}>{message.text}</p>}
       </div>
     </form>

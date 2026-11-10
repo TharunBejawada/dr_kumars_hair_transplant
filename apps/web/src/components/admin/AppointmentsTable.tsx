@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { appointmentStatuses, type Appointment, type AppointmentStatus } from "@drkumar/shared";
 import { formatIst } from "@/lib/ist";
+import { useToast } from "./Toast";
+import { useConfirm } from "./Confirm";
 
 const tone: Record<AppointmentStatus, string> = {
   new: "bg-red-50 text-red-700", contacted: "bg-amber-50 text-amber-700", confirmed: "bg-blue-50 text-blue-700",
@@ -13,7 +15,8 @@ export default function AppointmentsTable({ initial }: { initial: Appointment[] 
   const [rows, setRows] = useState(initial);
   const [filter, setFilter] = useState<AppointmentStatus | "all">("all");
   const [q, setQ] = useState("");
-  const [err, setErr] = useState("");
+  const toast = useToast();
+  const confirm = useConfirm();
 
   const shown = useMemo(
     () => rows.filter((r) => (filter === "all" || r.status === filter) && (!q || `${r.name} ${r.email} ${r.phone}`.toLowerCase().includes(q.toLowerCase()))),
@@ -21,17 +24,17 @@ export default function AppointmentsTable({ initial }: { initial: Appointment[] 
   );
 
   async function patch(id: string, body: { status?: AppointmentStatus; notes?: string }) {
-    setErr("");
     const res = await fetch(`/api/admin/appointments/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-    if (!res.ok) return setErr("Could not update. Please refresh and retry.");
+    if (!res.ok) return toast("Could not update. Please refresh and retry.", "error");
     const { appointment } = await res.json();
     setRows((r) => r.map((x) => (x.id === id ? { ...x, ...appointment } : x)));
+    toast(body.status ? `Marked as ${body.status}` : "Note saved");
   }
   async function remove(id: string) {
-    if (!confirm("Delete this appointment request permanently?")) return;
+    if (!(await confirm({ title: "Delete this appointment?", message: "This request will be permanently removed.", confirmLabel: "Delete", danger: true }))) return;
     const res = await fetch(`/api/admin/appointments/${id}`, { method: "DELETE" });
-    if (res.ok) setRows((r) => r.filter((x) => x.id !== id));
-    else setErr("Could not delete.");
+    if (res.ok) { setRows((r) => r.filter((x) => x.id !== id)); toast("Appointment deleted"); }
+    else toast("Could not delete.", "error");
   }
 
   return (
@@ -44,7 +47,6 @@ export default function AppointmentsTable({ initial }: { initial: Appointment[] 
         </select>
         <span className="text-[13px] text-gray-500">{shown.length} of {rows.length}</span>
       </div>
-      {err && <p role="alert" className="mt-3 text-[14px] text-red-600">{err}</p>}
       <div className="mt-4 overflow-x-auto rounded-xl bg-white shadow-sm">
         <table className="w-full min-w-[900px] text-left text-[14px]">
           <thead className="border-b bg-gray-50 text-[12px] uppercase tracking-wider text-gray-500">

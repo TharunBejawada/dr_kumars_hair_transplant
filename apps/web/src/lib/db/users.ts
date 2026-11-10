@@ -10,6 +10,8 @@ export interface AdminUser {
   lockedUntil?: number; // epoch ms
   createdAt: string;
   lastLoginAt?: string;
+  /** Epoch seconds. Sessions issued before this are no longer valid. */
+  passwordChangedAt?: number;
 }
 
 export const MAX_ATTEMPTS = 5;
@@ -74,4 +76,21 @@ export async function recordSuccess(email: string) {
 export async function countUsers() {
   const r = await db().send(new ScanCommand({ TableName: tableName("ADMIN_USERS_TABLE"), Select: "COUNT" }));
   return r.Count ?? 0;
+}
+
+/** A session is valid only if the user still exists and the password wasn't changed after the token was issued. */
+export async function isSessionCurrent(s: { email: string; iat: number }) {
+  const user = await getUser(s.email);
+  return !!user && !(user.passwordChangedAt && s.iat < user.passwordChangedAt);
+}
+
+export async function setPassword(email: string, newPassword: string) {
+  await db().send(
+    new UpdateCommand({
+      TableName: tableName("ADMIN_USERS_TABLE"),
+      Key: { email },
+      UpdateExpression: "SET passwordHash = :h, passwordChangedAt = :t, failedAttempts = :z, lockedUntil = :z",
+      ExpressionAttributeValues: { ":h": await hashPassword(newPassword), ":t": Math.floor(Date.now() / 1000), ":z": 0 },
+    }),
+  );
 }
