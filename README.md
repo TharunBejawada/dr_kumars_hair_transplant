@@ -28,6 +28,11 @@ Security headers (HSTS, nosniff, frame, referrer) in `next.config.ts`; same-orig
 ## Design notes
 Home page built from the Figma frame at 1440px with responsive tablet/mobile layouts. The "Hair/Body/Sti Care" treatment tabs have no Figma design yet (placeholder content from the footer lists). The design's "APPOINTEMNT" typo is corrected.
 
+## Pages
+- `/` home, `/about` About Us (Figma frame 1:269), `/blogs` + `/blogs/{url}`.
+- **Consultation popup** (`components/ConsultationPopup.tsx`) is mounted on every public page (never in `/admin`): opens 5 s after first landing (the timer survives navigation); closing it (X / Esc / backdrop) or booking hides it for the rest of the browser-tab session (`sessionStorage`). Submissions go to the same Appointments table with `concern` and `source: popup`.
+- The About page's doctor photo slot is hidden in the Figma file, so it currently reuses the home-page doctor image.
+
 ## Admin & blogs
 - `/admin` – sign-in, dashboard, appointment bookings (status + notes), blogs (add / list / edit / delete).
 - Blog fields mirror the TX Hospitals admin (image, title, categories, author, timeline, rich-text sections, FAQs, SEO, URL) minus branch, plus **status** (draft / scheduled / published / inactive) and **publish date-time (IST)**.

@@ -57,9 +57,10 @@ export default function AppointmentsTable({ initial }: { initial: Appointment[] 
               <tr key={r.id}>
                 <td className="whitespace-nowrap p-3 text-gray-600">{formatIst(r.createdAt)}</td>
                 <td className="p-3 font-medium">{r.name}</td>
-                <td className="p-3"><a href={`tel:${r.phone}`} className="text-brand">{r.phone}</a><br /><a href={`mailto:${r.email}`} className="break-all text-gray-600">{r.email}</a></td>
-                <td className="whitespace-nowrap p-3">{r.preferredDate}</td>
+                <td className="p-3"><a href={`tel:${r.phone}`} className="text-brand">{r.phone}</a><br />{r.email && <a href={`mailto:${r.email}`} className="break-all text-gray-600">{r.email}</a>}</td>
+                <td className="whitespace-nowrap p-3">{r.preferredDate || "—"}</td>
                 <td className="max-w-[280px] p-3">
+                  {r.concern && <p className="mb-1 text-[12px] font-semibold text-brand">{r.concern}{r.source === "popup" ? " · via popup" : ""}</p>}
                   {r.message && <p className="mb-1 whitespace-pre-wrap text-gray-700">{r.message}</p>}
                   <input defaultValue={r.notes ?? ""} placeholder="Add internal note…" onBlur={(e) => e.target.value !== (r.notes ?? "") && patch(r.id, { notes: e.target.value })} className="w-full rounded border border-gray-200 px-2 py-1 text-[13px] outline-none focus:border-brand" />
                 </td>

@@ -52,3 +52,7 @@ html.anim [data-reveal] { opacity: 0; will-change: transform, opacity; }
 @keyframes shimmer { 100% { transform: translateX(100%); } }
 .skeleton { position: relative; overflow: hidden; background: #e6ecec; border-radius: 10px; }
 .skeleton::after { content: ""; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, rgba(255,255,255,.6), transparent); animation: shimmer 1.3s infinite; }
+
+@keyframes popup-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes popup-pop { from { opacity: 0; transform: translateY(24px) scale(.96); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { [role=dialog], [role=dialog] * { animation: none !important; } }

@@ -11,6 +11,7 @@ import Results from "@/components/Results";
 import Appointment from "@/components/Appointment";
 import Footer from "@/components/Footer";
 import FloatingContact from "@/components/FloatingContact";
+import ConsultationPopup from "@/components/ConsultationPopup";
 import { clinic } from "@/lib/content";
 
 const jsonLd = {
@@ -50,6 +51,7 @@ export default function Home() {
       </main>
       <Footer />
       <FloatingContact />
+      <ConsultationPopup />
     </>
   );
 }

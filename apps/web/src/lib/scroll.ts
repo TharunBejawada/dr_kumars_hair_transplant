@@ -14,3 +14,9 @@ export function scrollToHash(hash: string, offset = -50) {
   history.replaceState(null, "", hash);
   return true;
 }
+
+/** Freeze page scrolling (modals): stops Lenis and the native scrollbar. */
+export function setScrollLocked(locked: boolean) {
+  if (locked) lenis?.stop(); else lenis?.start();
+  document.documentElement.style.overflow = locked ? "hidden" : "";
+}
