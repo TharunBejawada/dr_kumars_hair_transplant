@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  --color-brand: #0b9388;
+  --color-brand-2: #0f998e;
+  --color-brand-3: #1aab9f;
+  --color-brand-light: #6cc9c1;
+  --color-mint: #f4fffe;
+  --color-mint-2: #f9fffe;
+  --color-ink: #100000;
+  --color-chip: #f0efef;
+  --color-foot-card: #0c9287;
+  --color-foot-bar: #128d82;
+}
+
+html { scroll-behavior: auto; }
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+html { overflow-x: clip; }
+body {
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background: #fff;
+  letter-spacing: 0.2px;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+/* Scroll-reveal initial state: only hidden when JS animations are active (set by inline script in layout). */
+html.anim [data-reveal] { opacity: 0; will-change: transform, opacity; }
+
+:focus-visible { outline: 2px solid var(--color-brand); outline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  html.anim [data-reveal] { opacity: 1 !important; transform: none !important; }
+}

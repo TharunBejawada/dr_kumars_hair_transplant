@@ -1,0 +1,28 @@
+version: 1
+applications:
+  - appRoot: apps/web
+    backend:
+      phases:
+        build:
+          commands:
+            - npm install -g pnpm@10.28.0
+            - cd ../.. && pnpm install --frozen-lockfile && cd apps/web
+            - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - npm install -g pnpm@10.28.0
+            - cd ../.. && pnpm install --frozen-lockfile && cd apps/web
+        build:
+          commands:
+            # Server-side env vars must be written to .env.production to be visible to SSR functions
+            - env | grep -E '^(APPOINTMENTS_TABLE|ADMIN_USERS_TABLE|APP_AWS_REGION|JWT_|NEXT_PUBLIC_)' >> .env.production || true
+            - pnpm run build
+      artifacts:
+        baseDirectory: .next
+        files: ['**/*']
+      cache:
+        paths:
+          - ../../node_modules/**/*
+          - .next/cache/**/*
