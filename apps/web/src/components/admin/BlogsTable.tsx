@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { blogDisplayState, type Blog, type BlogDisplayState } from "@drkumar/shared";
 import { formatIst } from "@/lib/ist";
+import { useToast } from "./Toast";
+import { useConfirm } from "./Confirm";
 
 const tone: Record<BlogDisplayState, string> = {
   live: "bg-green-50 text-green-700", scheduled: "bg-amber-50 text-amber-700", draft: "bg-gray-100 text-gray-600", inactive: "bg-red-50 text-red-700",
@@ -13,7 +15,8 @@ export default function BlogsTable({ initial }: { initial: Blog[] }) {
   const [rows, setRows] = useState(initial);
   const [filter, setFilter] = useState<BlogDisplayState | "all">("all");
   const [q, setQ] = useState("");
-  const [err, setErr] = useState("");
+  const toast = useToast();
+  const confirm = useConfirm();
   const now = new Date();
 
   const shown = useMemo(
@@ -22,10 +25,10 @@ export default function BlogsTable({ initial }: { initial: Blog[] }) {
   );
 
   async function remove(b: Blog) {
-    if (!confirm(`Delete "${b.blogTitle}" permanently?`)) return;
+    if (!(await confirm({ title: "Delete this blog?", message: `"${b.blogTitle}" will be permanently removed.`, confirmLabel: "Delete", danger: true }))) return;
     const res = await fetch(`/api/admin/blogs/${b.id}`, { method: "DELETE" });
-    if (res.ok) setRows((r) => r.filter((x) => x.id !== b.id));
-    else setErr("Could not delete.");
+    if (res.ok) { setRows((r) => r.filter((x) => x.id !== b.id)); toast("Blog deleted"); }
+    else toast("Could not delete.", "error");
   }
 
   return (
@@ -36,7 +39,6 @@ export default function BlogsTable({ initial }: { initial: Blog[] }) {
           <option value="all">All</option><option value="live">Live</option><option value="scheduled">Scheduled</option><option value="draft">Draft</option><option value="inactive">Inactive</option>
         </select>
       </div>
-      {err && <p role="alert" className="mt-3 text-[14px] text-red-600">{err}</p>}
       <div className="mt-4 overflow-x-auto rounded-xl bg-white shadow-sm">
         <table className="w-full min-w-[820px] text-left text-[14px]">
           <thead className="border-b bg-gray-50 text-[12px] uppercase tracking-wider text-gray-500">
@@ -58,7 +60,7 @@ export default function BlogsTable({ initial }: { initial: Blog[] }) {
                   <td className="p-3"><span className={`rounded-full px-2.5 py-1 text-[12px] font-semibold capitalize ${tone[s]}`}>{s}</span></td>
                   <td className="whitespace-nowrap p-3 text-gray-600">{formatIst(b.publishAt)}</td>
                   <td className="whitespace-nowrap p-3 text-gray-600">{formatIst(b.modifiedAt)}</td>
-                  <td className="whitespace-nowrap p-3 text-right"><Link href={`/admin/blogs/${b.id}`} className="mr-3 font-medium text-brand">Edit</Link><button onClick={() => remove(b)} className="text-red-600 hover:underline">Delete</button></td>
+                  <td className="whitespace-nowrap p-3 text-right">{s === "live" && <a href={`/blogs/${b.url}`} target="_blank" rel="noopener noreferrer" className="mr-3 text-gray-600 hover:text-brand">View ↗</a>}<Link href={`/admin/blogs/${b.id}`} className="mr-3 font-medium text-brand">Edit</Link><button onClick={() => remove(b)} className="text-red-600 hover:underline">Delete</button></td>
                 </tr>
               );
             })}

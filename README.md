@@ -35,6 +35,7 @@ Home page built from the Figma frame at 1440px with responsive tablet/mobile lay
 - Public pages: `/blogs` (search, category filter, load more) and `/blogs/{url}` (sections, FAQs, share links, related posts, medical disclaimer, SEO metadata, Article + FAQ JSON-LD, sitemap). Only live blogs resolve; drafts, inactive and not-yet-due scheduled blogs return 404. Lists are cached ~30 s per server instance.
 - Public API: `GET /api/blogs`, `GET /api/blogs/{url}` (live blogs only). Images are served via `/api/media/*` from a private S3 bucket.
 - Auth: bcrypt password hashes in DynamoDB, 8 h JWT (HS256) in an httpOnly, Secure, SameSite=Strict cookie, middleware + per-handler verification, same-origin checks on mutations, login rate-limit and 5-attempt/15-min lockout, sanitised rich text.
+- Change password at `/admin/account`: verifies the current password (wrong attempts count toward the lockout), enforces the password rules, and signs out every other session (tokens issued before the change are rejected on the next request).
 - Superadmin: set `SEED_ADMIN_EMAIL`/`SEED_ADMIN_PASSWORD` in Amplify, sign in once, then delete both variables. Credentials are never committed.
 
 ### Local development

@@ -47,3 +47,8 @@ html.anim [data-reveal] { opacity: 0; will-change: transform, opacity; }
 .prose-editor ol, .blog-content ol { list-style: decimal; padding-left: 1.5rem; margin: .5rem 0; }
 .prose-editor a, .blog-content a { color: var(--color-brand); text-decoration: underline; }
 .prose-editor img, .blog-content img { max-width: 100%; height: auto; border-radius: 8px; margin: .75rem 0; }
+
+@keyframes toast-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes shimmer { 100% { transform: translateX(100%); } }
+.skeleton { position: relative; overflow: hidden; background: #e6ecec; border-radius: 10px; }
+.skeleton::after { content: ""; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, rgba(255,255,255,.6), transparent); animation: shimmer 1.3s infinite; }
