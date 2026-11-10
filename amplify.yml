@@ -17,7 +17,7 @@ applications:
         build:
           commands:
             # Server-side env vars must be written to .env.production to be visible to SSR functions
-            - env | grep -E '^(APPOINTMENTS_TABLE|ADMIN_USERS_TABLE|APP_AWS_REGION|JWT_|NEXT_PUBLIC_)' >> .env.production || true
+            - env | grep -E '^(APPOINTMENTS_TABLE|ADMIN_USERS_TABLE|BLOGS_TABLE|S3_MEDIA_BUCKET|APP_AWS_REGION|JWT_|SEED_ADMIN_|NEXT_PUBLIC_)' >> .env.production || true
             - pnpm run build
       artifacts:
         baseDirectory: .next
