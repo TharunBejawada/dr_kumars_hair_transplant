@@ -11,6 +11,7 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   transpilePackages: ["@drkumar/shared"],
   poweredByHeader: false,
+  devIndicators: false,
   images: { formats: ["image/avif", "image/webp"] },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];

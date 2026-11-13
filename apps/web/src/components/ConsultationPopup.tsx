@@ -14,14 +14,19 @@ const read = (k: string) => { try { return sessionStorage.getItem(k); } catch { 
 const write = (k: string, v: string) => { try { sessionStorage.setItem(k, v); } catch { /* private mode: popup may show again, acceptable */ } };
 
 const labelPos = [
-  { left: 36, width: 78, text: "Hair Loss &\nThinning" },
-  { left: 158, width: 95, text: "Acne & Skin\nProblems" },
-  { left: 298, width: 95, text: "Pigmentation\n& Dark Spots" },
-  { left: 414, width: 124, text: "Anti-Ageing\n& Aesthetic Care" },
+  { left: "13.5%", text: "Hair Loss &\nThinning" },
+  { left: "36.8%", text: "Acne & Skin\nProblems" },
+  { left: "61.4%", text: "Pigmentation\n& Dark Spots" },
+  { left: "85.5%", text: "Anti-Ageing\n& Aesthetic Care" },
 ];
-const trust = ["Consult an Experienced Dermatologist", "Convenient Appointment Scheduling", "Your Information is Confidential"];
 
-const box = "h-[38px] w-full rounded-[7px] border border-[#747474] bg-white px-[20px] text-[12px] outline-none transition-shadow placeholder:text-ink focus:border-brand focus:shadow-[0_0_0_3px_rgba(11,147,136,0.2)]";
+const trustBadges = [
+  { icon: "/images/about/popup-icon-1.webp", title: "Consult an", subtitle: "Experienced Dermatologist" },
+  { icon: "/images/about/popup-icon-2.webp", title: "Convenient", subtitle: "Appointment Scheduling" },
+  { icon: "/images/about/popup-icon-3.webp", title: "Your Information Is", subtitle: "Confidential" },
+];
+
+const box = "h-[36px] sm:h-[38px] w-full rounded-[7px] border border-[#747474]/60 bg-white px-[16px] text-[12px] outline-none transition-shadow placeholder:text-ink focus:border-brand focus:shadow-[0_0_0_3px_rgba(11,147,136,0.2)]";
 
 /**
  * Appears DELAY_MS after the visitor lands on any public page (the timer survives page navigation).
@@ -84,74 +89,184 @@ export default function ConsultationPopup() {
   const today = new Date().toISOString().slice(0, 10);
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-start justify-center overflow-y-auto bg-brand-light/50 p-4 backdrop-blur-[1px] md:items-center" onClick={dismiss} style={{ animation: "popup-fade .35s ease-out" }}>
-      <div role="dialog" aria-modal="true" aria-label="Book your consultation" onClick={(e) => e.stopPropagation()}
-        className="relative my-6 w-full max-w-[1180px] rounded-[16px] bg-[#fafdff] shadow-[0_20px_60px_rgba(0,0,0,0.25)] lg:h-[864px]" style={{ animation: "popup-pop .45s cubic-bezier(.2,.9,.3,1.2)" }}>
-        <button ref={closeBtn} onClick={dismiss} aria-label="Close" className="absolute -top-3 right-2 z-20 flex size-[43px] items-center justify-center rounded-full bg-brand text-white shadow-md transition hover:scale-110 hover:bg-brand-2 lg:-right-[3px] lg:top-[-7px]">
-          <FaXmark className="size-[18px]" />
-        </button>
+    <div
+      data-lenis-prevent
+      className="fixed inset-0 z-[80] overflow-y-auto overscroll-contain bg-black/60 p-3 sm:p-4 md:p-6 backdrop-blur-[2px] thin-scrollbar"
+      onClick={dismiss}
+      style={{ animation: "popup-fade .35s ease-out" }}
+    >
+      <div className="flex min-h-full items-center justify-center">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="consult-title"
+          data-lenis-prevent
+          onClick={(e) => e.stopPropagation()}
+          className="relative my-auto flex w-full max-w-[960px] flex-col overflow-hidden rounded-[16px] bg-[#fafdff] shadow-[0_20px_60px_rgba(0,0,0,0.25)] lg:h-[min(630px,90vh)] lg:flex-row xl:max-w-[1000px]"
+          style={{ animation: "popup-pop .45s cubic-bezier(.2,.9,.3,1.2)" }}
+        >
+          {/* Close button inside card */}
+          <button
+            ref={closeBtn}
+            onClick={dismiss}
+            aria-label="Close"
+            className="absolute right-3 top-3 z-30 flex size-[34px] sm:size-[38px] items-center justify-center rounded-full bg-brand text-white shadow-md transition hover:scale-105 hover:bg-brand-2 focus:outline-none focus:ring-2 focus:ring-brand/40"
+          >
+            <FaXmark className="size-[15px] sm:size-[16px]" />
+          </button>
 
-        {/* Left: image with headline (desktop only) */}
-        <div className="absolute inset-y-0 left-0 hidden w-[553px] overflow-hidden rounded-l-[16px] lg:block">
-          <Image src="/images/about/popup-image.webp" alt="" fill sizes="553px" className="object-cover object-top" aria-hidden />
-          <div className="absolute left-[50px] top-[37px] w-[480px]">
-            <p className="text-[16px] font-medium uppercase tracking-[2px] text-brand">Book an appointment</p>
-            <h2 id="consult-title" className="mt-[6px] text-[38px] font-bold leading-[48px] text-[#010101]">Hair &amp; Skin<br />Problem Specialist</h2>
-            <p className="mt-[8px] text-[16px] leading-[24px] text-[#3a4c4a]">Get expert care for your hair, skin and aesthetic concerns<br />from an experienced dermatologist.</p>
-          </div>
-          {labelPos.map((l) => (
-            <p key={l.text} className="absolute top-[765px] whitespace-pre-line text-center text-[12px] font-medium leading-[17px]" style={{ left: l.left, width: l.width }}>{l.text}</p>
-          ))}
-        </div>
+          {/* Left: image with headline (desktop only) */}
+          <div
+            className="relative hidden h-full shrink-0 overflow-hidden bg-[#eefffe] lg:block"
+            style={{ aspectRatio: "554 / 865", width: "calc(min(630px, 90vh) * 554 / 865)" }}
+          >
+            <Image
+              src="/images/about/popup-image.webp"
+              alt=""
+              fill
+              sizes="420px"
+              className="object-contain object-top"
+              aria-hidden
+              priority
+            />
 
-        {/* Right: form */}
-        <div className="relative px-6 py-10 lg:absolute lg:left-[630px] lg:top-[44px] lg:w-[472px] lg:p-0">
-          <h2 className="text-[26px] font-bold leading-[34px] text-[#010101] lg:hidden" id="consult-title-m">Book Your Consultation</h2>
-          <h3 className="hidden text-[34px] font-bold leading-[43px] text-[#010101] lg:block">Book Your Consultation</h3>
-          <p className="mt-2 text-[16px] leading-[24px] text-[#3e3e3e] lg:mt-[9px]">Fill in your details and our team will contact you to confirm your appointment.</p>
-
-          {status === "done" ? (
-            <div className="mt-10 rounded-[10px] bg-brand/10 p-6 text-center" role="status">
-              <p className="text-[20px] font-semibold text-brand">Thank you!</p>
-              <p className="mt-2 text-[15px]">We&apos;ve received your request and our team will call you shortly to confirm your appointment.</p>
-              <button onClick={() => setOpen(false)} className="mt-5 h-[40px] rounded-[5px] bg-brand-2 px-7 text-[16px] font-semibold text-white hover:bg-brand">Close</button>
+            {/* Top text */}
+            <div className="relative z-10 px-5 pt-4 xl:px-6 xl:pt-5">
+              <p className="text-[11.5px] font-semibold uppercase tracking-[2px] text-brand xl:text-[12.5px]">
+                Book an appointment
+              </p>
+              <h2 className="mt-0.5 text-[21px] font-bold leading-[27px] text-[#010101] xl:text-[24px] xl:leading-[31px]">
+                Hair &amp; Skin<br />Problem Specialist
+              </h2>
+              <p className="mt-1 text-[11.5px] leading-[16px] text-[#3a4c4a] xl:text-[12px] xl:leading-[17px]">
+                Get expert care for your hair, skin and aesthetic concerns from an experienced dermatologist.
+              </p>
             </div>
-          ) : (
-            <form onSubmit={onSubmit} noValidate className="mt-6 lg:mt-[24px]">
-              <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden className="absolute -left-[9999px] size-0 opacity-0" />
-              <div className="space-y-[21px]">
-                <label className="block"><span className="sr-only">Your name</span><input name="name" placeholder="Your Name" autoComplete="name" className={box} aria-invalid={!!errors.name} />{err("name")}</label>
-                <label className="block"><span className="sr-only">Phone number</span><input name="phone" type="tel" placeholder="Phone Number" autoComplete="tel" className={box} aria-invalid={!!errors.phone} />{err("phone")}</label>
-                <label className="block"><span className="sr-only">Email address</span><input name="email" type="email" placeholder="Email Address" autoComplete="email" className={box} aria-invalid={!!errors.email} />{err("email")}</label>
-                <label className="relative block"><span className="sr-only">Your concern</span>
-                  <select name="concern" defaultValue="" className={`${box} appearance-none pr-10`} aria-invalid={!!errors.concern}>
-                    <option value="" disabled>Select Your Concern*</option>
-                    {appointmentConcerns.map((c) => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                  <svg aria-hidden className="pointer-events-none absolute right-4 top-[15px] h-2 w-3" viewBox="0 0 12 8" fill="none" stroke="#100000" strokeWidth="2"><path d="M1 1l5 5 5-5" /></svg>{err("concern")}</label>
-                <label className="block"><span className="sr-only">Preferred appointment date</span>
-                  <input name="preferredDate" type="text" min={today} placeholder="Preferred Appointment Date" aria-label="Preferred Appointment Date" className={box}
-                    onFocus={(e) => { e.currentTarget.type = "date"; try { e.currentTarget.showPicker?.(); } catch { /* unsupported */ } }} onBlur={(e) => { if (!e.currentTarget.value) e.currentTarget.type = "text"; }} />{err("preferredDate")}</label>
-                <label className="block"><span className="sr-only">Your message</span>
-                  <textarea name="message" placeholder="Your Message (Optional)" className="h-[80px] w-full resize-none rounded-[7px] border border-[#747474] bg-white px-[20px] py-[9px] text-[12px] outline-none placeholder:text-ink focus:border-brand focus:shadow-[0_0_0_3px_rgba(11,147,136,0.2)]" /></label>
-              </div>
-              <button type="submit" disabled={status === "sending"} className="group mt-[19px] flex h-[59px] w-full items-center justify-center gap-[10px] rounded-[30px] bg-brand text-[18px] font-semibold text-white transition-all duration-300 hover:bg-brand-2 hover:shadow-lg disabled:opacity-70">
-                {status === "sending" ? "Sending…" : "Book My Consultation"}
-                <FaArrowRight className="size-[20px] transition-transform duration-300 group-hover:translate-x-1.5" />
-              </button>
-              <p className="mt-[10px] text-center text-[14px]">Our team will contact you to confirm your appointment.</p>
-              <div aria-live="polite" className="min-h-[18px] text-center text-[13px] text-red-600">{status === "error" && serverMsg}</div>
-            </form>
-          )}
 
-          <ul className="mt-6 flex justify-between gap-2 lg:absolute lg:left-[19px] lg:top-[636px] lg:mt-0 lg:w-[434px]">
-            {trust.map((t, i) => (
-              <li key={t} className="flex w-[30%] flex-col items-center text-center text-[12px] font-medium leading-[17px] lg:w-[125px]">
-                <Image src={`/images/about/popup-icon-${i + 1}.webp`} alt="" width={75} height={80} className="h-auto w-[56px] lg:w-[75px]" aria-hidden />
-                <span className="mt-2 lg:mt-[4px]">{t}</span>
-              </li>
-            ))}
-          </ul>
+            {/* Bottom 4 category labels positioned directly below the circles */}
+            <div className="absolute inset-x-0 z-10" style={{ top: "calc(86.82% + 7px)" }}>
+              {labelPos.map((l) => (
+                <p
+                  key={l.text}
+                  className="absolute -translate-x-1/2 whitespace-pre text-center text-[10px] font-semibold leading-[13px] text-[#1c2d2a] xl:text-[10.5px] xl:leading-[13.5px]"
+                  style={{ left: l.left }}
+                >
+                  {l.text}
+                </p>
+              ))}
+            </div>
+          </div>
+
+          {/* Right: form & trust badges */}
+          <div
+            data-lenis-prevent
+            className="relative flex flex-1 flex-col justify-between overflow-y-auto overscroll-auto px-5 py-5 sm:px-7 sm:py-5 lg:px-7 lg:py-5 xl:px-8 thin-scrollbar"
+          >
+            <div className="pr-10 sm:pr-12">
+              <h2 className="text-[22px] sm:text-[24px] font-bold leading-tight text-[#010101]" id="consult-title">
+                Book Your Consultation
+              </h2>
+              <p className="mt-1 text-[13px] sm:text-[13.5px] leading-relaxed text-[#3e3e3e]">
+                Fill in your details and our team will contact you to confirm your appointment.
+              </p>
+            </div>
+
+            {status === "done" ? (
+              <div className="my-auto rounded-[10px] bg-brand/10 p-6 text-center" role="status">
+                <p className="text-[20px] font-semibold text-brand">Thank you!</p>
+                <p className="mt-2 text-[15px]">We&apos;ve received your request and our team will call you shortly to confirm your appointment.</p>
+                <button onClick={() => setOpen(false)} className="mt-5 h-[40px] rounded-[5px] bg-brand-2 px-7 text-[16px] font-semibold text-white hover:bg-brand">Close</button>
+              </div>
+            ) : (
+              <form onSubmit={onSubmit} noValidate className="mt-3 flex flex-1 flex-col justify-between">
+                <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden className="absolute -left-[9999px] size-0 opacity-0" />
+                <div className="space-y-2">
+                  <label className="block">
+                    <span className="sr-only">Your name</span>
+                    <input name="name" placeholder="Your Name" autoComplete="name" className={box} aria-invalid={!!errors.name} />
+                    {err("name")}
+                  </label>
+                  <label className="block">
+                    <span className="sr-only">Phone number</span>
+                    <input name="phone" type="tel" placeholder="Phone Number" autoComplete="tel" className={box} aria-invalid={!!errors.phone} />
+                    {err("phone")}
+                  </label>
+                  <label className="block">
+                    <span className="sr-only">Email address</span>
+                    <input name="email" type="email" placeholder="Email Address" autoComplete="email" className={box} aria-invalid={!!errors.email} />
+                    {err("email")}
+                  </label>
+                  <label className="relative block">
+                    <span className="sr-only">Your concern</span>
+                    <select name="concern" defaultValue="" className={`${box} appearance-none pr-10`} aria-invalid={!!errors.concern}>
+                      <option value="" disabled>Select Your Concern*</option>
+                      {appointmentConcerns.map((c) => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                    <svg aria-hidden className="pointer-events-none absolute right-4 top-[13px] h-2 w-3" viewBox="0 0 12 8" fill="none" stroke="#100000" strokeWidth="2">
+                      <path d="M1 1l5 5 5-5" />
+                    </svg>
+                    {err("concern")}
+                  </label>
+                  <label className="block">
+                    <span className="sr-only">Preferred appointment date</span>
+                    <input
+                      name="preferredDate"
+                      type="text"
+                      min={today}
+                      placeholder="Preferred Appointment Date"
+                      aria-label="Preferred Appointment Date"
+                      className={box}
+                      onFocus={(e) => {
+                        e.currentTarget.type = "date";
+                        try { e.currentTarget.showPicker?.(); } catch { /* unsupported */ }
+                      }}
+                      onBlur={(e) => {
+                        if (!e.currentTarget.value) e.currentTarget.type = "text";
+                      }}
+                    />
+                    {err("preferredDate")}
+                  </label>
+                  <label className="block">
+                    <span className="sr-only">Your message</span>
+                    <textarea
+                      name="message"
+                      placeholder="Your Message (Optional)"
+                      className="h-[50px] sm:h-[54px] w-full resize-none rounded-[7px] border border-[#747474]/60 bg-white px-[16px] py-[7px] text-[12px] outline-none placeholder:text-ink focus:border-brand focus:shadow-[0_0_0_3px_rgba(11,147,136,0.2)]"
+                    />
+                  </label>
+                </div>
+
+                <div className="mt-2.5">
+                  <button
+                    type="submit"
+                    disabled={status === "sending"}
+                    className="group flex h-[44px] sm:h-[46px] w-full items-center justify-center gap-2 rounded-[25px] bg-brand text-[15px] font-semibold text-white transition-all duration-300 hover:bg-brand-2 hover:shadow-lg disabled:opacity-70"
+                  >
+                    {status === "sending" ? "Sending…" : "Book My Consultation"}
+                    <FaArrowRight className="size-[15px] transition-transform duration-300 group-hover:translate-x-1.5" />
+                  </button>
+                  <p className="mt-1 text-center text-[12px] text-gray-500">
+                    Our team will contact you to confirm your appointment.
+                  </p>
+                  <div aria-live="polite" className="min-h-[14px] text-center text-[12px] text-red-600">
+                    {status === "error" && serverMsg}
+                  </div>
+                </div>
+              </form>
+            )}
+
+            {/* Trust Badges */}
+            <ul className="mt-2 flex justify-between gap-2 border-t border-gray-100 pt-2">
+              {trustBadges.map((b) => (
+                <li key={b.title} className="flex w-[31%] flex-col items-center text-center text-[#2c3e50]">
+                  <Image src={b.icon} alt="" width={42} height={44} className="h-auto w-[36px] sm:w-[40px]" aria-hidden />
+                  <span className="mt-1 text-[10px] font-medium leading-[13px] sm:text-[10.5px] sm:leading-[13.5px]">
+                    {b.title}<br />{b.subtitle}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     </div>

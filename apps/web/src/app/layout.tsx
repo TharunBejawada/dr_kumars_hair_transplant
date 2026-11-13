@@ -24,6 +24,13 @@ export const metadata: Metadata = {
     siteName: "Dr. Kumar's Hair Transplant",
     images: [{ url: "/images/hero.webp", width: 1262, height: 841 }],
   },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "192x192" },
+    ],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+  },
   alternates: { canonical: "/" },
 };
 
@@ -31,7 +38,7 @@ export const viewport: Viewport = { themeColor: "#0b9388", width: "device-width"
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={poppins.variable}>
+    <html lang="en" className={poppins.variable} suppressHydrationWarning>
       <head>
         {/* Enable reveal animations only when JS is on and motion is allowed. */}
         <script

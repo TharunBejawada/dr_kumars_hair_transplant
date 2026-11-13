@@ -56,3 +56,36 @@ html.anim [data-reveal] { opacity: 0; will-change: transform, opacity; }
 @keyframes popup-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes popup-pop { from { opacity: 0; transform: translateY(24px) scale(.96); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { [role=dialog], [role=dialog] * { animation: none !important; } }
+
+/* Thin custom scrollbar for popups and scrollable panels */
+.thin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(11, 147, 136, 0.45) transparent;
+}
+.thin-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(11, 147, 136, 0.4);
+  border-radius: 9999px;
+  transition: background 0.2s ease;
+}
+.thin-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(11, 147, 136, 0.85);
+}
+.thin-scrollbar::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Hide Next.js floating dev badge / dev tools button */
+[data-next-badge-root],
+[data-next-badge],
+[data-nextjs-dev-tools-button],
+#next-logo,
+button[aria-label="Open Next.js Dev Tools"] {
+  display: none !important;
+}

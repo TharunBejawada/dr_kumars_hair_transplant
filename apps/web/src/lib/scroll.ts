@@ -5,12 +5,14 @@ export const setLenis = (l: Lenis | null) => {
   lenis = l;
 };
 
-/** Smooth scroll to a `#hash` target (accounts for the sticky nav); falls back to native scrolling. */
-export function scrollToHash(hash: string, offset = -50) {
+/** Smooth scroll to a `#hash` target (accounts for the sticky header); falls back to native scrolling. */
+export function scrollToHash(hash: string, offset?: number) {
   const el = document.querySelector<HTMLElement>(hash);
   if (!el) return false;
-  if (lenis) lenis.scrollTo(el, { offset, duration: 1.4, easing: (t) => 1 - Math.pow(1 - t, 4) });
-  else window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY + offset, behavior: "smooth" });
+  const header = document.querySelector<HTMLElement>("header");
+  const actualOffset = offset ?? (header ? -header.offsetHeight : -140);
+  if (lenis) lenis.scrollTo(el, { offset: actualOffset, duration: 1.4, easing: (t) => 1 - Math.pow(1 - t, 4) });
+  else window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY + actualOffset, behavior: "smooth" });
   history.replaceState(null, "", hash);
   return true;
 }
