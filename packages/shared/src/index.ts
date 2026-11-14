@@ -170,10 +170,36 @@ export type ServiceCategoryId = (typeof serviceCategoryIds)[number];
 export const servicePageStatuses = ["draft", "published", "inactive"] as const;
 export type ServicePageStatus = (typeof servicePageStatuses)[number];
 
+/* ──── Section 2: Concerns & Treatment Approaches ──── */
+export const concernItemSchema = z.object({
+  id: z.string().default(() => Math.random().toString(36).slice(2, 9)),
+  title: z.string().trim().min(1, "Concern title is required").max(100),
+  image: z.string().max(500).default(""),
+});
+export type ConcernItem = z.infer<typeof concernItemSchema>;
+
+export const serviceConcernsSectionSchema = z.object({
+  tagline: z.string().trim().max(150).default("Understanding Your Concerns"),
+  heading: z.string().trim().max(250).default("Different Problems Need Different Treatment Approaches"),
+  description: z.string().trim().max(1000).default(""),
+  items: z.array(concernItemSchema).default([]),
+  sideCard: z
+    .object({
+      image: z.string().max(500).default(""),
+      text1: z.string().trim().max(500).default(""),
+      text2: z.string().trim().max(500).default(""),
+      ctaText: z.string().trim().max(100).default("Consult Our Specialist"),
+      ctaLink: z.string().trim().max(300).default("#appointment"),
+    })
+    .default({}),
+});
+export type ServiceConcernsSection = z.infer<typeof serviceConcernsSectionSchema>;
+
 export const servicePageInputSchema = z.object({
   serviceCategory: z.enum(serviceCategoryIds, {
     message: "Select a valid service category (Hair, Skin & Cosmetic, Dermatology, STD)",
   }),
+  /* Section 1: Hero Banner */
   title: z.string().trim().min(3, "Title must be at least 3 characters").max(250),
   slug: z
     .string()
@@ -190,7 +216,11 @@ export const servicePageInputSchema = z.object({
   order: z.number().int().default(0),
   seoTitle: z.string().trim().max(200).default(""),
   metaDescription: z.string().trim().max(400).default(""),
-  /** Extensible container for subsequent sections (Section 2, Section 3, etc.) */
+
+  /* Section 2: Concerns & Treatment Approaches */
+  concernsSection: serviceConcernsSectionSchema.optional(),
+
+  /** Extensible container for subsequent sections (Section 3, Section 4, etc.) */
   sections: z.record(z.any()).optional().default({}),
 });
 

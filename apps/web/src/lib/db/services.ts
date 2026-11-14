@@ -29,6 +29,31 @@ export const DEFAULT_SERVICE_PAGES: ServicePage[] = [
     seoTitle: "Advanced Hair Loss & Hair Restoration Treatments in Kondapur, Hyderabad",
     metaDescription:
       "Personalised care for hair fall, thinning hair, baldness and advanced hair restoration procedures by Dr. Kumar in Kondapur, Hyderabad.",
+    concernsSection: {
+      tagline: "Understanding Your Hair Concerns",
+      heading: "Different Hair Problems Need Different Treatment Approaches",
+      description:
+        "Hair loss does not always begin with visible baldness. Some people notice excessive hair shedding, while others experience gradual thinning or changes in their hairline.",
+      items: [
+        { id: "c1", title: "Excessive hair fall", image: "/images/concerns/excessive-hair-fall.webp" },
+        { id: "c2", title: "Receding hairline", image: "/images/concerns/receding-hairline.webp" },
+        { id: "c3", title: "Male pattern baldness", image: "/images/concerns/male-pattern-baldness.webp" },
+        { id: "c4", title: "Female pattern hair loss", image: "/images/concerns/female-pattern-hair-loss.webp" },
+        { id: "c5", title: "Thinning hair at the crown", image: "/images/concerns/thinning-hair-crown.webp" },
+        { id: "c6", title: "Bald patches", image: "/images/concerns/bald-patches.webp" },
+        { id: "c7", title: "Widening hair parting", image: "/images/concerns/widening-hair-parting.webp" },
+        { id: "c8", title: "Reduced hair density", image: "/images/concerns/reduced-hair-density.webp" },
+      ],
+      sideCard: {
+        image: "/images/concerns/side-woman.webp",
+        text1:
+          "Early evaluation can help identify possible causes and determine whether medical treatment, supportive procedures, or hair transplantation may be appropriate.",
+        text2:
+          "At Dr. Kumar’s Skin & Hair Transplant Center, patients looking for a hair specialist in Kondapur, Hyderabad can receive individualised assessment and guidance for different hair loss concerns.",
+        ctaText: "Consult Our Hair Specialist",
+        ctaLink: "#appointment",
+      },
+    },
     sections: {},
     createdAt: new Date().toISOString(),
     modifiedAt: new Date().toISOString(),
@@ -48,6 +73,25 @@ export const DEFAULT_SERVICE_PAGES: ServicePage[] = [
     seoTitle: "Cosmetic & Skin Rejuvenation Treatments | Dr. Kumar's",
     metaDescription:
       "Comprehensive aesthetic treatments including HydraFacial, Chemical Peels, MNRF, and skin glow solutions tailored to your unique skin.",
+    concernsSection: {
+      tagline: "Understanding Your Skin Concerns",
+      heading: "Targeted Solutions for Healthier, Rejuvenated Skin",
+      description:
+        "Every skin type has unique requirements. We address dullness, uneven texture, acne marks, and age-related changes with medical precision.",
+      items: [
+        { id: "s1", title: "Acne & breakouts", image: "/images/oval1.webp" },
+        { id: "s2", title: "Pigmentation & spots", image: "/images/oval2.webp" },
+        { id: "s3", title: "Fine lines & wrinkles", image: "/images/oval3.webp" },
+        { id: "s4", title: "Dull & tired skin", image: "/images/oval4.webp" },
+      ],
+      sideCard: {
+        image: "/images/oval2.webp",
+        text1: "Comprehensive dermatology consultations help create a personalised protocol matching your skin goals.",
+        text2: "Consult with Dr. Kumar for clinical facials, peels, and advanced laser therapies in Kondapur, Hyderabad.",
+        ctaText: "Consult Our Skin Specialist",
+        ctaLink: "#appointment",
+      },
+    },
     sections: {},
     createdAt: new Date().toISOString(),
     modifiedAt: new Date().toISOString(),
@@ -244,4 +288,3 @@ export async function deleteServicePage(id: string): Promise<void> {
   }
   memoryStore = memoryStore.filter((p) => p.id !== id);
 }
-

@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import PublicShell from "@/components/PublicShell";
 import ServiceHeroSection from "@/components/services/ServiceHeroSection";
+import ServiceConcernsSectionView from "@/components/services/ServiceConcernsSection";
 import Appointment from "@/components/Appointment";
 import { getServicePageBySlug } from "@/lib/db/services";
-import { isServicePageLive } from "@drkumar/shared";
+import { isServicePageLive, serviceCategories } from "@drkumar/shared";
 import { siteUrl } from "@/lib/blog-utils";
 import { clinic } from "@/lib/content";
 
@@ -57,6 +58,8 @@ export default async function ServiceDetailPage({ params }: Props) {
   const page = await loadPage((await params).slug);
   if (!page) notFound();
 
+  const catObj = serviceCategories.find((c) => c.id === page.serviceCategory);
+
   const serviceLd = {
     "@context": "https://schema.org",
     "@type": "MedicalWebPage",
@@ -84,9 +87,17 @@ export default async function ServiceDetailPage({ params }: Props) {
       {/* Section 1: Hero Banner (Title, Subtitle, Image & CTA) */}
       <ServiceHeroSection page={page} />
 
-      {/* Dynamic Placeholder for Subsequent Sections (Sections 2, 3...) */}
+      {/* Section 2: Concerns & Treatment Approaches */}
+      {page.concernsSection && (
+        <ServiceConcernsSectionView
+          section={page.concernsSection}
+          categoryLabel={catObj?.label || "Hair"}
+        />
+      )}
+
+      {/* Slot for subsequent sections (Section 3, 4...) */}
       <div id="service-content-sections" className="w-full">
-        {/* Further sections provided by the user will be rendered here */}
+        {/* Next sections will appear here */}
       </div>
 
       {/* Integrated Appointment Booking Section */}
@@ -98,4 +109,3 @@ export default async function ServiceDetailPage({ params }: Props) {
     </PublicShell>
   );
 }
-
