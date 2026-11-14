@@ -154,3 +154,54 @@ export function blogDisplayState(b: Pick<Blog, "status" | "publishAt">, now: Dat
   if (b.status === "inactive") return "inactive";
   return isBlogLive(b, now) ? "live" : "scheduled";
 }
+
+/* ───────────── Services & Details Pages ───────────── */
+
+export const serviceCategories = [
+  { id: "hair", label: "Hair", description: "Advanced hair loss, restoration, FUE, DHI and scalp treatments." },
+  { id: "skin-cosmetic", label: "Skin & Cosmetic", description: "Cosmetic enhancements, rejuvenation, peels and aesthetic care." },
+  { id: "dermatology", label: "Dermatology", description: "Clinical dermatology, skin disease management and clinical care." },
+  { id: "std", label: "STD", description: "Confidential diagnosis and management of sexually transmitted infections." },
+] as const;
+
+export const serviceCategoryIds = ["hair", "skin-cosmetic", "dermatology", "std"] as const;
+export type ServiceCategoryId = (typeof serviceCategoryIds)[number];
+
+export const servicePageStatuses = ["draft", "published", "inactive"] as const;
+export type ServicePageStatus = (typeof servicePageStatuses)[number];
+
+export const servicePageInputSchema = z.object({
+  serviceCategory: z.enum(serviceCategoryIds, {
+    message: "Select a valid service category (Hair, Skin & Cosmetic, Dermatology, STD)",
+  }),
+  title: z.string().trim().min(3, "Title must be at least 3 characters").max(250),
+  slug: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase letters, numbers and hyphens only")
+    .max(150),
+  subtitle: z.string().trim().max(300).default(""),
+  image: z.string().max(500).default(""),
+  imageAlt: z.string().trim().max(200).default(""),
+  ctaText: z.string().trim().max(60).default("Book a Consultation"),
+  ctaLink: z.string().trim().max(300).default("#appointment"),
+  status: z.enum(servicePageStatuses).default("draft"),
+  order: z.number().int().default(0),
+  seoTitle: z.string().trim().max(200).default(""),
+  metaDescription: z.string().trim().max(400).default(""),
+  /** Extensible container for subsequent sections (Section 2, Section 3, etc.) */
+  sections: z.record(z.any()).optional().default({}),
+});
+
+export type ServicePageInput = z.infer<typeof servicePageInputSchema>;
+
+export interface ServicePage extends ServicePageInput {
+  id: string;
+  createdAt: string;
+  modifiedAt: string;
+}
+
+export function isServicePageLive(page: Pick<ServicePage, "status">): boolean {
+  return page.status === "published";
+}

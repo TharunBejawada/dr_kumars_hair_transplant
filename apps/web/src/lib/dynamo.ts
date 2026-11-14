@@ -17,7 +17,7 @@ export function db() {
   return doc;
 }
 
-export function tableName(envVar: "APPOINTMENTS_TABLE" | "ADMIN_USERS_TABLE" | "BLOGS_TABLE") {
+export function tableName(envVar: "APPOINTMENTS_TABLE" | "ADMIN_USERS_TABLE" | "BLOGS_TABLE" | "SERVICES_TABLE") {
   const name = process.env[envVar];
   if (!name) throw new Error(`${envVar} is not configured`);
   return name;

@@ -40,7 +40,18 @@ blogs.addGlobalSecondaryIndex({
   projectionType: ProjectionType.ALL,
 });
 
-// Private bucket for blog images. Reads go through /api/media (never public); writes use presigned POSTs.
+// Services & Details Pages table.
+export const services = new Table(stack, "Services", {
+  ...common,
+  partitionKey: { name: "id", type: AttributeType.STRING },
+});
+services.addGlobalSecondaryIndex({
+  indexName: "slug-index",
+  partitionKey: { name: "slug", type: AttributeType.STRING },
+  projectionType: ProjectionType.ALL,
+});
+
+// Private bucket for media / images. Reads go through /api/media (never public); writes use presigned POSTs.
 export const media = new Bucket(stack, "Media", {
   blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
   encryption: BucketEncryption.S3_MANAGED,
@@ -54,6 +65,7 @@ backend.addOutput({
     appointmentsTable: appointments.tableName,
     adminUsersTable: adminUsers.tableName,
     blogsTable: blogs.tableName,
+    servicesTable: services.tableName,
     mediaBucket: media.bucketName,
   },
 });

@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 const items = [
   { href: "/admin", label: "Dashboard", exact: true },
   { href: "/admin/appointments", label: "Appointments" },
+  { href: "/admin/services", label: "Services" },
   { href: "/admin/blogs", label: "Blogs" },
   { href: "/admin/account", label: "Change password" },
 ];
@@ -25,7 +26,12 @@ export default function AdminNav({ email, role }: { email: string; role: string 
           const active = i.exact ? path === i.href : path.startsWith(i.href);
           return (
             <li key={i.href}>
-              <Link href={i.href} className={`block rounded-lg px-4 py-2.5 text-[15px] font-medium transition ${active ? "bg-white text-brand" : "hover:bg-white/15"}`}>
+              <Link
+                href={i.href}
+                className={`block rounded-lg px-4 py-2.5 text-[15px] font-medium transition ${
+                  active ? "bg-white text-brand shadow-sm font-semibold" : "hover:bg-white/15"
+                }`}
+              >
                 {i.label}
               </Link>
             </li>
@@ -33,10 +39,19 @@ export default function AdminNav({ email, role }: { email: string; role: string 
         })}
       </ul>
       <div className="mt-3 border-t border-white/20 pt-3 text-[13px] md:mt-auto">
-        <Link href="/" target="_blank" className="mb-2 block rounded-lg px-4 py-2 font-medium hover:bg-white/15">View website ↗</Link>
-        <p className="truncate opacity-90" title={email}>{email}</p>
+        <Link href="/" target="_blank" className="mb-2 block rounded-lg px-4 py-2 font-medium hover:bg-white/15">
+          View website ↗
+        </Link>
+        <p className="truncate opacity-90" title={email}>
+          {email}
+        </p>
         <p className="mb-2 text-[12px] uppercase tracking-wider opacity-70">{role}</p>
-        <button onClick={logout} className="w-full rounded-lg bg-white/15 px-4 py-2 text-left font-medium hover:bg-white/25">Sign out</button>
+        <button
+          onClick={logout}
+          className="w-full rounded-lg bg-white/15 px-4 py-2 text-left font-medium hover:bg-white/25"
+        >
+          Sign out
+        </button>
       </div>
     </nav>
   );

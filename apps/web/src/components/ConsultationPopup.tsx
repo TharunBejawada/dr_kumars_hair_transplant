@@ -45,6 +45,12 @@ export default function ConsultationPopup() {
   }, []);
 
   useEffect(() => {
+    const handleOpen = () => setOpen(true);
+    window.addEventListener("open-consultation-popup", handleOpen);
+    return () => window.removeEventListener("open-consultation-popup", handleOpen);
+  }, []);
+
+  useEffect(() => {
     if (read(KEY_DISMISSED)) return;
     const start = Number(read(KEY_START)) || Date.now();
     write(KEY_START, String(start));

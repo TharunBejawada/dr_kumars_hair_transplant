@@ -11,5 +11,6 @@ server.listen(port, async () => {
   await make("local-appointments", "id");
   await make("local-admin-users", "email");
   await make("local-blogs", "id", { attrs: [S("url")], gsi: [{ IndexName: "url-index", KeySchema: [{ AttributeName: "url", KeyType: "HASH" }], Projection: { ProjectionType: "ALL" } }] });
-  console.log(`local DynamoDB ready on :${port} (tables: local-appointments, local-admin-users, local-blogs)`);
+  await make("local-services", "id", { attrs: [S("slug")], gsi: [{ IndexName: "slug-index", KeySchema: [{ AttributeName: "slug", KeyType: "HASH" }], Projection: { ProjectionType: "ALL" } }] });
+  console.log(`local DynamoDB ready on :${port} (tables: local-appointments, local-admin-users, local-blogs, local-services)`);
 });
