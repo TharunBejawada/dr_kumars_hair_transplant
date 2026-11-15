@@ -44,6 +44,18 @@ importers:
       '@tiptap/extension-image':
         specifier: ^3.33.0
         version: 3.33.0(@tiptap/core@3.33.0(@tiptap/pm@3.33.0))
+      '@tiptap/extension-table':
+        specifier: ^3.34.0
+        version: 3.34.0(@tiptap/core@3.33.0(@tiptap/pm@3.33.0))(@tiptap/pm@3.33.0)
+      '@tiptap/extension-table-cell':
+        specifier: ^3.34.0
+        version: 3.34.0(@tiptap/extension-table@3.34.0(@tiptap/core@3.33.0(@tiptap/pm@3.33.0))(@tiptap/pm@3.33.0))
+      '@tiptap/extension-table-header':
+        specifier: ^3.34.0
+        version: 3.34.0(@tiptap/extension-table@3.34.0(@tiptap/core@3.33.0(@tiptap/pm@3.33.0))(@tiptap/pm@3.33.0))
+      '@tiptap/extension-table-row':
+        specifier: ^3.34.0
+        version: 3.34.0(@tiptap/extension-table@3.34.0(@tiptap/core@3.33.0(@tiptap/pm@3.33.0))(@tiptap/pm@3.33.0))
       '@tiptap/extension-text-align':
         specifier: ^3.33.0
         version: 3.33.0(@tiptap/core@3.33.0(@tiptap/pm@3.33.0))
@@ -2470,6 +2482,27 @@ packages:
     resolution: {integrity: sha512-JZq1Us21tA6UscEeOC/U1RUIDD+t4H7KkXmkA8fuQOHNkMTnsYZAu4/7iFJz9geHmGeoq+mHCrh/gOrWt3jdew==}
     peerDependencies:
       '@tiptap/core': 3.33.0
+
+  '@tiptap/extension-table-cell@3.34.0':
+    resolution: {integrity: sha512-Rx80M/BoQKP7zVBxUyCeqGfMqjVMupFk8BrxNx2MnfiC85TwPnEqE1nG+JFBoaaIeW3a7U/Bvm6optIgR6F14A==}
+    peerDependencies:
+      '@tiptap/extension-table': 3.34.0
+
+  '@tiptap/extension-table-header@3.34.0':
+    resolution: {integrity: sha512-cFvfqeQkMQxDPR/N0hteh8lPPL3vpwX74YeCW/hMMgFieRc8r5t5Wpu5jGccfqPVwS/ebOIUJSRJqQ3izzu1Mw==}
+    peerDependencies:
+      '@tiptap/extension-table': 3.34.0
+
+  '@tiptap/extension-table-row@3.34.0':
+    resolution: {integrity: sha512-ymi2CB8y8mytSHryElNRoK982hkjiMH6WEdmrwOkAlVxAp1hEZdTZxdQFqR5QBYlH/3MvJtnxzBJ/pQszpZ9ow==}
+    peerDependencies:
+      '@tiptap/extension-table': 3.34.0
+
+  '@tiptap/extension-table@3.34.0':
+    resolution: {integrity: sha512-pcBsmniI9Bk2lPgbPfi8YgA/K0PjxLbtAJho83Mu/KL3FIZBVP/POBETqXYTznTBCGuyaYZt/HGyIUWZTMOCEA==}
+    peerDependencies:
+      '@tiptap/core': 3.34.0
+      '@tiptap/pm': 3.34.0
 
   '@tiptap/extension-text-align@3.33.0':
     resolution: {integrity: sha512-MPmwptPJqRIVHBhRSfKo+xbsc3B6m4Jjwm/lTmrU6xkx0ZbdABKeejD4k0MlgfQdWK6g2MNr/Ve0+HoZUPbKRQ==}
@@ -7715,6 +7748,23 @@ snapshots:
   '@tiptap/extension-strike@3.33.0(@tiptap/core@3.33.0(@tiptap/pm@3.33.0))':
     dependencies:
       '@tiptap/core': 3.33.0(@tiptap/pm@3.33.0)
+
+  '@tiptap/extension-table-cell@3.34.0(@tiptap/extension-table@3.34.0(@tiptap/core@3.33.0(@tiptap/pm@3.33.0))(@tiptap/pm@3.33.0))':
+    dependencies:
+      '@tiptap/extension-table': 3.34.0(@tiptap/core@3.33.0(@tiptap/pm@3.33.0))(@tiptap/pm@3.33.0)
+
+  '@tiptap/extension-table-header@3.34.0(@tiptap/extension-table@3.34.0(@tiptap/core@3.33.0(@tiptap/pm@3.33.0))(@tiptap/pm@3.33.0))':
+    dependencies:
+      '@tiptap/extension-table': 3.34.0(@tiptap/core@3.33.0(@tiptap/pm@3.33.0))(@tiptap/pm@3.33.0)
+
+  '@tiptap/extension-table-row@3.34.0(@tiptap/extension-table@3.34.0(@tiptap/core@3.33.0(@tiptap/pm@3.33.0))(@tiptap/pm@3.33.0))':
+    dependencies:
+      '@tiptap/extension-table': 3.34.0(@tiptap/core@3.33.0(@tiptap/pm@3.33.0))(@tiptap/pm@3.33.0)
+
+  '@tiptap/extension-table@3.34.0(@tiptap/core@3.33.0(@tiptap/pm@3.33.0))(@tiptap/pm@3.33.0)':
+    dependencies:
+      '@tiptap/core': 3.33.0(@tiptap/pm@3.33.0)
+      '@tiptap/pm': 3.33.0
 
   '@tiptap/extension-text-align@3.33.0(@tiptap/core@3.33.0(@tiptap/pm@3.33.0))':
     dependencies:

@@ -1,21 +1,28 @@
 import sanitizeHtml from "sanitize-html";
 
-/** Allow-list for blog rich text (what the editor can produce). Strips scripts, event handlers, iframes, etc. */
+/** Allow-list for blog & clinical rich text (what the editor can produce). Strips scripts, event handlers, iframes, etc. */
 const options: sanitizeHtml.IOptions = {
   allowedTags: [
     "h1", "h2", "h3", "h4", "p", "br", "strong", "em", "u", "s", "blockquote", "ul", "ol", "li",
-    "a", "img", "span", "mark", "hr", "code", "pre",
+    "a", "img", "span", "mark", "hr", "code", "pre", "details", "summary",
+    "table", "thead", "tbody", "tfoot", "tr", "th", "td",
   ],
   allowedAttributes: {
     a: ["href", "target", "rel"],
     img: ["src", "alt", "width", "height"],
-    "*": ["style"],
+    details: ["open"],
+    th: ["colspan", "rowspan", "scope", "style", "class"],
+    td: ["colspan", "rowspan", "style", "class"],
+    table: ["class", "style"],
+    "*": ["style", "class"],
   },
   allowedStyles: {
     "*": {
       color: [/^#[0-9a-f]{3,8}$/i, /^rgb\(/i],
       "background-color": [/^#[0-9a-f]{3,8}$/i, /^rgb\(/i],
       "text-align": [/^(left|right|center|justify)$/],
+      width: [/^\d+(?:px|%|rem|em)$/],
+      "min-width": [/^\d+(?:px|%|rem|em)$/],
     },
   },
   allowedSchemes: ["http", "https", "mailto", "tel"],

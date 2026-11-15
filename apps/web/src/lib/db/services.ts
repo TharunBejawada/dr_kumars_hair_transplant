@@ -7,6 +7,7 @@ import {
   type ServiceCategoryId,
   serviceCategories,
 } from "@drkumar/shared";
+import { cleanHtml } from "../sanitize";
 import { db } from "../dynamo";
 
 const T = () => process.env.SERVICES_TABLE;
@@ -809,7 +810,23 @@ export async function listLiveServicePages(category?: ServiceCategoryId | string
   return all.filter((p) => isServicePageLive(p));
 }
 
-export async function createServicePage(input: ServicePageInput): Promise<ServicePage> {
+function sanitizeServicePageInput(input: ServicePageInput): ServicePageInput {
+  return {
+    ...input,
+    concernsSection: input.concernsSection
+      ? { ...input.concernsSection, description: cleanHtml(input.concernsSection.description) }
+      : undefined,
+    treatmentsSection: input.treatmentsSection
+      ? { ...input.treatmentsSection, description: cleanHtml(input.treatmentsSection.description) }
+      : undefined,
+    assessmentSection: input.assessmentSection
+      ? { ...input.assessmentSection, description: cleanHtml(input.assessmentSection.description) }
+      : undefined,
+  };
+}
+
+export async function createServicePage(rawInput: ServicePageInput): Promise<ServicePage> {
+  const input = sanitizeServicePageInput(rawInput);
   const normSlug = input.slug.toLowerCase();
   const existing = await getServicePageBySlug(normSlug);
   if (existing) throw new SlugTakenError("This URL slug is already taken by another service page");
@@ -846,7 +863,8 @@ export async function createServicePage(input: ServicePageInput): Promise<Servic
   return page;
 }
 
-export async function updateServicePage(id: string, input: ServicePageInput): Promise<ServicePage | null> {
+export async function updateServicePage(id: string, rawInput: ServicePageInput): Promise<ServicePage | null> {
+  const input = sanitizeServicePageInput(rawInput);
   const current = await getServicePage(id);
   if (!current) return null;
 

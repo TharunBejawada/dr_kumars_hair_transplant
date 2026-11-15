@@ -8,13 +8,26 @@ import {
   type Treatment,
   type TreatmentInput,
   type TreatmentStatus,
+  type TreatmentContentSection,
   type ServiceCategoryId,
   serviceCategories,
 } from "@drkumar/shared";
 import { slugify } from "@/lib/ist";
 import { uploadImage } from "@/lib/upload-client";
+import RichTextEditor from "./RichTextEditor";
 import { useToast } from "./Toast";
-import { FaArrowLeft, FaCheck, FaCloudArrowUp, FaEye, FaLayerGroup } from "react-icons/fa6";
+import {
+  FaArrowDown,
+  FaArrowLeft,
+  FaArrowUp,
+  FaArrowUpRightFromSquare,
+  FaCheck,
+  FaCloudArrowUp,
+  FaEye,
+  FaLayerGroup,
+  FaPlus,
+  FaTrash,
+} from "react-icons/fa6";
 
 const TREATMENT_IMAGE_PRESETS = [
   { label: "Stem Cell Hair Therapy", url: "/images/treatments/stem-cell-therapy.webp" },
@@ -84,6 +97,65 @@ export default function TreatmentForm({ treatment }: { treatment?: Treatment }) 
   const [metaDescription, setMetaDescription] = useState(treatment?.metaDescription ?? "");
   const [metaKeywords, setMetaKeywords] = useState(treatment?.metaKeywords ?? "");
 
+  // Dynamic Content Sections (Title + Rich Text Editor)
+  const [contentSections, setContentSections] = useState<TreatmentContentSection[]>(() => {
+    if (treatment?.contentSections && treatment.contentSections.length > 0) {
+      return treatment.contentSections;
+    }
+    if (Array.isArray(treatment?.sections) && treatment.sections.length > 0) {
+      return treatment.sections as TreatmentContentSection[];
+    }
+    return [];
+  });
+
+  function addContentSection() {
+    setContentSections((prev) => [
+      ...prev,
+      {
+        id: `sec-${Date.now()}`,
+        title: "",
+        data: "",
+      },
+    ]);
+    setDirty(true);
+  }
+
+  function removeContentSection(idx: number) {
+    setContentSections((prev) => prev.filter((_, i) => i !== idx));
+    setDirty(true);
+  }
+
+  function updateContentSectionTitle(idx: number, val: string) {
+    setContentSections((prev) => {
+      const copy = [...prev];
+      copy[idx] = { ...copy[idx], title: val };
+      return copy;
+    });
+    setDirty(true);
+  }
+
+  function updateContentSectionData(idx: number, val: string) {
+    setContentSections((prev) => {
+      const copy = [...prev];
+      copy[idx] = { ...copy[idx], data: val };
+      return copy;
+    });
+    setDirty(true);
+  }
+
+  function moveContentSection(idx: number, dir: -1 | 1) {
+    setContentSections((prev) => {
+      const nextIdx = idx + dir;
+      if (nextIdx < 0 || nextIdx >= prev.length) return prev;
+      const copy = [...prev];
+      const temp = copy[idx];
+      copy[idx] = copy[nextIdx];
+      copy[nextIdx] = temp;
+      return copy;
+    });
+    setDirty(true);
+  }
+
   // Status & loaders
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [busy, setBusy] = useState(false);
@@ -144,7 +216,8 @@ export default function TreatmentForm({ treatment }: { treatment?: Treatment }) 
       seoTitle: seoTitle.trim(),
       metaDescription: metaDescription.trim(),
       metaKeywords: metaKeywords.trim(),
-      sections: treatment?.sections ?? {},
+      contentSections,
+      sections: contentSections,
     };
 
     const res = await fetch(treatment ? `/api/admin/treatments/${treatment.id}` : "/api/admin/treatments", {
@@ -198,6 +271,17 @@ export default function TreatmentForm({ treatment }: { treatment?: Treatment }) 
         </div>
 
         <div className="flex items-center gap-3">
+          {treatment?.slug && (
+            <a
+              href={`/service/${slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-teal-200 bg-teal-50 px-3.5 py-2 text-[13px] font-semibold text-teal-800 transition hover:bg-teal-100"
+            >
+              <span>View Live</span>
+              <FaArrowUpRightFromSquare className="size-3" />
+            </a>
+          )}
           <Link
             href="/admin/treatments"
             className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-[13px] font-semibold text-gray-700 transition hover:bg-gray-50"
@@ -294,7 +378,7 @@ export default function TreatmentForm({ treatment }: { treatment?: Treatment }) 
                 </label>
                 <div className="flex rounded-lg border border-gray-300 focus-within:border-brand overflow-hidden">
                   <span className="bg-gray-50 px-2.5 py-2 text-[12px] text-gray-500 select-none border-r border-gray-200">
-                    /treatments/
+                    /service/
                   </span>
                   <input
                     type="text"
@@ -487,17 +571,138 @@ export default function TreatmentForm({ treatment }: { treatment?: Treatment }) 
             </div>
           </details>
 
-          {/* Card 5: Section Builder Placeholder (Ready for user section inputs) */}
-          <div className="rounded-xl border border-dashed border-teal-300 bg-teal-50/40 p-5 text-center">
-            <span className="inline-flex size-10 items-center justify-center rounded-full bg-teal-100 text-teal-700 mb-2">
-              <FaLayerGroup className="size-5" />
-            </span>
-            <h3 className="text-[15px] font-bold text-gray-900 mb-1">
-              Treatment Page Section Builder
-            </h3>
-            <p className="text-[12.5px] text-gray-600 max-w-md mx-auto">
-              Ready for your custom treatment sections! As you share each section screenshot (hero, procedure steps, benefits, pricing/faqs), dedicated visual section editors will be integrated here.
-            </p>
+          {/* Card 5: Clinical Content Sections (Title + Rich Text Editor) */}
+          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-xs space-y-5">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <FaLayerGroup className="size-4 text-brand" />
+                  <h2 className="text-[16px] font-bold text-gray-900">
+                    5. Clinical Content Sections
+                  </h2>
+                  <span className="text-[11px] font-bold text-brand bg-brand/10 px-2 py-0.5 rounded-full">
+                    Rich Text Enabled
+                  </span>
+                </div>
+                <p className="text-[12px] text-gray-500 mt-1">
+                  Add content blocks for this treatment. Each section has its own title and full rich-text editor (formatting, lists, links, images).
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={addContentSection}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-teal-50 px-3.5 py-1.5 text-[12.5px] font-semibold text-brand border border-teal-200 hover:bg-teal-100 transition shadow-2xs cursor-pointer"
+              >
+                <FaPlus className="size-3" />
+                <span>Add Section</span>
+              </button>
+            </div>
+
+            {contentSections.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50/60 p-8 text-center">
+                <span className="inline-flex size-10 items-center justify-center rounded-full bg-gray-100 text-gray-400 mb-2">
+                  <FaLayerGroup className="size-5" />
+                </span>
+                <p className="text-[13.5px] font-medium text-gray-700">No content sections added yet</p>
+                <p className="text-[12px] text-gray-500 max-w-sm mx-auto mt-1 mb-4">
+                  Add custom clinical sections such as Procedure Overview, Benefits, Candidate Criteria, or Aftercare.
+                </p>
+                <button
+                  type="button"
+                  onClick={addContentSection}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-brand px-4 py-2 text-[12.5px] font-semibold text-white hover:bg-brand-2 transition shadow-xs cursor-pointer"
+                >
+                  <FaPlus className="size-3" />
+                  <span>Add First Section</span>
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {contentSections.map((sec, idx) => (
+                  <div
+                    key={sec.id || idx}
+                    className="rounded-xl border border-gray-200 bg-gray-50/50 p-4 transition-all hover:border-gray-300"
+                  >
+                    {/* Section Card Header */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 mb-3 pb-2 border-b border-gray-200/80">
+                      <div className="flex items-center gap-2">
+                        <span className="size-6 rounded-full bg-brand text-white flex items-center justify-center text-[11px] font-bold">
+                          {idx + 1}
+                        </span>
+                        <span className="text-[13px] font-bold text-gray-800">
+                          {sec.title ? sec.title : `Section ${idx + 1}`}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => moveContentSection(idx, -1)}
+                          disabled={idx === 0}
+                          title="Move up"
+                          className="size-7 rounded border border-gray-200 bg-white text-gray-600 flex items-center justify-center hover:bg-gray-100 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed text-[11px]"
+                        >
+                          <FaArrowUp className="size-3" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveContentSection(idx, 1)}
+                          disabled={idx === contentSections.length - 1}
+                          title="Move down"
+                          className="size-7 rounded border border-gray-200 bg-white text-gray-600 flex items-center justify-center hover:bg-gray-100 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed text-[11px]"
+                        >
+                          <FaArrowDown className="size-3" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeContentSection(idx)}
+                          title="Remove section"
+                          className="size-7 rounded border border-red-200 bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-100 transition cursor-pointer text-[11px] ml-1"
+                        >
+                          <FaTrash className="size-3" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Section Title Input */}
+                    <div className="mb-3">
+                      <label className="block text-[12px] font-semibold text-gray-700 mb-1">
+                        Section Title <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={sec.title}
+                        onChange={(e) => updateContentSectionTitle(idx, e.target.value)}
+                        placeholder="e.g. Procedure Steps & Clinical Method"
+                        className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[13.5px] font-semibold outline-none focus:border-brand"
+                      />
+                    </div>
+
+                    {/* Section Rich Text Editor */}
+                    <div>
+                      <label className="block text-[12px] font-semibold text-gray-700 mb-1">
+                        Section Content (Rich Text)
+                      </label>
+                      <RichTextEditor
+                        value={sec.data}
+                        onChange={(html) => updateContentSectionData(idx, html)}
+                        minHeight={150}
+                      />
+                    </div>
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={addContentSection}
+                  className="w-full rounded-xl border border-dashed border-teal-300 bg-teal-50/50 py-3 text-[13px] font-semibold text-brand hover:bg-teal-100/70 transition flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <FaPlus className="size-3.5" />
+                  <span>Add Another Content Section</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -540,13 +745,52 @@ export default function TreatmentForm({ treatment }: { treatment?: Treatment }) 
 
                 <div className="pt-2 flex items-center justify-between border-t border-gray-100">
                   <span className="text-[11px] font-mono text-gray-400">
-                    /treatments/{slug || "slug"}
+                    /service/{slug || "slug"}
                   </span>
                   <span className="rounded-lg bg-brand px-3 py-1 text-[11px] font-semibold text-white">
                     Know More
                   </span>
                 </div>
               </div>
+            </div>
+
+            {/* Content Sections Live Preview */}
+            <div className="mt-4 border-t border-gray-100 pt-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[12px] font-bold text-gray-700">
+                  Content Sections Preview ({contentSections.length})
+                </span>
+                <span className="text-[10px] uppercase font-bold text-brand bg-brand/10 px-2 py-0.5 rounded">
+                  Formatted
+                </span>
+              </div>
+
+              {contentSections.length === 0 ? (
+                <p className="text-[11px] text-gray-400 italic text-center py-3 border border-dashed border-gray-200 rounded-lg">
+                  No content sections added yet.
+                </p>
+              ) : (
+                <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
+                  {contentSections.map((sec, idx) => (
+                    <div
+                      key={sec.id || idx}
+                      className="rounded-lg border border-gray-200 bg-white p-3 shadow-2xs space-y-1.5"
+                    >
+                      <h5 className="text-[12.5px] font-bold text-gray-900 border-b border-gray-100 pb-1">
+                        {sec.title || `Section ${idx + 1}`}
+                      </h5>
+                      {sec.data ? (
+                        <div
+                          className="blog-content text-[11.5px] text-gray-600 leading-relaxed max-h-40 overflow-y-auto"
+                          dangerouslySetInnerHTML={{ __html: sec.data }}
+                        />
+                      ) : (
+                        <p className="text-[10.5px] text-gray-400 italic">No content written yet</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="mt-4 rounded-lg bg-teal-50/70 p-3 text-[12px] text-teal-900 border border-teal-100">

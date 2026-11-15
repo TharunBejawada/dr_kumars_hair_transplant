@@ -4,9 +4,11 @@ import {
   isTreatmentLive,
   type Treatment,
   type TreatmentInput,
+  type TreatmentContentSection,
   type ServiceCategoryId,
   serviceCategories,
 } from "@drkumar/shared";
+import { cleanHtml } from "../sanitize";
 import { db } from "../dynamo";
 
 const T = () => process.env.TREATMENTS_TABLE || process.env.SERVICES_TABLE;
@@ -93,11 +95,19 @@ export async function createTreatment(input: TreatmentInput): Promise<Treatment>
     throw new TreatmentSlugTakenError(`A treatment with slug "${normSlug}" already exists.`);
   }
 
+  const sanitizedContentSections: TreatmentContentSection[] = (input.contentSections ?? []).map((s) => ({
+    id: s.id || `sec-${randomUUID().slice(0, 8)}`,
+    title: (s.title ?? "").trim(),
+    data: cleanHtml(s.data ?? ""),
+  }));
+
   const now = new Date().toISOString();
   const treatment: Treatment = {
     ...input,
     id: `trt-${randomUUID()}`,
     slug: normSlug,
+    contentSections: sanitizedContentSections,
+    sections: sanitizedContentSections,
     createdAt: now,
     modifiedAt: now,
   };
@@ -126,10 +136,21 @@ export async function updateTreatment(id: string, input: Partial<TreatmentInput>
     }
   }
 
+  const sanitizedContentSections: TreatmentContentSection[] | undefined = input.contentSections
+    ? input.contentSections.map((s) => ({
+      id: s.id || `sec-${randomUUID().slice(0, 8)}`,
+      title: (s.title ?? "").trim(),
+      data: cleanHtml(s.data ?? ""),
+    }))
+    : undefined;
+
   const updated: Treatment = {
     ...existing,
     ...input,
     slug: (input.slug ?? existing.slug).toLowerCase(),
+    ...(sanitizedContentSections
+      ? { contentSections: sanitizedContentSections, sections: sanitizedContentSections }
+      : {}),
     modifiedAt: new Date().toISOString(),
   };
 

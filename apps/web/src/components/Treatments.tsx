@@ -9,10 +9,10 @@ import { treatmentTabs, type TreatmentTab } from "@/lib/content";
 const tabs = Object.keys(treatmentTabs) as TreatmentTab[];
 
 const tabToSlug: Record<TreatmentTab, string> = {
-  Hair: "/services/hair",
-  Skin: "/services/skin-cosmetic",
-  "Sti Care": "/services/std",
-  Body: "/services",
+  Hair: "/department/hair",
+  Skin: "/department/skin-cosmetic",
+  "Sti Care": "/department/std",
+  Body: "/department",
 };
 
 export default function Treatments() {

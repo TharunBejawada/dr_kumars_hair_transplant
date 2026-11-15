@@ -79,9 +79,10 @@ export default function ServiceAssessmentSectionView({ section }: Props) {
             </h2>
 
             {section.description && (
-              <p className="text-[13.5px] sm:text-[14.5px] text-gray-600 mt-2.5 leading-relaxed">
-                {section.description}
-              </p>
+              <div
+                className="blog-content text-[13.5px] sm:text-[14.5px] text-gray-600 mt-2.5 leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: section.description }}
+              />
             )}
 
             {section.factorsLead && (

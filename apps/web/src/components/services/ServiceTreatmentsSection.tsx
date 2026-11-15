@@ -36,9 +36,10 @@ export default function ServiceTreatmentsSectionView({ treatmentsSection, servic
           </h2>
 
           {treatmentsSection.description && (
-            <p className="text-[13.5px] sm:text-[15px] text-gray-600 mt-3 leading-relaxed">
-              {treatmentsSection.description}
-            </p>
+            <div
+              className="blog-content text-[13.5px] sm:text-[15px] text-gray-600 mt-3 leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: treatmentsSection.description }}
+            />
           )}
         </div>
 

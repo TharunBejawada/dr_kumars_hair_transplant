@@ -32,6 +32,7 @@ import {
 } from "@drkumar/shared";
 import { slugify } from "@/lib/ist";
 import { uploadImage } from "@/lib/upload-client";
+import RichTextEditor from "./RichTextEditor";
 import { useToast } from "./Toast";
 
 const statusHelp: Record<ServicePageStatus, string> = {
@@ -566,7 +567,7 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
         <div className="flex items-center gap-2">
           {page && (
             <Link
-              href={`/services/${slug}`}
+              href={`/department/${slug}`}
               target="_blank"
               className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 transition"
             >
@@ -642,7 +643,7 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
               <div>
                 <label className="mb-1 block text-[13px] font-semibold text-gray-700">Page Slug (URL) *</label>
                 <div className="flex items-center rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-[14px] text-gray-500 focus-within:border-brand focus-within:bg-white">
-                  <span>/services/</span>
+                  <span>/department/</span>
                   <input
                     type="text"
                     value={slug}
@@ -829,17 +830,15 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
 
               <div>
                 <label className="mb-1 block text-[13px] font-semibold text-gray-700">
-                  Section 2 Description Paragraph
+                  Section 2 Description (Rich Text)
                 </label>
-                <textarea
+                <RichTextEditor
                   value={concernsDescription}
-                  onChange={(e) => {
-                    setConcernsDescription(e.target.value);
+                  onChange={(html) => {
+                    setConcernsDescription(html);
                     setDirty(true);
                   }}
-                  rows={2}
-                  placeholder="e.g. Hair loss does not always begin with visible baldness..."
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[13.5px] text-gray-700 outline-none focus:border-brand"
+                  minHeight={120}
                 />
               </div>
             </div>
@@ -1083,17 +1082,15 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
 
               <div>
                 <label className="mb-1 block text-[13px] font-semibold text-gray-700">
-                  Section 3 Description Paragraph
+                  Section 3 Description (Rich Text)
                 </label>
-                <textarea
+                <RichTextEditor
                   value={treatmentsDescription}
-                  onChange={(e) => {
-                    setTreatmentsDescription(e.target.value);
+                  onChange={(html) => {
+                    setTreatmentsDescription(html);
                     setDirty(true);
                   }}
-                  rows={2}
-                  placeholder="e.g. From medical hair loss management to specialised hair transplantation techniques..."
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[13.5px] text-gray-700 outline-none focus:border-brand"
+                  minHeight={120}
                 />
               </div>
             </div>
@@ -1310,16 +1307,16 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
 
               {/* Description */}
               <div>
-                <label className="mb-1 block text-[13px] font-semibold text-gray-700">Section Description</label>
-                <textarea
+                <label className="mb-1 block text-[13px] font-semibold text-gray-700">
+                  Section Description (Rich Text)
+                </label>
+                <RichTextEditor
                   value={assessmentDescription}
-                  onChange={(e) => {
-                    setAssessmentDescription(e.target.value);
+                  onChange={(html) => {
+                    setAssessmentDescription(html);
                     setDirty(true);
                   }}
-                  rows={2}
-                  placeholder="Not every hair concern requires the same treatment..."
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[13px] outline-none focus:border-brand"
+                  minHeight={120}
                 />
               </div>
 
@@ -1980,9 +1977,10 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
                       {concernsHeading || "Understanding Your Concerns"}
                     </h4>
                     {concernsDescription && (
-                      <p className="text-[12px] text-gray-600 mt-1 line-clamp-2">
-                        {concernsDescription}
-                      </p>
+                      <div
+                        className="blog-content text-[12px] text-gray-600 mt-1 line-clamp-3"
+                        dangerouslySetInnerHTML={{ __html: concernsDescription }}
+                      />
                     )}
                   </div>
 
@@ -2050,9 +2048,10 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
                       {treatmentsHeading || "Explore Our Range of Services"}
                     </h4>
                     {treatmentsDescription && (
-                      <p className="text-[11.5px] text-gray-600 mt-1 line-clamp-2">
-                        {treatmentsDescription}
-                      </p>
+                      <div
+                        className="blog-content text-[11.5px] text-gray-600 mt-1 line-clamp-3"
+                        dangerouslySetInnerHTML={{ __html: treatmentsDescription }}
+                      />
                     )}
                   </div>
 
@@ -2131,9 +2130,10 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
                         {assessmentHeading || "Treatment Selection & Clinical Factors"}
                       </h4>
                       {assessmentDescription && (
-                        <p className="text-[10.5px] text-gray-600 line-clamp-2 leading-relaxed">
-                          {assessmentDescription}
-                        </p>
+                        <div
+                          className="blog-content text-[10.5px] text-gray-600 line-clamp-3 leading-relaxed"
+                          dangerouslySetInnerHTML={{ __html: assessmentDescription }}
+                        />
                       )}
 
                       {assessmentFactorsLead && (

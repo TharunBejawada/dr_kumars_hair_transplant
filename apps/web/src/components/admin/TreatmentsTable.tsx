@@ -11,7 +11,7 @@ import {
 } from "@drkumar/shared";
 import { useConfirm } from "./Confirm";
 import { useToast } from "./Toast";
-import { FaMagnifyingGlass, FaPen, FaTrashCan, FaPlus, FaLayerGroup } from "react-icons/fa6";
+import { FaMagnifyingGlass, FaPen, FaTrashCan, FaPlus, FaLayerGroup, FaArrowUpRightFromSquare } from "react-icons/fa6";
 
 const statusColors: Record<TreatmentStatus, string> = {
   published: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20",
@@ -192,7 +192,7 @@ export default function TreatmentsTable({ initial }: { initial: Treatment[] }) {
                               {t.title}
                             </Link>
                             <span className="block text-[11px] font-mono text-gray-400">
-                              /treatments/{t.slug}
+                              /service/{t.slug}
                             </span>
                             {t.summary && (
                               <p className="text-[12px] text-gray-500 line-clamp-1 mt-0.5 max-w-md">
@@ -232,6 +232,15 @@ export default function TreatmentsTable({ initial }: { initial: Treatment[] }) {
                       {/* Actions */}
                       <td className="py-3.5 px-4 text-right whitespace-nowrap">
                         <div className="inline-flex items-center gap-1.5">
+                          <a
+                            href={`/service/${t.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex size-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-teal-50 hover:text-teal-700 hover:border-teal-200 transition shadow-2xs"
+                            title="View live service page"
+                          >
+                            <FaArrowUpRightFromSquare className="size-3" />
+                          </a>
                           <Link
                             href={`/admin/treatments/${t.id}`}
                             className="inline-flex size-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:text-brand transition shadow-2xs"

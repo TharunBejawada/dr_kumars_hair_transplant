@@ -47,7 +47,7 @@ export default async function ServicesHubPage() {
                     {catPages.map((page) => (
                       <Link
                         key={page.id}
-                        href={`/services/${page.slug}`}
+                        href={`/department/${page.slug}`}
                         className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-1 hover:border-brand/40 hover:shadow-md"
                       >
                         <div className="relative h-48 w-full bg-gray-50 overflow-hidden">

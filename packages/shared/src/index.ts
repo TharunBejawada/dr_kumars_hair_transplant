@@ -181,7 +181,7 @@ export type ConcernItem = z.infer<typeof concernItemSchema>;
 export const serviceConcernsSectionSchema = z.object({
   tagline: z.string().trim().max(150).default("Understanding Your Concerns"),
   heading: z.string().trim().max(250).default("Different Problems Need Different Treatment Approaches"),
-  description: z.string().trim().max(1000).default(""),
+  description: z.string().max(100_000).default(""),
   items: z.array(concernItemSchema).default([]),
   sideCard: z
     .object({
@@ -209,7 +209,7 @@ export type TreatmentCard = z.infer<typeof treatmentCardSchema>;
 export const serviceTreatmentsSectionSchema = z.object({
   tagline: z.string().trim().max(150).default("Our Treatments"),
   heading: z.string().trim().max(250).default("Explore Our Range of Services"),
-  description: z.string().trim().max(1000).default(""),
+  description: z.string().max(100_000).default(""),
   items: z.array(treatmentCardSchema).default([]),
   viewMoreText: z.string().trim().max(60).default("View More"),
   viewMoreLink: z.string().trim().max(300).default("#appointment"),
@@ -226,7 +226,7 @@ export type FactorItem = z.infer<typeof factorItemSchema>;
 export const serviceAssessmentSectionSchema = z.object({
   tagline: z.string().trim().max(150).default("Which Hair Treatment Is Right for You?"),
   heading: z.string().trim().max(250).default("The Right Solution Begins With Understanding Your Hair Loss"),
-  description: z.string().trim().max(1000).default(""),
+  description: z.string().max(100_000).default(""),
   factorsLead: z.string().trim().max(200).default("Several factors influence treatment selection:"),
   factors: z.array(factorItemSchema).default([]),
   note: z.string().trim().max(1500).default(""),
@@ -330,6 +330,14 @@ export function isServicePageLive(page: Pick<ServicePage, "status">): boolean {
 export const treatmentStatuses = ["published", "draft", "inactive"] as const;
 export type TreatmentStatus = (typeof treatmentStatuses)[number];
 
+/* ──── Clinical Content Sections for Treatments ──── */
+export const treatmentContentSectionSchema = z.object({
+  id: z.string().default(() => Math.random().toString(36).slice(2, 9)),
+  title: z.string().trim().max(300).default(""),
+  data: z.string().max(200_000).default(""), // Rich text HTML content
+});
+export type TreatmentContentSection = z.infer<typeof treatmentContentSectionSchema>;
+
 export const treatmentInputSchema = z.object({
   /* Strictly maps to exactly ONE service category */
   serviceCategory: z.enum(serviceCategoryIds, {
@@ -342,7 +350,7 @@ export const treatmentInputSchema = z.object({
     .toLowerCase()
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase letters, numbers and hyphens only")
     .max(150),
-  summary: z.string().trim().max(1000).default(""),
+  summary: z.string().trim().max(2000).default(""),
   image: z.string().max(500).default(""),
   imageAlt: z.string().trim().max(200).default(""),
   status: z.enum(treatmentStatuses).default("draft"),
@@ -353,8 +361,11 @@ export const treatmentInputSchema = z.object({
   metaDescription: z.string().trim().max(400).default(""),
   metaKeywords: z.string().trim().max(500).default(""),
 
-  /** Extensible container for sections provided one-by-one by the user */
-  sections: z.record(z.any()).optional().default({}),
+  /** Dynamic rich-text content sections: title and rich-text data */
+  contentSections: z.array(treatmentContentSectionSchema).default([]),
+
+  /** Extensible container for sections (supports array of sections or object) */
+  sections: z.union([z.array(treatmentContentSectionSchema), z.record(z.any())]).default([]),
 });
 
 export type TreatmentInput = z.infer<typeof treatmentInputSchema>;

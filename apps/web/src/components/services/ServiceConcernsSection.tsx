@@ -41,9 +41,10 @@ export default function ServiceConcernsSectionView({
               )}
 
               {description && (
-                <p className="mt-3.5 text-[15px] sm:text-[16px] text-gray-600 leading-relaxed">
-                  {description}
-                </p>
+                <div
+                  className="blog-content mt-3.5 text-[15px] sm:text-[16px] text-gray-600 leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: description }}
+                />
               )}
             </div>
 
