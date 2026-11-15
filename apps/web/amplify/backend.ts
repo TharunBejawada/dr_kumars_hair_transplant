@@ -51,6 +51,17 @@ services.addGlobalSecondaryIndex({
   projectionType: ProjectionType.ALL,
 });
 
+// Treatments table (1:1 mapped to a service category).
+export const treatments = new Table(stack, "Treatments", {
+  ...common,
+  partitionKey: { name: "id", type: AttributeType.STRING },
+});
+treatments.addGlobalSecondaryIndex({
+  indexName: "slug-index",
+  partitionKey: { name: "slug", type: AttributeType.STRING },
+  projectionType: ProjectionType.ALL,
+});
+
 // Private bucket for media / images. Reads go through /api/media (never public); writes use presigned POSTs.
 export const media = new Bucket(stack, "Media", {
   blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
@@ -66,6 +77,7 @@ backend.addOutput({
     adminUsersTable: adminUsers.tableName,
     blogsTable: blogs.tableName,
     servicesTable: services.tableName,
+    treatmentsTable: treatments.tableName,
     mediaBucket: media.bucketName,
   },
 });

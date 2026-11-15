@@ -735,10 +735,11 @@ export async function getServicePageBySlug(slug: string): Promise<ServicePage | 
           KeyConditionExpression: "#s = :s",
           ExpressionAttributeNames: { "#s": "slug" },
           ExpressionAttributeValues: { ":s": normSlug },
-          Limit: 1,
+          Limit: 10,
         }),
       );
-      const item = r.Items?.[0] as ServicePage | undefined;
+      const items = (r.Items ?? []) as (ServicePage & { itemType?: string })[];
+      const item = items.find((p) => !p.id?.startsWith("trt-") && p.concernsSection);
       if (item) return item;
     } catch (err) {
       console.warn("DynamoDB getServicePageBySlug query failed, using fallback:", (err as Error).message);
@@ -752,8 +753,8 @@ export async function getServicePage(id: string): Promise<ServicePage | undefine
   if (tbl) {
     try {
       const r = await db().send(new GetCommand({ TableName: tbl, Key: { id } }));
-      const item = r.Item as ServicePage | undefined;
-      if (item) return item;
+      const item = r.Item as (ServicePage & { itemType?: string }) | undefined;
+      if (item && !item.id?.startsWith("trt-") && item.concernsSection) return item;
     } catch (err) {
       console.warn("DynamoDB getServicePage failed, using fallback:", (err as Error).message);
     }
@@ -769,7 +770,9 @@ export async function listServicePages(category?: ServiceCategoryId | string): P
       let key: Record<string, unknown> | undefined;
       do {
         const r = await db().send(new ScanCommand({ TableName: tbl, ExclusiveStartKey: key }));
-        items.push(...((r.Items ?? []) as ServicePage[]));
+        const scanned = (r.Items ?? []) as (ServicePage & { itemType?: string })[];
+        const serviceOnly = scanned.filter((p) => !p.id?.startsWith("trt-") && p.concernsSection);
+        items.push(...serviceOnly);
         key = r.LastEvaluatedKey;
       } while (key);
 

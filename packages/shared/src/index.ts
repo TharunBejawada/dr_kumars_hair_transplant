@@ -322,3 +322,50 @@ export interface ServicePage extends ServicePageInput {
 export function isServicePageLive(page: Pick<ServicePage, "status">): boolean {
   return page.status === "published";
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   TREATMENTS SYSTEM (Mapped to exactly one Service)
+   ══════════════════════════════════════════════════════════════════ */
+
+export const treatmentStatuses = ["published", "draft", "inactive"] as const;
+export type TreatmentStatus = (typeof treatmentStatuses)[number];
+
+export const treatmentInputSchema = z.object({
+  /* Strictly maps to exactly ONE service category */
+  serviceCategory: z.enum(serviceCategoryIds, {
+    message: "Select exactly one service to map this treatment to (Hair, Skin & Cosmetic, Dermatology, STD)",
+  }),
+  title: z.string().trim().min(2, "Treatment title is required").max(180),
+  slug: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase letters, numbers and hyphens only")
+    .max(150),
+  summary: z.string().trim().max(1000).default(""),
+  image: z.string().max(500).default(""),
+  imageAlt: z.string().trim().max(200).default(""),
+  status: z.enum(treatmentStatuses).default("draft"),
+  order: z.number().int().default(0),
+
+  // SEO
+  seoTitle: z.string().trim().max(200).default(""),
+  metaDescription: z.string().trim().max(400).default(""),
+  metaKeywords: z.string().trim().max(500).default(""),
+
+  /** Extensible container for sections provided one-by-one by the user */
+  sections: z.record(z.any()).optional().default({}),
+});
+
+export type TreatmentInput = z.infer<typeof treatmentInputSchema>;
+
+export interface Treatment extends TreatmentInput {
+  id: string;
+  createdAt: string;
+  modifiedAt: string;
+}
+
+export function isTreatmentLive(item: Pick<Treatment, "status">): boolean {
+  return item.status === "published";
+}
+
