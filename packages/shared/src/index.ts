@@ -195,6 +195,80 @@ export const serviceConcernsSectionSchema = z.object({
 });
 export type ServiceConcernsSection = z.infer<typeof serviceConcernsSectionSchema>;
 
+/* ──── Section 3: Treatments / Services Range Grid ──── */
+export const treatmentCardSchema = z.object({
+  id: z.string().default(() => Math.random().toString(36).slice(2, 9)),
+  title: z.string().trim().min(1, "Treatment title is required").max(120),
+  description: z.string().trim().max(500).default(""),
+  image: z.string().max(500).default(""),
+  ctaText: z.string().trim().max(60).default("Know More"),
+  ctaLink: z.string().trim().max(300).default("#appointment"),
+});
+export type TreatmentCard = z.infer<typeof treatmentCardSchema>;
+
+export const serviceTreatmentsSectionSchema = z.object({
+  tagline: z.string().trim().max(150).default("Our Treatments"),
+  heading: z.string().trim().max(250).default("Explore Our Range of Services"),
+  description: z.string().trim().max(1000).default(""),
+  items: z.array(treatmentCardSchema).default([]),
+  viewMoreText: z.string().trim().max(60).default("View More"),
+  viewMoreLink: z.string().trim().max(300).default("#appointment"),
+});
+export type ServiceTreatmentsSection = z.infer<typeof serviceTreatmentsSectionSchema>;
+
+/* ──── Section 4: Treatment Selection & Clinical Factors ──── */
+export const factorItemSchema = z.object({
+  id: z.string().default(() => Math.random().toString(36).slice(2, 9)),
+  text: z.string().trim().min(1, "Factor description is required").max(180),
+});
+export type FactorItem = z.infer<typeof factorItemSchema>;
+
+export const serviceAssessmentSectionSchema = z.object({
+  tagline: z.string().trim().max(150).default("Which Hair Treatment Is Right for You?"),
+  heading: z.string().trim().max(250).default("The Right Solution Begins With Understanding Your Hair Loss"),
+  description: z.string().trim().max(1000).default(""),
+  factorsLead: z.string().trim().max(200).default("Several factors influence treatment selection:"),
+  factors: z.array(factorItemSchema).default([]),
+  note: z.string().trim().max(1500).default(""),
+  image: z.string().max(500).default("/images/scalp-examination.webp"),
+  imageAlt: z.string().trim().max(200).default("Scalp examination and evaluation"),
+  ctaText: z.string().trim().max(60).default(""),
+  ctaLink: z.string().trim().max(300).default("#appointment"),
+});
+export type ServiceAssessmentSection = z.infer<typeof serviceAssessmentSectionSchema>;
+
+/* ──── Section 5: Specialist / Doctor Profile ──── */
+export const serviceDoctorSectionSchema = z.object({
+  tagline: z.string().trim().max(150).default("Meet Your Hair Restoration Specialist"),
+  name: z.string().trim().min(1, "Doctor name is required").max(120).default("Dr. Ashok Kumar"),
+  designation: z.string().trim().max(150).default("Dermatologist | Hair Transplant Specialist"),
+  experience: z.string().trim().max(100).default("13+ Years of Experience"),
+  bioParagraphs: z.array(z.string().trim().max(1000)).default([
+    "Dr. Ashok Kumar is an experienced dermatologist specialising in hair loss management, hair transplantation, and scalp conditions.",
+    "His expertise includes FUE and DHI hair transplantation, PRP and GFC treatments, and facial hair restoration. He focuses on accurate diagnosis, personalised treatment planning, patient safety, and natural-looking hair restoration.",
+    "For individuals searching for a hair transplant specialist in Kondapur, Hyderabad, Dr. Ashok Kumar provides consultation and treatment planning based on hair loss patterns, donor hair availability, and individual restoration goals.",
+  ]),
+  image: z.string().max(500).default("/images/doctor-specialist.webp"),
+  imageAlt: z.string().trim().max(200).default("Dr. Ashok Kumar - Specialist"),
+  ctaText: z.string().trim().max(100).default("Book a Consultation With Dr. Ashok Kumar"),
+  ctaLink: z.string().trim().max(300).default("#appointment"),
+});
+export type ServiceDoctorSection = z.infer<typeof serviceDoctorSectionSchema>;
+
+/* ──── Section 6: Frequently Asked Questions (FAQ) ──── */
+export const serviceFaqItemSchema = z.object({
+  id: z.string().default(() => Math.random().toString(36).slice(2, 9)),
+  question: z.string().trim().min(1, "Question is required").max(300),
+  answer: z.string().trim().min(1, "Answer is required").max(2500),
+});
+export type ServiceFaqItem = z.infer<typeof serviceFaqItemSchema>;
+
+export const serviceFaqSectionSchema = z.object({
+  heading: z.string().trim().max(150).default("Frequently Asked Questions"),
+  items: z.array(serviceFaqItemSchema).default([]),
+});
+export type ServiceFaqSection = z.infer<typeof serviceFaqSectionSchema>;
+
 export const servicePageInputSchema = z.object({
   serviceCategory: z.enum(serviceCategoryIds, {
     message: "Select a valid service category (Hair, Skin & Cosmetic, Dermatology, STD)",
@@ -220,7 +294,19 @@ export const servicePageInputSchema = z.object({
   /* Section 2: Concerns & Treatment Approaches */
   concernsSection: serviceConcernsSectionSchema.optional(),
 
-  /** Extensible container for subsequent sections (Section 3, Section 4, etc.) */
+  /* Section 3: Treatments / Services Range Grid */
+  treatmentsSection: serviceTreatmentsSectionSchema.optional(),
+
+  /* Section 4: Treatment Selection & Clinical Factors */
+  assessmentSection: serviceAssessmentSectionSchema.optional(),
+
+  /* Section 5: Specialist / Doctor Profile */
+  doctorSection: serviceDoctorSectionSchema.optional(),
+
+  /* Section 6: Frequently Asked Questions */
+  faqSection: serviceFaqSectionSchema.optional(),
+
+  /** Extensible container for subsequent sections (Section 7, etc.) */
   sections: z.record(z.any()).optional().default({}),
 });
 

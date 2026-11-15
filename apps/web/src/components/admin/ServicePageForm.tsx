@@ -13,6 +13,7 @@ import {
   FaTrash,
   FaLayerGroup,
   FaCheck,
+  FaRegCalendarCheck,
 } from "react-icons/fa6";
 import {
   serviceCategories,
@@ -21,6 +22,13 @@ import {
   type ServiceCategoryId,
   type ConcernItem,
   type ServiceConcernsSection,
+  type TreatmentCard,
+  type ServiceTreatmentsSection,
+  type FactorItem,
+  type ServiceAssessmentSection,
+  type ServiceDoctorSection,
+  type ServiceFaqItem,
+  type ServiceFaqSection,
 } from "@drkumar/shared";
 import { slugify } from "@/lib/ist";
 import { uploadImage } from "@/lib/upload-client";
@@ -31,14 +39,6 @@ const statusHelp: Record<ServicePageStatus, string> = {
   published: "Published — live on the website right now.",
   inactive: "Inactive — hidden from public views.",
 };
-
-const SAMPLE_HERO_IMAGES = [
-  { label: "Hair Restoration (Provided)", url: "/images/services-hero-sample.jpg" },
-  { label: "Facial Treatment (Oval 1)", url: "/images/oval1.webp" },
-  { label: "Skin Rejuvenation (Oval 2)", url: "/images/oval2.webp" },
-  { label: "MNRF / Clinical (Oval 3)", url: "/images/oval3.webp" },
-  { label: "Doctor Hero", url: "/images/hero.webp" },
-];
 
 const CONCERN_IMAGE_PRESETS = [
   { label: "Excessive Hair Fall", url: "/images/concerns/excessive-hair-fall.webp" },
@@ -51,15 +51,27 @@ const CONCERN_IMAGE_PRESETS = [
   { label: "Reduced Hair Density", url: "/images/concerns/reduced-hair-density.webp" },
 ];
 
-const DEFAULT_CONCERNS_LIST: ConcernItem[] = [
-  { id: "c1", title: "Excessive hair fall", image: "/images/concerns/excessive-hair-fall.webp" },
-  { id: "c2", title: "Receding hairline", image: "/images/concerns/receding-hairline.webp" },
-  { id: "c3", title: "Male pattern baldness", image: "/images/concerns/male-pattern-baldness.webp" },
-  { id: "c4", title: "Female pattern hair loss", image: "/images/concerns/female-pattern-hair-loss.webp" },
-  { id: "c5", title: "Thinning hair at the crown", image: "/images/concerns/thinning-hair-crown.webp" },
-  { id: "c6", title: "Bald patches", image: "/images/concerns/bald-patches.webp" },
-  { id: "c7", title: "Widening hair parting", image: "/images/concerns/widening-hair-parting.webp" },
-  { id: "c8", title: "Reduced hair density", image: "/images/concerns/reduced-hair-density.webp" },
+const TREATMENT_IMAGE_PRESETS = [
+  { label: "Stem Cell Hair Therapy", url: "/images/treatments/stem-cell-therapy.webp" },
+  { label: "Human-Derived Exosomes", url: "/images/treatments/human-exosomes.webp" },
+  { label: "Dutasteride Mesotherapy", url: "/images/treatments/dutasteride-mesotherapy.webp" },
+  { label: "Female Hair Transplant", url: "/images/treatments/female-hair-transplant.webp" },
+  { label: "Hair Transplant", url: "/images/treatments/hair-transplant.webp" },
+  { label: "GFC Hair Treatment", url: "/images/treatments/gfc-treatment.webp" },
+  { label: "Hair Loss Treatment", url: "/images/treatments/hair-loss-treatment.webp" },
+  { label: "Hair Transplant Clinic", url: "/images/treatments/hair-transplant-clinic.webp" },
+];
+
+const ASSESSMENT_IMAGE_PRESETS = [
+  { label: "Doctor Scalp Examination (Default)", url: "/images/scalp-examination.webp" },
+  { label: "Clinical Consultation", url: "/images/concerns/side-woman.webp" },
+  { label: "Skin & Aesthetic Care", url: "/images/oval2.webp" },
+];
+
+const DOCTOR_IMAGE_PRESETS = [
+  { label: "Dr. Ashok Kumar (Default)", url: "/images/doctor-specialist.webp" },
+  { label: "Clinical Specialist (Woman)", url: "/images/concerns/side-woman.webp" },
+  { label: "Scalp Examination", url: "/images/scalp-examination.webp" },
 ];
 
 export default function ServicePageForm({ page }: { page?: ServicePage }) {
@@ -75,48 +87,70 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
 
   // Section 1: Hero Banner Fields
   const [subtitle, setSubtitle] = useState(page?.subtitle ?? "");
-  const [image, setImage] = useState(page?.image ?? "/images/services-hero-sample.jpg");
+  const [image, setImage] = useState(page?.image ?? "");
   const [imageAlt, setImageAlt] = useState(page?.imageAlt ?? "");
-  const [ctaText, setCtaText] = useState(page?.ctaText ?? "Book a Consultation");
-  const [ctaLink, setCtaLink] = useState(page?.ctaLink ?? "#appointment");
+  const ctaText = page?.ctaText ?? "Book a Consultation";
+  const ctaLink = page?.ctaLink ?? "#appointment";
 
   // Section 2: Concerns & Treatment Approaches Fields
   const initConcerns = page?.concernsSection;
-  const [concernsTagline, setConcernsTagline] = useState(
-    initConcerns?.tagline ?? "Understanding Your Hair Concerns"
+  const [concernsTagline, setConcernsTagline] = useState(initConcerns?.tagline ?? "");
+  const [concernsHeading, setConcernsHeading] = useState(initConcerns?.heading ?? "");
+  const [concernsDescription, setConcernsDescription] = useState(initConcerns?.description ?? "");
+  const [concernItems, setConcernItems] = useState<ConcernItem[]>(initConcerns?.items ?? []);
+  const [sideCardImage, setSideCardImage] = useState(initConcerns?.sideCard?.image ?? "");
+  const [sideCardText1, setSideCardText1] = useState(initConcerns?.sideCard?.text1 ?? "");
+  const [sideCardText2, setSideCardText2] = useState(initConcerns?.sideCard?.text2 ?? "");
+  const [sideCardCtaText, setSideCardCtaText] = useState(initConcerns?.sideCard?.ctaText ?? "");
+  const [sideCardCtaLink, setSideCardCtaLink] = useState(initConcerns?.sideCard?.ctaLink ?? "");
+
+  // Section 3: Treatments / Services Range Grid Fields
+  const initTreatments = page?.treatmentsSection;
+  const [treatmentsTagline, setTreatmentsTagline] = useState(initTreatments?.tagline ?? "");
+  const [treatmentsHeading, setTreatmentsHeading] = useState(initTreatments?.heading ?? "");
+  const [treatmentsDescription, setTreatmentsDescription] = useState(initTreatments?.description ?? "");
+  const [treatmentItems, setTreatmentItems] = useState<TreatmentCard[]>(initTreatments?.items ?? []);
+  const [viewMoreText, setViewMoreText] = useState(initTreatments?.viewMoreText ?? "");
+  const [viewMoreLink, setViewMoreLink] = useState(initTreatments?.viewMoreLink ?? "");
+  const [uploadingTreatmentIdx, setUploadingTreatmentIdx] = useState<number | null>(null);
+
+  // Section 4: Treatment Selection & Clinical Factors Fields
+  const initAssessment = page?.assessmentSection;
+  const [assessmentTagline, setAssessmentTagline] = useState(initAssessment?.tagline ?? "");
+  const [assessmentHeading, setAssessmentHeading] = useState(initAssessment?.heading ?? "");
+  const [assessmentDescription, setAssessmentDescription] = useState(initAssessment?.description ?? "");
+  const [assessmentFactorsLead, setAssessmentFactorsLead] = useState(initAssessment?.factorsLead ?? "");
+  const [assessmentFactors, setAssessmentFactors] = useState<FactorItem[]>(initAssessment?.factors ?? []);
+  const [assessmentNote, setAssessmentNote] = useState(initAssessment?.note ?? "");
+  const [assessmentImage, setAssessmentImage] = useState(initAssessment?.image ?? "");
+  const [assessmentImageAlt, setAssessmentImageAlt] = useState(initAssessment?.imageAlt ?? "");
+  const [assessmentCtaText, setAssessmentCtaText] = useState(initAssessment?.ctaText ?? "");
+  const [assessmentCtaLink, setAssessmentCtaLink] = useState(initAssessment?.ctaLink ?? "");
+  const [uploadingAssessmentImage, setUploadingAssessmentImage] = useState(false);
+
+  // Section 5: Specialist / Doctor Profile Fields
+  const initDoctor = page?.doctorSection;
+  const [doctorTagline, setDoctorTagline] = useState(initDoctor?.tagline ?? "");
+  const [doctorName, setDoctorName] = useState(initDoctor?.name ?? "");
+  const [doctorDesignation, setDoctorDesignation] = useState(initDoctor?.designation ?? "");
+  const [doctorExperience, setDoctorExperience] = useState(initDoctor?.experience ?? "");
+  const [doctorBioText, setDoctorBioText] = useState(
+    initDoctor?.bioParagraphs && initDoctor.bioParagraphs.length > 0 ? initDoctor.bioParagraphs.join("\n\n") : ""
   );
-  const [concernsHeading, setConcernsHeading] = useState(
-    initConcerns?.heading ?? "Different Hair Problems Need Different Treatment Approaches"
-  );
-  const [concernsDescription, setConcernsDescription] = useState(
-    initConcerns?.description ??
-      "Hair loss does not always begin with visible baldness. Some people notice excessive hair shedding, while others experience gradual thinning or changes in their hairline."
-  );
-  const [concernItems, setConcernItems] = useState<ConcernItem[]>(
-    initConcerns?.items && initConcerns.items.length > 0
-      ? initConcerns.items
-      : DEFAULT_CONCERNS_LIST
-  );
-  const [sideCardImage, setSideCardImage] = useState(
-    initConcerns?.sideCard?.image ?? "/images/concerns/side-woman.webp"
-  );
-  const [sideCardText1, setSideCardText1] = useState(
-    initConcerns?.sideCard?.text1 ??
-      "Early evaluation can help identify possible causes and determine whether medical treatment, supportive procedures, or hair transplantation may be appropriate."
-  );
-  const [sideCardText2, setSideCardText2] = useState(
-    initConcerns?.sideCard?.text2 ??
-      "At Dr. Kumar’s Skin & Hair Transplant Center, patients looking for a hair specialist in Kondapur, Hyderabad can receive individualised assessment and guidance for different hair loss concerns."
-  );
-  const [sideCardCtaText, setSideCardCtaText] = useState(
-    initConcerns?.sideCard?.ctaText ?? "Consult Our Hair Specialist"
-  );
-  const [sideCardCtaLink, setSideCardCtaLink] = useState(
-    initConcerns?.sideCard?.ctaLink ?? "#appointment"
-  );
+  const [doctorImage, setDoctorImage] = useState(initDoctor?.image ?? "");
+  const [doctorImageAlt, setDoctorImageAlt] = useState(initDoctor?.imageAlt ?? "");
+  const [doctorCtaText, setDoctorCtaText] = useState(initDoctor?.ctaText ?? "");
+  const [doctorCtaLink, setDoctorCtaLink] = useState(initDoctor?.ctaLink ?? "");
+  const [uploadingDoctorImage, setUploadingDoctorImage] = useState(false);
+
+  // Section 6: Frequently Asked Questions (FAQ) Fields
+  const initFaq = page?.faqSection;
+  const [faqHeading, setFaqHeading] = useState(initFaq?.heading ?? "");
+  const [faqItems, setFaqItems] = useState<ServiceFaqItem[]>(initFaq?.items ?? []);
 
   // Preview tab selection
-  const [previewTab, setPreviewTab] = useState<"section1" | "section2" | "full">("full");
+  const [previewTab, setPreviewTab] = useState<"section1" | "section2" | "section3" | "section4" | "section5" | "section6" | "full">("full");
+  const [previewOpenFaq, setPreviewOpenFaq] = useState<string | null>(null); // Initially all questions closed
 
   // Publishing & SEO
   const [status, setStatus] = useState<ServicePageStatus>(page?.status ?? "draft");
@@ -208,8 +242,8 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
       ...prev,
       {
         id: Math.random().toString(36).slice(2, 9),
-        title: "New Concern / Problem",
-        image: "/images/concerns/excessive-hair-fall.webp",
+        title: "",
+        image: "",
       },
     ]);
     setDirty(true);
@@ -238,24 +272,230 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
     setDirty(true);
   }
 
+  // Section 3: Treatments List Handlers
+  function addTreatmentCard() {
+    setTreatmentItems((prev) => [
+      ...prev,
+      {
+        id: "ht_" + Math.random().toString(36).slice(2, 7),
+        title: "",
+        description: "",
+        image: "",
+        ctaText: "",
+        ctaLink: "",
+      },
+    ]);
+    setDirty(true);
+  }
+
+  function removeTreatmentCard(idx: number) {
+    setTreatmentItems((prev) => prev.filter((_, i) => i !== idx));
+    setDirty(true);
+  }
+
+  function updateTreatmentCard(idx: number, patch: Partial<TreatmentCard>) {
+    setTreatmentItems((prev) => {
+      const copy = [...prev];
+      copy[idx] = { ...copy[idx], ...patch };
+      return copy;
+    });
+    setDirty(true);
+  }
+
+  async function onTreatmentFileSelected(idx: number, e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setUploadingTreatmentIdx(idx);
+    try {
+      const publicPath = await uploadImage(f);
+      updateTreatmentCard(idx, { image: publicPath });
+      toast("Treatment card image uploaded!");
+    } catch (x) {
+      toast(x instanceof Error ? x.message : "Upload failed", "error");
+    } finally {
+      setUploadingTreatmentIdx(null);
+      e.target.value = "";
+    }
+  }
+
+  // Section 4: Treatment Selection Handlers
+  function addFactor() {
+    setAssessmentFactors((prev) => [
+      ...prev,
+      {
+        id: "f_" + Math.random().toString(36).slice(2, 7),
+        text: "",
+      },
+    ]);
+    setDirty(true);
+  }
+
+  function removeFactor(idx: number) {
+    setAssessmentFactors((prev) => prev.filter((_, i) => i !== idx));
+    setDirty(true);
+  }
+
+  function updateFactor(idx: number, text: string) {
+    setAssessmentFactors((prev) => {
+      const copy = [...prev];
+      copy[idx] = { ...copy[idx], text };
+      return copy;
+    });
+    setDirty(true);
+  }
+
+  async function onAssessmentImageSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setUploadingAssessmentImage(true);
+    try {
+      const publicPath = await uploadImage(f);
+      setAssessmentImage(publicPath);
+      setDirty(true);
+      toast("Clinical assessment photo uploaded!");
+    } catch (x) {
+      toast(x instanceof Error ? x.message : "Upload failed", "error");
+    } finally {
+      setUploadingAssessmentImage(false);
+      e.target.value = "";
+    }
+  }
+
+  async function onDoctorImageSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setUploadingDoctorImage(true);
+    try {
+      const publicPath = await uploadImage(f);
+      setDoctorImage(publicPath);
+      setDirty(true);
+      toast("Doctor portrait photo uploaded!");
+    } catch (x) {
+      toast(x instanceof Error ? x.message : "Upload failed", "error");
+    } finally {
+      setUploadingDoctorImage(false);
+      e.target.value = "";
+    }
+  }
+
+  // Section 6: FAQ Handlers
+  function addFaqItem() {
+    setFaqItems((prev) => [
+      ...prev,
+      {
+        id: "faq_" + Math.random().toString(36).slice(2, 7),
+        question: "",
+        answer: "",
+      },
+    ]);
+    setDirty(true);
+  }
+
+  function removeFaqItem(idx: number) {
+    setFaqItems((prev) => prev.filter((_, i) => i !== idx));
+    setDirty(true);
+  }
+
+  function updateFaqItem(idx: number, patch: Partial<ServiceFaqItem>) {
+    setFaqItems((prev) => {
+      const copy = [...prev];
+      copy[idx] = { ...copy[idx], ...patch };
+      return copy;
+    });
+    setDirty(true);
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
     setErrors({});
 
-    const concernsSection: ServiceConcernsSection = {
-      tagline: concernsTagline,
-      heading: concernsHeading,
-      description: concernsDescription,
-      items: concernItems,
-      sideCard: {
-        image: sideCardImage,
-        text1: sideCardText1,
-        text2: sideCardText2,
-        ctaText: sideCardCtaText,
-        ctaLink: sideCardCtaLink,
-      },
-    };
+    const hasConcernsData =
+      concernsHeading.trim().length > 0 ||
+      concernsTagline.trim().length > 0 ||
+      concernsDescription.trim().length > 0 ||
+      concernItems.some((c) => c.title.trim().length > 0);
+
+    const concernsSection: ServiceConcernsSection | undefined = hasConcernsData
+      ? {
+          tagline: concernsTagline.trim(),
+          heading: concernsHeading.trim(),
+          description: concernsDescription.trim(),
+          items: concernItems.filter((c) => c.title.trim().length > 0),
+          sideCard: {
+            image: sideCardImage,
+            text1: sideCardText1.trim(),
+            text2: sideCardText2.trim(),
+            ctaText: sideCardCtaText.trim(),
+            ctaLink: sideCardCtaLink.trim(),
+          },
+        }
+      : undefined;
+
+    const hasTreatmentsData =
+      treatmentsHeading.trim().length > 0 ||
+      treatmentsTagline.trim().length > 0 ||
+      treatmentsDescription.trim().length > 0 ||
+      treatmentItems.some((t) => t.title.trim().length > 0);
+
+    const treatmentsSection: ServiceTreatmentsSection | undefined = hasTreatmentsData
+      ? {
+          tagline: treatmentsTagline.trim(),
+          heading: treatmentsHeading.trim(),
+          description: treatmentsDescription.trim(),
+          items: treatmentItems.filter((t) => t.title.trim().length > 0),
+          viewMoreText: viewMoreText.trim(),
+          viewMoreLink: viewMoreLink.trim(),
+        }
+      : undefined;
+
+    const hasAssessmentData =
+      assessmentHeading.trim().length > 0 ||
+      assessmentTagline.trim().length > 0 ||
+      assessmentDescription.trim().length > 0 ||
+      assessmentFactors.some((f) => f.text.trim().length > 0);
+
+    const assessmentSection: ServiceAssessmentSection | undefined = hasAssessmentData
+      ? {
+          tagline: assessmentTagline.trim(),
+          heading: assessmentHeading.trim(),
+          description: assessmentDescription.trim(),
+          factorsLead: assessmentFactorsLead.trim(),
+          factors: assessmentFactors.filter((f) => f.text.trim().length > 0),
+          note: assessmentNote.trim(),
+          image: assessmentImage,
+          imageAlt: assessmentImageAlt.trim(),
+          ctaText: assessmentCtaText.trim(),
+          ctaLink: assessmentCtaLink.trim(),
+        }
+      : undefined;
+
+    const hasDoctorData = doctorName.trim().length > 0;
+    const doctorSection: ServiceDoctorSection | undefined = hasDoctorData
+      ? {
+          tagline: doctorTagline.trim(),
+          name: doctorName.trim(),
+          designation: doctorDesignation.trim(),
+          experience: doctorExperience.trim(),
+          bioParagraphs: doctorBioText
+            .split("\n\n")
+            .map((p) => p.trim())
+            .filter((p) => p.length > 0),
+          image: doctorImage,
+          imageAlt: doctorImageAlt.trim(),
+          ctaText: doctorCtaText.trim(),
+          ctaLink: doctorCtaLink.trim(),
+        }
+      : undefined;
+
+    const validFaqs = faqItems.filter((f) => f.question.trim().length > 0 && f.answer.trim().length > 0);
+    const hasFaqData = faqHeading.trim().length > 0 || validFaqs.length > 0;
+    const faqSection: ServiceFaqSection | undefined = hasFaqData
+      ? {
+          heading: faqHeading.trim(),
+          items: validFaqs,
+        }
+      : undefined;
 
     const body = {
       serviceCategory: category,
@@ -269,7 +509,11 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
       status,
       seoTitle,
       metaDescription,
-      concernsSection,
+      ...(concernsSection ? { concernsSection } : {}),
+      ...(treatmentsSection ? { treatmentsSection } : {}),
+      ...(assessmentSection ? { assessmentSection } : {}),
+      ...(doctorSection ? { doctorSection } : {}),
+      ...(faqSection ? { faqSection } : {}),
       sections: page?.sections ?? {},
     };
 
@@ -334,13 +578,12 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
               setStatus(e.target.value as ServicePageStatus);
               setDirty(true);
             }}
-            className={`rounded-lg border px-3 py-2 text-[13px] font-semibold outline-none transition ${
-              status === "published"
+            className={`rounded-lg border px-3 py-2 text-[13px] font-semibold outline-none transition ${status === "published"
                 ? "border-emerald-300 bg-emerald-50 text-emerald-800"
                 : status === "draft"
-                ? "border-amber-300 bg-amber-50 text-amber-800"
-                : "border-gray-300 bg-gray-50 text-gray-700"
-            }`}
+                  ? "border-amber-300 bg-amber-50 text-amber-800"
+                  : "border-gray-300 bg-gray-50 text-gray-700"
+              }`}
           >
             <option value="draft">Draft</option>
             <option value="published">Published</option>
@@ -380,11 +623,10 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
                         setCategory(c.id);
                         setDirty(true);
                       }}
-                      className={`flex flex-col items-center justify-center rounded-lg p-3 text-center transition border ${
-                        active
+                      className={`flex flex-col items-center justify-center rounded-lg p-3 text-center transition border ${active
                           ? "border-brand bg-brand/10 text-brand ring-2 ring-brand/30 font-bold"
                           : "border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100"
-                      }`}
+                        }`}
                     >
                       <span className="text-[14px]">{c.label}</span>
                     </button>
@@ -515,29 +757,6 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
                     )}
                   </div>
 
-                  <div>
-                    <span className="text-[11px] font-medium text-gray-500 block mb-1">Preset samples:</span>
-                    <div className="flex flex-wrap gap-1.5">
-                      {SAMPLE_HERO_IMAGES.map((s) => (
-                        <button
-                          key={s.url}
-                          type="button"
-                          onClick={() => {
-                            setImage(s.url);
-                            setDirty(true);
-                          }}
-                          className={`rounded px-2 py-1 text-[11px] transition ${
-                            image === s.url
-                              ? "bg-brand text-white font-semibold"
-                              : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-100"
-                          }`}
-                        >
-                          {s.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
                   <div className="pt-1">
                     <input
                       type="text"
@@ -553,37 +772,6 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
                 </div>
               </div>
               {err("image")}
-            </div>
-
-            {/* CTA Settings */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-gray-100">
-              <div>
-                <label className="mb-1 block text-[13px] font-semibold text-gray-700">CTA Button Text</label>
-                <input
-                  type="text"
-                  value={ctaText}
-                  onChange={(e) => {
-                    setCtaText(e.target.value);
-                    setDirty(true);
-                  }}
-                  placeholder="Book a Consultation"
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[14px] outline-none focus:border-brand"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1 block text-[13px] font-semibold text-gray-700">CTA Action / Link</label>
-                <input
-                  type="text"
-                  value={ctaLink}
-                  onChange={(e) => {
-                    setCtaLink(e.target.value);
-                    setDirty(true);
-                  }}
-                  placeholder="#appointment"
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[14px] outline-none focus:border-brand"
-                />
-              </div>
             </div>
           </section>
 
@@ -841,17 +1029,762 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
             </div>
           </section>
 
-          {/* Section 3 Placeholder for Next Request */}
+          {/* Card 3: Section 3 - Treatments / Services Range Grid */}
+          <section className="rounded-xl bg-white p-5 shadow-sm border-2 border-brand/30">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
+              <div className="flex items-center gap-2">
+                <span className="rounded-full bg-brand px-2.5 py-0.5 text-[11px] font-bold text-white uppercase tracking-wider">
+                  Section 3
+                </span>
+                <h2 className="text-[17px] font-bold text-gray-900">
+                  Treatments / Services Range Grid
+                </h2>
+              </div>
+              <span className="text-[12px] font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full ring-1 ring-emerald-600/20">
+                New Section
+              </span>
+            </div>
+
+            {/* Section 3 Tagline, Heading & Intro */}
+            <div className="space-y-4">
+              <div>
+                <label className="mb-1 block text-[13px] font-semibold text-gray-700">
+                  Section 3 Tagline / Badge
+                </label>
+                <input
+                  type="text"
+                  value={treatmentsTagline}
+                  onChange={(e) => {
+                    setTreatmentsTagline(e.target.value);
+                    setDirty(true);
+                  }}
+                  placeholder="e.g. Our Hair Treatments"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[14px] font-medium text-brand outline-none focus:border-brand"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-[13px] font-semibold text-gray-700">
+                  Section 3 Main Heading *
+                </label>
+                <input
+                  type="text"
+                  value={treatmentsHeading}
+                  onChange={(e) => {
+                    setTreatmentsHeading(e.target.value);
+                    setDirty(true);
+                  }}
+                  placeholder="e.g. Explore Our Range of Hair Restoration Services"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[14px] font-bold text-gray-900 outline-none focus:border-brand"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-[13px] font-semibold text-gray-700">
+                  Section 3 Description Paragraph
+                </label>
+                <textarea
+                  value={treatmentsDescription}
+                  onChange={(e) => {
+                    setTreatmentsDescription(e.target.value);
+                    setDirty(true);
+                  }}
+                  rows={2}
+                  placeholder="e.g. From medical hair loss management to specialised hair transplantation techniques..."
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[13.5px] text-gray-700 outline-none focus:border-brand"
+                />
+              </div>
+            </div>
+
+            {/* Treatment Cards Manager */}
+            <div className="mt-6 border-t border-gray-100 pt-5">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h3 className="text-[14px] font-bold text-gray-900">
+                    Treatment Cards ({treatmentItems.length} items)
+                  </h3>
+                  <p className="text-[12px] text-gray-500">
+                    Displayed in a responsive 4-column service catalog with photos, descriptions &amp; CTA.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={addTreatmentCard}
+                  className="flex items-center gap-1 rounded-lg bg-teal-50 px-3 py-1.5 text-[12px] font-semibold text-teal-700 border border-teal-200 hover:bg-teal-100 transition"
+                >
+                  <FaPlus className="size-3" /> Add Treatment
+                </button>
+              </div>
+
+              <div className="space-y-3.5 max-h-[480px] overflow-y-auto pr-1">
+                {treatmentItems.map((item, idx) => (
+                  <div
+                    key={item.id || idx}
+                    className="rounded-xl border border-gray-200 bg-gray-50/70 p-3.5 transition hover:border-teal-300"
+                  >
+                    <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+                      {/* Image Thumbnail & Upload */}
+                      <div className="relative aspect-[16/10] w-28 shrink-0 rounded-lg overflow-hidden border border-gray-300 bg-white shadow-2xs">
+                        {item.image ? (
+                          <Image src={item.image} alt={item.title} fill className="object-cover" sizes="112px" />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-[10px] text-gray-400">
+                            No image
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex-1 w-full space-y-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <input
+                            type="text"
+                            value={item.title}
+                            onChange={(e) => updateTreatmentCard(idx, { title: e.target.value })}
+                            placeholder="Treatment Title"
+                            className="w-full rounded border border-gray-300 bg-white px-2.5 py-1 text-[13.5px] font-bold text-gray-900 outline-none focus:border-brand"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeTreatmentCard(idx)}
+                            className="p-1.5 text-gray-400 hover:text-red-600 transition shrink-0"
+                            title="Remove card"
+                          >
+                            <FaTrash className="size-3.5" />
+                          </button>
+                        </div>
+
+                        <textarea
+                          value={item.description}
+                          onChange={(e) => updateTreatmentCard(idx, { description: e.target.value })}
+                          rows={2}
+                          placeholder="Brief description of clinical procedure..."
+                          className="w-full rounded border border-gray-300 bg-white px-2 py-1 text-[12.5px] text-gray-700 outline-none focus:border-brand"
+                        />
+
+                        <div className="flex flex-wrap items-center gap-3 pt-1 text-[12px]">
+                          <label className="cursor-pointer font-semibold text-brand hover:underline inline-flex items-center gap-1">
+                            <FaCloudArrowUp className="size-3" />
+                            <span>{uploadingTreatmentIdx === idx ? "Uploading..." : "Upload Photo"}</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => onTreatmentFileSelected(idx, e)}
+                              disabled={uploadingTreatmentIdx === idx}
+                            />
+                          </label>
+
+                          <span className="text-gray-300">·</span>
+
+                          <select
+                            value={item.image}
+                            onChange={(e) => updateTreatmentCard(idx, { image: e.target.value })}
+                            className="text-[11.5px] text-gray-600 bg-transparent border-none outline-none max-w-[150px] truncate cursor-pointer hover:text-gray-900"
+                          >
+                            <option value="">Preset Photo</option>
+                            {TREATMENT_IMAGE_PRESETS.map((p) => (
+                              <option key={p.url} value={p.url}>
+                                {p.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Action Button Link & Label ("Know More") */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-gray-200/80">
+                          <div>
+                            <label className="block text-[11px] font-semibold text-gray-700 mb-0.5">
+                              Action Button Text
+                            </label>
+                            <input
+                              type="text"
+                              value={item.ctaText ?? ""}
+                              onChange={(e) => updateTreatmentCard(idx, { ctaText: e.target.value })}
+                              placeholder="Know More"
+                              className="w-full rounded border border-gray-300 bg-white px-2 py-1 text-[12px] outline-none focus:border-brand"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[11px] font-semibold text-gray-700 mb-0.5">
+                              Action Button Link
+                            </label>
+                            <input
+                              type="text"
+                              value={item.ctaLink ?? ""}
+                              onChange={(e) => updateTreatmentCard(idx, { ctaLink: e.target.value })}
+                              placeholder="e.g. #appointment or /services/..."
+                              className="w-full rounded border border-gray-300 bg-white px-2 py-1 text-[12px] font-mono outline-none focus:border-brand"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Bottom View More Button Settings */}
+            <div className="mt-5 border-t border-gray-100 pt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="mb-1 block text-[12px] font-semibold text-gray-700">
+                  Bottom Action Button Text
+                </label>
+                <input
+                  type="text"
+                  value={viewMoreText}
+                  onChange={(e) => {
+                    setViewMoreText(e.target.value);
+                    setDirty(true);
+                  }}
+                  placeholder="View More"
+                  className="w-full rounded border border-gray-300 bg-white px-2.5 py-1.5 text-[13px] outline-none focus:border-brand"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-[12px] font-semibold text-gray-700">
+                  Bottom Action Button Link
+                </label>
+                <input
+                  type="text"
+                  value={viewMoreLink}
+                  onChange={(e) => {
+                    setViewMoreLink(e.target.value);
+                    setDirty(true);
+                  }}
+                  placeholder="#appointment"
+                  className="w-full rounded border border-gray-300 bg-white px-2.5 py-1.5 text-[13px] outline-none focus:border-brand"
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* Section 4: Treatment Selection & Clinical Factors */}
+          <section className="rounded-xl bg-white p-5 shadow-sm border border-gray-200">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2 py-0.5 rounded">
+                  Section 4
+                </span>
+                <h2 className="text-[17px] font-bold text-gray-900 mt-1">
+                  Treatment Selection &amp; Clinical Factors
+                </h2>
+                <p className="text-[12.5px] text-gray-500">
+                  Doctor evaluation photo, factors checklist pills &amp; personalised clinical guidance note.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {/* Tagline */}
+              <div>
+                <label className="mb-1 block text-[13px] font-semibold text-gray-700">Category Tagline</label>
+                <input
+                  type="text"
+                  value={assessmentTagline}
+                  onChange={(e) => {
+                    setAssessmentTagline(e.target.value);
+                    setDirty(true);
+                  }}
+                  placeholder="Which Hair Treatment Is Right for You?"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[13px] outline-none focus:border-brand"
+                />
+              </div>
+
+              {/* Heading */}
+              <div>
+                <label className="mb-1 block text-[13px] font-semibold text-gray-700">Section Heading *</label>
+                <input
+                  type="text"
+                  value={assessmentHeading}
+                  onChange={(e) => {
+                    setAssessmentHeading(e.target.value);
+                    setDirty(true);
+                  }}
+                  placeholder="The Right Solution Begins With Understanding Your Hair Loss"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[13.5px] font-semibold outline-none focus:border-brand"
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="mb-1 block text-[13px] font-semibold text-gray-700">Section Description</label>
+                <textarea
+                  value={assessmentDescription}
+                  onChange={(e) => {
+                    setAssessmentDescription(e.target.value);
+                    setDirty(true);
+                  }}
+                  rows={2}
+                  placeholder="Not every hair concern requires the same treatment..."
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[13px] outline-none focus:border-brand"
+                />
+              </div>
+
+              {/* Left Column Image Picker */}
+              <div className="rounded-xl border border-teal-100 bg-teal-50/40 p-4">
+                <label className="mb-1 block text-[13px] font-semibold text-gray-800">
+                  Left Column Clinical Examination Photo
+                </label>
+                <div className="mt-2 flex items-center gap-4">
+                  <div className="relative aspect-[4/3.8] w-24 shrink-0 rounded-xl overflow-hidden border border-gray-300 bg-white shadow-2xs">
+                    {assessmentImage ? (
+                      <Image src={assessmentImage} alt="Assessment" fill className="object-cover" sizes="96px" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-[11px] text-gray-400">
+                        No image
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <div className="flex flex-wrap items-center gap-3 text-[12px]">
+                      <label className="cursor-pointer font-semibold text-brand hover:underline inline-flex items-center gap-1.5">
+                        <FaCloudArrowUp className="size-3.5" />
+                        <span>{uploadingAssessmentImage ? "Uploading..." : "Upload New Photo"}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={onAssessmentImageSelected}
+                          disabled={uploadingAssessmentImage}
+                        />
+                      </label>
+                      <span className="text-gray-300">·</span>
+                      <select
+                        value={assessmentImage}
+                        onChange={(e) => {
+                          setAssessmentImage(e.target.value);
+                          setDirty(true);
+                        }}
+                        className="text-[12px] text-gray-700 bg-white border border-gray-200 rounded px-2 py-1 outline-none hover:border-brand"
+                      >
+                        <option value="">Preset Images</option>
+                        {ASSESSMENT_IMAGE_PRESETS.map((p) => (
+                          <option key={p.url} value={p.url}>
+                            {p.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <input
+                      type="text"
+                      value={assessmentImage}
+                      onChange={(e) => {
+                        setAssessmentImage(e.target.value);
+                        setDirty(true);
+                      }}
+                      placeholder="Or enter image URL path (/images/...)"
+                      className="w-full rounded border border-gray-300 bg-white px-2.5 py-1 text-[12px] font-mono outline-none focus:border-brand"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Factors Lead-in Text */}
+              <div>
+                <label className="mb-1 block text-[13px] font-semibold text-gray-700">Factors Lead-in Text</label>
+                <input
+                  type="text"
+                  value={assessmentFactorsLead}
+                  onChange={(e) => {
+                    setAssessmentFactorsLead(e.target.value);
+                    setDirty(true);
+                  }}
+                  placeholder="Several factors influence treatment selection:"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[13px] outline-none focus:border-brand"
+                />
+              </div>
+
+              {/* Factors Checklist Manager */}
+              <div className="rounded-xl border border-gray-200 bg-gray-50/70 p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h3 className="text-[13.5px] font-bold text-gray-900">
+                      Factors Influencing Treatment Selection ({assessmentFactors.length})
+                    </h3>
+                    <p className="text-[11.5px] text-gray-500">
+                      Renders as full-width interactive pills with teal accent indicators.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={addFactor}
+                    className="flex items-center gap-1 rounded-lg bg-teal-50 px-2.5 py-1 text-[12px] font-semibold text-teal-700 border border-teal-200 hover:bg-teal-100 transition"
+                  >
+                    <FaPlus className="size-3" /> Add Factor
+                  </button>
+                </div>
+
+                <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1">
+                  {assessmentFactors.map((factor, idx) => (
+                    <div key={factor.id || idx} className="flex items-center gap-2.5 bg-white rounded-lg border border-gray-200 px-3 py-1.5 shadow-2xs">
+                      <span className="h-3.5 w-1 rounded-full bg-brand shrink-0" />
+                      <input
+                        type="text"
+                        value={factor.text}
+                        onChange={(e) => updateFactor(idx, e.target.value)}
+                        placeholder="e.g. Type and severity of hair loss"
+                        className="flex-1 bg-transparent text-[13px] text-gray-800 outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeFactor(idx)}
+                        className="text-gray-400 hover:text-red-500 p-1 transition"
+                        title="Remove factor"
+                      >
+                        <FaTrash className="size-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Clinical Note / Doctor Summary */}
+              <div>
+                <label className="mb-1 block text-[13px] font-semibold text-gray-700">
+                  Clinical Recommendation Note
+                </label>
+                <textarea
+                  value={assessmentNote}
+                  onChange={(e) => {
+                    setAssessmentNote(e.target.value);
+                    setDirty(true);
+                  }}
+                  rows={3}
+                  placeholder="At Dr. Kumar’s Skin & Hair Transplant Center, we assess these factors..."
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[13px] outline-none focus:border-brand leading-relaxed"
+                />
+              </div>
+
+              {/* Optional CTA Button */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-gray-100">
+                <div>
+                  <label className="mb-1 block text-[12px] font-semibold text-gray-700">
+                    Optional Action Button Text
+                  </label>
+                  <input
+                    type="text"
+                    value={assessmentCtaText}
+                    onChange={(e) => {
+                      setAssessmentCtaText(e.target.value);
+                      setDirty(true);
+                    }}
+                    placeholder="e.g. Book Scalp Assessment (or leave blank)"
+                    className="w-full rounded border border-gray-300 bg-white px-2.5 py-1.5 text-[13px] outline-none focus:border-brand"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-[12px] font-semibold text-gray-700">
+                    Action Button Link
+                  </label>
+                  <input
+                    type="text"
+                    value={assessmentCtaLink}
+                    onChange={(e) => {
+                      setAssessmentCtaLink(e.target.value);
+                      setDirty(true);
+                    }}
+                    placeholder="#appointment"
+                    className="w-full rounded border border-gray-300 bg-white px-2.5 py-1.5 text-[13px] outline-none focus:border-brand"
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Section 5: Specialist / Doctor Profile */}
+          <section className="rounded-xl bg-white p-5 shadow-sm border border-gray-200">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2 py-0.5 rounded">
+                  Section 5
+                </span>
+                <h2 className="text-[17px] font-bold text-gray-900 mt-1">
+                  Specialist / Doctor Profile
+                </h2>
+                <p className="text-[12.5px] text-gray-500">
+                  Doctor portrait with stylized backdrop, credentials header, clinical bio &amp; direct appointment CTA.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {/* Tagline */}
+              <div>
+                <label className="mb-1 block text-[13px] font-semibold text-gray-700">Section Title / Tagline</label>
+                <input
+                  type="text"
+                  value={doctorTagline}
+                  onChange={(e) => {
+                    setDoctorTagline(e.target.value);
+                    setDirty(true);
+                  }}
+                  placeholder="Meet Your Hair Restoration Specialist"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[13px] font-semibold outline-none focus:border-brand"
+                />
+              </div>
+
+              {/* Doctor Name & Designation */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1 block text-[13px] font-semibold text-gray-700">Doctor Name *</label>
+                  <input
+                    type="text"
+                    value={doctorName}
+                    onChange={(e) => {
+                      setDoctorName(e.target.value);
+                      setDirty(true);
+                    }}
+                    placeholder="Dr. Ashok Kumar"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[13.5px] font-bold outline-none focus:border-brand"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-[13px] font-semibold text-gray-700">Designation / Specialty</label>
+                  <input
+                    type="text"
+                    value={doctorDesignation}
+                    onChange={(e) => {
+                      setDoctorDesignation(e.target.value);
+                      setDirty(true);
+                    }}
+                    placeholder="Dermatologist | Hair Transplant Specialist"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[13px] outline-none focus:border-brand"
+                  />
+                </div>
+              </div>
+
+              {/* Experience */}
+              <div>
+                <label className="mb-1 block text-[13px] font-semibold text-gray-700">Clinical Experience Badge</label>
+                <input
+                  type="text"
+                  value={doctorExperience}
+                  onChange={(e) => {
+                    setDoctorExperience(e.target.value);
+                    setDirty(true);
+                  }}
+                  placeholder="13+ Years of Experience"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[13px] font-semibold text-brand outline-none focus:border-brand"
+                />
+              </div>
+
+              {/* Doctor Portrait Image Picker */}
+              <div className="rounded-xl border border-teal-100 bg-teal-50/40 p-4">
+                <label className="mb-1 block text-[13px] font-semibold text-gray-800">
+                  Doctor Portrait Photo (Cutout)
+                </label>
+                <div className="mt-2 flex items-center gap-4">
+                  <div className="relative aspect-[4/4] w-24 shrink-0 rounded-xl overflow-hidden border border-gray-300 bg-white shadow-2xs">
+                    {doctorImage ? (
+                      <Image src={doctorImage} alt="Doctor" fill className="object-contain object-bottom" sizes="96px" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-[11px] text-gray-400">
+                        No image
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <div className="flex flex-wrap items-center gap-3 text-[12px]">
+                      <label className="cursor-pointer font-semibold text-brand hover:underline inline-flex items-center gap-1.5">
+                        <FaCloudArrowUp className="size-3.5" />
+                        <span>{uploadingDoctorImage ? "Uploading..." : "Upload New Photo"}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={onDoctorImageSelected}
+                          disabled={uploadingDoctorImage}
+                        />
+                      </label>
+                      <span className="text-gray-300">·</span>
+                      <select
+                        value={doctorImage}
+                        onChange={(e) => {
+                          setDoctorImage(e.target.value);
+                          setDirty(true);
+                        }}
+                        className="text-[12px] text-gray-700 bg-white border border-gray-200 rounded px-2 py-1 outline-none hover:border-brand"
+                      >
+                        <option value="">Preset Images</option>
+                        {DOCTOR_IMAGE_PRESETS.map((p) => (
+                          <option key={p.url} value={p.url}>
+                            {p.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <input
+                      type="text"
+                      value={doctorImage}
+                      onChange={(e) => {
+                        setDoctorImage(e.target.value);
+                        setDirty(true);
+                      }}
+                      placeholder="Or enter image URL path (/images/...)"
+                      className="w-full rounded border border-gray-300 bg-white px-2.5 py-1 text-[12px] font-mono outline-none focus:border-brand"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Bio Paragraphs */}
+              <div>
+                <label className="mb-1 block text-[13px] font-semibold text-gray-700">
+                  Doctor Clinical Bio (Separate paragraphs with an empty line)
+                </label>
+                <textarea
+                  value={doctorBioText}
+                  onChange={(e) => {
+                    setDoctorBioText(e.target.value);
+                    setDirty(true);
+                  }}
+                  rows={6}
+                  placeholder="Enter detailed bio paragraphs..."
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[13px] outline-none focus:border-brand leading-relaxed"
+                />
+              </div>
+
+              {/* Consultation CTA Button */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-gray-100">
+                <div>
+                  <label className="mb-1 block text-[12px] font-semibold text-gray-700">
+                    Button Label
+                  </label>
+                  <input
+                    type="text"
+                    value={doctorCtaText}
+                    onChange={(e) => {
+                      setDoctorCtaText(e.target.value);
+                      setDirty(true);
+                    }}
+                    placeholder="Book a Consultation With Dr. Ashok Kumar"
+                    className="w-full rounded border border-gray-300 bg-white px-2.5 py-1.5 text-[13px] outline-none focus:border-brand"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-[12px] font-semibold text-gray-700">
+                    Button Action Link
+                  </label>
+                  <input
+                    type="text"
+                    value={doctorCtaLink}
+                    onChange={(e) => {
+                      setDoctorCtaLink(e.target.value);
+                      setDirty(true);
+                    }}
+                    placeholder="#appointment"
+                    className="w-full rounded border border-gray-300 bg-white px-2.5 py-1.5 text-[13px] outline-none focus:border-brand"
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Section 6: Frequently Asked Questions (FAQ) */}
+          <section className="rounded-xl bg-white p-5 shadow-sm border border-gray-200">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2 py-0.5 rounded">
+                  Section 6
+                </span>
+                <h2 className="text-[17px] font-bold text-gray-900 mt-1">
+                  Frequently Asked Questions (FAQ)
+                </h2>
+                <p className="text-[12.5px] text-gray-500">
+                  Interactive 2-column accordion questions. All questions start closed by default.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {/* Heading */}
+              <div>
+                <label className="mb-1 block text-[13px] font-semibold text-gray-700">Section Heading</label>
+                <input
+                  type="text"
+                  value={faqHeading}
+                  onChange={(e) => {
+                    setFaqHeading(e.target.value);
+                    setDirty(true);
+                  }}
+                  placeholder="Frequently Asked Questions"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[13.5px] font-semibold outline-none focus:border-brand"
+                />
+              </div>
+
+              {/* FAQ Items Manager */}
+              <div className="rounded-xl border border-gray-200 bg-gray-50/70 p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h3 className="text-[13.5px] font-bold text-gray-900">
+                      Questions &amp; Answers ({faqItems.length})
+                    </h3>
+                    <p className="text-[11.5px] text-gray-500">
+                      Arranged in an interactive 2-column expandable layout.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={addFaqItem}
+                    className="flex items-center gap-1 rounded-lg bg-teal-50 px-2.5 py-1 text-[12px] font-semibold text-teal-700 border border-teal-200 hover:bg-teal-100 transition"
+                  >
+                    <FaPlus className="size-3" /> Add FAQ
+                  </button>
+                </div>
+
+                <div className="space-y-3 max-h-[460px] overflow-y-auto pr-1">
+                  {faqItems.map((item, idx) => (
+                    <div
+                      key={item.id || idx}
+                      className="rounded-xl border border-gray-200 bg-white p-3 shadow-2xs space-y-2"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded">
+                          Q{idx + 1}
+                        </span>
+                        <input
+                          type="text"
+                          value={item.question}
+                          onChange={(e) => updateFaqItem(idx, { question: e.target.value })}
+                          placeholder="Enter patient question..."
+                          className="flex-1 rounded border border-gray-300 bg-white px-2.5 py-1 text-[13px] font-semibold text-gray-900 outline-none focus:border-brand"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeFaqItem(idx)}
+                          className="text-gray-400 hover:text-red-500 p-1 transition shrink-0"
+                          title="Remove question"
+                        >
+                          <FaTrash className="size-3" />
+                        </button>
+                      </div>
+
+                      <textarea
+                        value={item.answer}
+                        onChange={(e) => updateFaqItem(idx, { answer: e.target.value })}
+                        rows={2}
+                        placeholder="Enter clinical answer and recommendations..."
+                        className="w-full rounded border border-gray-300 bg-white px-2.5 py-1 text-[12.5px] text-gray-700 outline-none focus:border-brand"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Section 7 Placeholder for Subsequent Requests */}
           <section className="rounded-xl border border-dashed border-gray-300 bg-gray-50/70 p-5 text-center">
             <div className="mx-auto max-w-md">
               <span className="inline-flex items-center gap-1 rounded-full bg-gray-200 px-3 py-1 text-[12px] font-medium text-gray-700 mb-2">
                 Upcoming
               </span>
               <h3 className="text-[15px] font-semibold text-gray-800">
-                Ready for Section 3
+                Ready for Section 7
               </h3>
               <p className="mt-1 text-[12px] text-gray-500">
-                Section 1 and Section 2 are both live and configured. Provide Section 3 next and we will integrate it!
+                Sections 1 through 6 are all live and configured. Provide Section 7 next and we will integrate it!
               </p>
             </div>
           </section>
@@ -907,33 +1840,62 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
             </div>
 
             {/* Preview Section Switcher Tabs */}
-            <div className="flex gap-1 mb-3 rounded-lg bg-gray-100 p-1">
+            <div className="grid grid-cols-4 sm:grid-cols-7 gap-1 mb-3 rounded-lg bg-gray-100 p-1">
               <button
                 type="button"
                 onClick={() => setPreviewTab("full")}
-                className={`flex-1 rounded py-1 text-[11px] font-bold transition ${
-                  previewTab === "full" ? "bg-white text-brand shadow-xs" : "text-gray-600 hover:text-gray-900"
-                }`}
+                className={`rounded py-1 text-[11px] font-bold transition ${previewTab === "full" ? "bg-white text-brand shadow-xs" : "text-gray-600 hover:text-gray-900"
+                  }`}
               >
                 Full Page
               </button>
               <button
                 type="button"
                 onClick={() => setPreviewTab("section1")}
-                className={`flex-1 rounded py-1 text-[11px] font-bold transition ${
-                  previewTab === "section1" ? "bg-white text-brand shadow-xs" : "text-gray-600 hover:text-gray-900"
-                }`}
+                className={`rounded py-1 text-[11px] font-bold transition ${previewTab === "section1" ? "bg-white text-brand shadow-xs" : "text-gray-600 hover:text-gray-900"
+                  }`}
               >
-                Section 1 (Hero)
+                Hero
               </button>
               <button
                 type="button"
                 onClick={() => setPreviewTab("section2")}
-                className={`flex-1 rounded py-1 text-[11px] font-bold transition ${
-                  previewTab === "section2" ? "bg-white text-brand shadow-xs" : "text-gray-600 hover:text-gray-900"
-                }`}
+                className={`rounded py-1 text-[11px] font-bold transition ${previewTab === "section2" ? "bg-white text-brand shadow-xs" : "text-gray-600 hover:text-gray-900"
+                  }`}
               >
-                Section 2 (Concerns)
+                Concerns
+              </button>
+              <button
+                type="button"
+                onClick={() => setPreviewTab("section3")}
+                className={`rounded py-1 text-[11px] font-bold transition ${previewTab === "section3" ? "bg-white text-brand shadow-xs" : "text-gray-600 hover:text-gray-900"
+                  }`}
+              >
+                Treatments
+              </button>
+              <button
+                type="button"
+                onClick={() => setPreviewTab("section4")}
+                className={`rounded py-1 text-[11px] font-bold transition ${previewTab === "section4" ? "bg-white text-brand shadow-xs" : "text-gray-600 hover:text-gray-900"
+                  }`}
+              >
+                Selection
+              </button>
+              <button
+                type="button"
+                onClick={() => setPreviewTab("section5")}
+                className={`rounded py-1 text-[11px] font-bold transition ${previewTab === "section5" ? "bg-white text-brand shadow-xs" : "text-gray-600 hover:text-gray-900"
+                  }`}
+              >
+                Specialist
+              </button>
+              <button
+                type="button"
+                onClick={() => setPreviewTab("section6")}
+                className={`rounded py-1 text-[11px] font-bold transition ${previewTab === "section6" ? "bg-white text-brand shadow-xs" : "text-gray-600 hover:text-gray-900"
+                  }`}
+              >
+                FAQs
               </button>
             </div>
 
@@ -941,34 +1903,43 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
             <div className="overflow-hidden rounded-xl border border-gray-200 shadow-sm space-y-2 bg-white">
               {/* SECTION 1 LIVE PREVIEW */}
               {(previewTab === "section1" || previewTab === "full") && (
-                <div
-                  className="relative overflow-hidden p-4 sm:p-5 border-b border-teal-100"
-                  style={{
-                    background: "linear-gradient(135deg, #e7f7f5 0%, #f4fbfa 55%, #ffffff 100%)",
-                  }}
-                >
-                  <div className="flex flex-col gap-3">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-teal-700 bg-teal-100/60 px-2 py-0.5 rounded w-fit">
+                <div className="relative overflow-hidden p-5 border-b border-teal-100 min-h-[220px] flex items-center bg-[#e4f7f4]">
+                  {/* Background Image Layer */}
+                  {image && (
+                    <div className="absolute inset-0 z-0">
+                      <Image
+                        src={image}
+                        alt="Preview"
+                        fill
+                        unoptimized
+                        className="object-cover object-right"
+                        sizes="420px"
+                      />
+                    </div>
+                  )}
+
+                  {/* Soft text backdrop gradient strictly on left */}
+                  <div
+                    className="absolute inset-0 z-10 bg-gradient-to-r from-[#e4f7f4]/90 via-[#e4f7f4]/40 to-transparent via-40% to-60% pointer-events-none"
+                    aria-hidden
+                  />
+
+                  {/* Text Content */}
+                  <div className="relative z-20 flex flex-col gap-2 max-w-[70%]">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-teal-800 bg-teal-100/80 px-2 py-0.5 rounded w-fit">
                       Section 1 · Hero Banner
                     </span>
-                    <h1 className="text-[18px] sm:text-[20px] font-bold leading-tight text-[#101828]">
+                    <h1 className="text-[16px] sm:text-[18px] font-bold leading-tight text-[#101828]">
                       {title || "Advanced Hair Loss & Hair Restoration Treatments in Kondapur, Hyderabad"}
                     </h1>
-                    <p className="text-[13px] font-semibold text-brand leading-snug">
+                    <p className="text-[12px] sm:text-[13px] font-semibold text-brand leading-snug">
                       {subtitle || "Personalised Care for Hair Fall, Thinning Hair & Baldness"}
                     </p>
-                    <div>
-                      <span className="inline-flex items-center gap-2 rounded-full bg-brand px-4 py-2 text-[12px] font-semibold text-white shadow-sm">
-                        <FaCalendarDays className="size-3.5" />
-                        <span>{ctaText || "Book a Consultation"}</span>
+                    <div className="pt-1">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-brand px-3.5 py-1.5 text-[11px] font-semibold text-white shadow-sm">
+                        <FaCalendarDays className="size-3" />
+                        <span>Book a Consultation</span>
                       </span>
-                    </div>
-                    <div className="relative mt-1 h-36 w-full overflow-hidden rounded-xl border border-teal-100 bg-white/70 shadow-inner flex items-center justify-center">
-                      {image ? (
-                        <Image src={image} alt="Preview" fill className="object-cover object-center" sizes="380px" />
-                      ) : (
-                        <div className="text-gray-400 text-[11px]">No image</div>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -982,55 +1953,329 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
                   </span>
 
                   <div>
-                    <h3 className="text-[16px] font-bold text-brand leading-snug">
-                      {concernsTagline || "Understanding Your Hair Concerns"}
-                    </h3>
+                    {concernsTagline && (
+                      <h3 className="text-[16px] font-bold text-brand leading-snug">
+                        {concernsTagline}
+                      </h3>
+                    )}
                     <h4 className="text-[15px] font-bold text-[#111828] leading-tight mt-1">
-                      {concernsHeading || "Different Hair Problems Need Different Treatment Approaches"}
+                      {concernsHeading || "Understanding Your Concerns"}
                     </h4>
-                    <p className="text-[12px] text-gray-600 mt-1 line-clamp-2">
-                      {concernsDescription}
-                    </p>
+                    {concernsDescription && (
+                      <p className="text-[12px] text-gray-600 mt-1 line-clamp-2">
+                        {concernsDescription}
+                      </p>
+                    )}
                   </div>
 
                   {/* Concerns Circles Mockup */}
-                  <div className="grid grid-cols-4 gap-2 pt-1">
-                    {concernItems.slice(0, 8).map((item) => (
-                      <div key={item.id} className="flex flex-col items-center text-center">
-                        <div className="relative size-12 rounded-full overflow-hidden border border-teal-200 bg-teal-50 shadow-xs">
-                          {item.image && (
-                            <Image src={item.image} alt={item.title} fill className="object-cover" sizes="48px" />
-                          )}
+                  {concernItems.length > 0 ? (
+                    <div className="grid grid-cols-4 gap-2 pt-1">
+                      {concernItems.slice(0, 8).map((item) => (
+                        <div key={item.id} className="flex flex-col items-center text-center">
+                          <div className="relative size-12 rounded-full overflow-hidden border border-teal-200 bg-teal-50 shadow-xs">
+                            {item.image ? (
+                              <Image src={item.image} alt={item.title} fill className="object-cover" sizes="48px" />
+                            ) : (
+                              <div className="w-full h-full bg-teal-100/50 flex items-center justify-center text-[9px] text-teal-600">●</div>
+                            )}
+                          </div>
+                          <span className="text-[10px] font-semibold text-gray-800 line-clamp-2 mt-1 leading-tight">
+                            {item.title || "Concern"}
+                          </span>
                         </div>
-                        <span className="text-[10px] font-semibold text-gray-800 line-clamp-2 mt-1 leading-tight">
-                          {item.title}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-[11px] text-gray-400 italic py-2 text-center border border-dashed border-gray-200 rounded-lg">
+                      No concerns added yet
+                    </p>
+                  )}
 
                   {/* Right Side Card Mockup */}
-                  <div className="rounded-xl bg-[#ecfaf7] border border-[#cbece6] p-3.5 space-y-2 mt-3">
-                    {sideCardImage && (
-                      <div className="relative w-full h-28 rounded-lg overflow-hidden bg-white shadow-inner">
-                        <Image src={sideCardImage} alt="Specialist" fill className="object-cover object-top" sizes="300px" />
+                  {(sideCardText1 || sideCardText2 || sideCardImage) && (
+                    <div className="rounded-xl bg-[#ecfaf7] border border-[#cbece6] p-3.5 space-y-2 mt-3">
+                      {sideCardImage && (
+                        <div className="relative w-full h-28 rounded-lg overflow-hidden bg-white shadow-inner">
+                          <Image src={sideCardImage} alt="Specialist" fill className="object-cover object-top" sizes="300px" />
+                        </div>
+                      )}
+                      {sideCardText1 && <p className="text-[11.5px] text-gray-700 line-clamp-2">{sideCardText1}</p>}
+                      {sideCardText2 && (
+                        <p className="text-[11.5px] text-gray-700 line-clamp-2">
+                          <span className="font-semibold text-brand">At Dr. Kumar’s: </span>
+                          {sideCardText2}
+                        </p>
+                      )}
+                      <span className="inline-flex items-center justify-center rounded-full bg-brand px-4 py-1.5 text-[11px] font-semibold text-white shadow-xs">
+                        {sideCardCtaText || "Consult Our Specialist"}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* SECTION 3 LIVE PREVIEW */}
+              {(previewTab === "section3" || previewTab === "full") && (
+                <div className="p-4 sm:p-5 bg-white space-y-4 border-t border-gray-100">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-teal-700 bg-teal-100/60 px-2 py-0.5 rounded w-fit block">
+                    Section 3 · Treatment Range
+                  </span>
+
+                  <div className="text-center">
+                    {treatmentsTagline && (
+                      <span className="text-[11px] font-bold text-brand uppercase tracking-wider">
+                        {treatmentsTagline}
+                      </span>
+                    )}
+                    <h4 className="text-[15px] font-bold text-[#111828] leading-tight mt-0.5">
+                      {treatmentsHeading || "Explore Our Range of Services"}
+                    </h4>
+                    {treatmentsDescription && (
+                      <p className="text-[11.5px] text-gray-600 mt-1 line-clamp-2">
+                        {treatmentsDescription}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* 4-column Treatment Cards Mockup */}
+                  {treatmentItems.length > 0 ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+                      {treatmentItems.slice(0, 8).map((item) => (
+                        <div
+                          key={item.id}
+                          className="flex flex-col overflow-hidden rounded-xl border border-teal-200/60 bg-white shadow-2xs"
+                        >
+                          <div className="relative aspect-[16/10] w-full bg-gray-50 overflow-hidden">
+                            {item.image && (
+                              <Image src={item.image} alt={item.title} fill className="object-cover" sizes="120px" />
+                            )}
+                          </div>
+                          <div className="p-2 flex flex-1 flex-col justify-between">
+                            <div>
+                              <h5 className="text-[10.5px] font-bold text-brand leading-tight line-clamp-1">
+                                {item.title || "Treatment"}
+                              </h5>
+                              {item.description && (
+                                <p className="text-[9.5px] text-gray-500 mt-1 line-clamp-2 leading-tight">
+                                  {item.description}
+                                </p>
+                              )}
+                            </div>
+                            <span className="mt-2 inline-flex items-center justify-center rounded bg-brand px-2 py-0.5 text-[9px] font-semibold text-white w-fit">
+                              {item.ctaText || "Know More"}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-[11px] text-gray-400 italic py-2 text-center border border-dashed border-gray-200 rounded-lg">
+                      No treatments added yet
+                    </p>
+                  )}
+
+                  {viewMoreText && (
+                    <div className="text-center pt-1">
+                      <span className="inline-flex items-center justify-center rounded-lg bg-brand px-4 py-1.5 text-[11px] font-semibold text-white shadow-2xs">
+                        {viewMoreText}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* SECTION 4 LIVE PREVIEW */}
+              {(previewTab === "section4" || previewTab === "full") && (
+                <div className="p-4 sm:p-5 bg-[#f0faf9] space-y-3.5 border-t border-teal-100">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-teal-700 bg-teal-100/60 px-2 py-0.5 rounded w-fit block">
+                    Section 4 · Treatment Selection
+                  </span>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+                    {/* Left Scalp Image */}
+                    {assessmentImage && (
+                      <div className="sm:col-span-5 flex justify-center">
+                        <div className="relative w-full aspect-[4/3.8] rounded-xl overflow-hidden border border-white shadow-xs bg-white">
+                          <Image src={assessmentImage} alt="Assessment" fill className="object-cover" sizes="150px" />
+                        </div>
                       </div>
                     )}
-                    <p className="text-[11.5px] text-gray-700 line-clamp-2">{sideCardText1}</p>
-                    <p className="text-[11.5px] text-gray-700 line-clamp-2">
-                      <span className="font-semibold text-brand">At Dr. Kumar’s: </span>
-                      {sideCardText2}
-                    </p>
-                    <span className="inline-flex items-center justify-center rounded-full bg-brand px-4 py-1.5 text-[11px] font-semibold text-white shadow-xs">
-                      {sideCardCtaText || "Consult Our Specialist"}
-                    </span>
+
+                    {/* Right Content */}
+                    <div className={`${assessmentImage ? "sm:col-span-7" : "sm:col-span-12"} space-y-1.5`}>
+                      {assessmentTagline && (
+                        <span className="text-[10px] font-bold text-brand uppercase tracking-wider">
+                          {assessmentTagline}
+                        </span>
+                      )}
+                      <h4 className="text-[13px] font-bold text-[#111828] leading-tight">
+                        {assessmentHeading || "Treatment Selection & Clinical Factors"}
+                      </h4>
+                      {assessmentDescription && (
+                        <p className="text-[10.5px] text-gray-600 line-clamp-2 leading-relaxed">
+                          {assessmentDescription}
+                        </p>
+                      )}
+
+                      {assessmentFactorsLead && (
+                        <p className="text-[10px] font-semibold text-gray-700 pt-0.5">
+                          {assessmentFactorsLead}
+                        </p>
+                      )}
+
+                      {/* Factors Pills */}
+                      {assessmentFactors.length > 0 ? (
+                        <div className="space-y-1 pt-0.5">
+                          {assessmentFactors.slice(0, 5).map((f, i) => (
+                            <div key={f.id || i} className="flex items-center gap-1.5 bg-white rounded-full border border-teal-100 px-2.5 py-0.5 text-[9.5px] text-teal-900 font-medium">
+                              <span className="h-2 w-0.5 rounded-full bg-brand shrink-0" />
+                              <span className="truncate">{f.text || "Factor"}</span>
+                            </div>
+                          ))}
+                          {assessmentFactors.length > 5 && (
+                            <p className="text-[9px] text-gray-400 pl-2">+{assessmentFactors.length - 5} more factors</p>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-[10px] text-gray-400 italic py-1">No factors added yet</p>
+                      )}
+
+                      {assessmentCtaText && (
+                        <div className="pt-1">
+                          <span className="inline-flex items-center justify-center rounded bg-brand px-2.5 py-1 text-[9.5px] font-semibold text-white">
+                            {assessmentCtaText}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
+                </div>
+              )}
+
+              {/* SECTION 5 LIVE PREVIEW */}
+              {(previewTab === "section5" || previewTab === "full") && (
+                <div className="p-4 sm:p-5 bg-white space-y-3.5 border-t border-gray-100">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-teal-700 bg-teal-100/60 px-2 py-0.5 rounded w-fit block">
+                    Section 5 · Specialist Profile
+                  </span>
+
+                  {doctorTagline && (
+                    <h4 className="text-[13px] font-bold text-brand leading-snug">
+                      {doctorTagline}
+                    </h4>
+                  )}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+                    {/* Left Doctor Card Photo */}
+                    {doctorImage && (
+                      <div className="sm:col-span-5 flex justify-center">
+                        <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-white shadow-2xs">
+                          <Image src={doctorImage} alt="Doctor" fill className="object-contain object-center rounded-xl" sizes="150px" />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Right Content */}
+                    <div className={`${doctorImage ? "sm:col-span-7" : "sm:col-span-12"} space-y-2`}>
+                      <div className="rounded-xl bg-[#edf8f6] p-2.5 border border-teal-100/70">
+                        <h5 className="text-[13px] font-bold text-gray-900 leading-tight">
+                          {doctorName || "Specialist Name"}
+                        </h5>
+                        {doctorDesignation && (
+                          <p className="text-[10px] font-bold text-brand mt-0.5">
+                            {doctorDesignation}
+                          </p>
+                        )}
+                        {doctorExperience && (
+                          <p className="text-[9.5px] font-bold text-teal-700 mt-0.5">
+                            {doctorExperience}
+                          </p>
+                        )}
+                      </div>
+
+                      {doctorBioText && (
+                        <p className="text-[10.5px] text-gray-600 line-clamp-3 leading-relaxed">
+                          {doctorBioText.split("\n\n")[0]}
+                        </p>
+                      )}
+
+                      {doctorCtaText && (
+                        <div className="pt-0.5">
+                          <span className="inline-flex items-center gap-1.5 rounded-full border border-brand bg-white px-3 py-1 text-[9.5px] font-semibold text-brand shadow-2xs">
+                            <FaRegCalendarCheck className="size-3" />
+                            <span>{doctorCtaText}</span>
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* SECTION 6 LIVE PREVIEW */}
+              {(previewTab === "section6" || previewTab === "full") && (
+                <div className="p-4 sm:p-5 bg-[#f0faf9] space-y-3 border-t border-teal-100">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-teal-700 bg-teal-100/60 px-2 py-0.5 rounded w-fit block">
+                    Section 6 · FAQs (Interactive)
+                  </span>
+
+                  <h4 className="text-[14px] font-bold text-brand leading-tight">
+                    {faqHeading || "Frequently Asked Questions"}
+                  </h4>
+
+                  {faqItems.length > 0 ? (
+                    <div className="space-y-2 pt-1">
+                      {faqItems.slice(0, 6).map((item, idx) => {
+                        const id = item.id || `faq-${idx}`;
+                        const isOpen = previewOpenFaq === id;
+                        return (
+                          <div
+                            key={id}
+                            onClick={() => setPreviewOpenFaq(isOpen ? null : id)}
+                            className={`rounded-xl p-2.5 transition cursor-pointer ${
+                              isOpen
+                                ? "bg-brand text-white shadow-xs"
+                                : "bg-white border border-teal-500/80 hover:border-brand shadow-2xs"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <span
+                                className={`text-[11px] font-bold leading-tight select-none ${
+                                  isOpen ? "text-white" : "text-[#0f766e]"
+                                }`}
+                              >
+                                {item.question || "Question"}
+                              </span>
+                              <span className="text-[14px] font-bold leading-none select-none">
+                                {isOpen ? "−" : "+"}
+                              </span>
+                            </div>
+                            {isOpen && (
+                              <p className="mt-1.5 pt-1.5 border-t border-teal-600 text-[10px] text-teal-50 leading-relaxed">
+                                {item.answer || "Answer"}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })}
+                      {faqItems.length > 6 && (
+                        <p className="text-[9.5px] text-gray-500 text-center pt-1">
+                          +{faqItems.length - 6} more questions (click to test toggle or view full page)
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-[10px] text-gray-400 italic py-2 text-center border border-dashed border-teal-200/60 rounded-lg">
+                      No FAQs added yet
+                    </p>
+                  )}
                 </div>
               )}
             </div>
 
             <div className="mt-4 rounded-lg bg-teal-50/70 p-3 text-[12px] text-teal-900 border border-teal-100">
-              <p className="font-semibold">✨ Section 1 &amp; Section 2 integrated:</p>
+              <p className="font-semibold">✨ Sections 1, 2, 3, 4, 5 &amp; 6 integrated:</p>
               <p className="mt-0.5 text-teal-800">
                 Any changes made on the left form update this real-time preview and public pages immediately.
               </p>

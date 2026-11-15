@@ -54,6 +54,190 @@ export const DEFAULT_SERVICE_PAGES: ServicePage[] = [
         ctaLink: "#appointment",
       },
     },
+    treatmentsSection: {
+      tagline: "Our Hair Treatments",
+      heading: "Explore Our Range of Hair Restoration Services",
+      description:
+        "From medical hair loss management to specialised hair transplantation techniques, we offer treatment options for different hair and scalp concerns.",
+      items: [
+        {
+          id: "ht1",
+          title: "Stem Cell Hair Therapy",
+          description:
+            "An experimental regenerative approach being studied for hair restoration. Its safety and effectiveness are not yet established.",
+          image: "/images/treatments/stem-cell-therapy.webp",
+          ctaText: "Know More",
+          ctaLink: "#appointment",
+        },
+        {
+          id: "ht2",
+          title: "Human-Derived Exosomes Hair Treatment",
+          description:
+            "An emerging approach being investigated for hair and scalp applications, with limited evidence of clinical effectiveness and long-term safety.",
+          image: "/images/treatments/human-exosomes.webp",
+          ctaText: "Know More",
+          ctaLink: "#appointment",
+        },
+        {
+          id: "ht3",
+          title: "Dutasteride Mesotherapy",
+          description:
+            "An off-label treatment involving scalp injections of dutasteride for androgen-related hair loss, with limited clinical evidence.",
+          image: "/images/treatments/dutasteride-mesotherapy.webp",
+          ctaText: "Know More",
+          ctaLink: "#appointment",
+        },
+        {
+          id: "ht4",
+          title: "Female Hair Transplant",
+          description:
+            "A surgical hair restoration procedure for suitable women experiencing stable hair thinning or hair loss in specific areas.",
+          image: "/images/treatments/female-hair-transplant.webp",
+          ctaText: "Know More",
+          ctaLink: "#appointment",
+        },
+        {
+          id: "ht5",
+          title: "Hair Transplant",
+          description:
+            "A surgical procedure that transfers healthy hair follicles to areas affected by thinning hair or baldness.",
+          image: "/images/treatments/hair-transplant.webp",
+          ctaText: "Know More",
+          ctaLink: "#appointment",
+        },
+        {
+          id: "ht6",
+          title: "GFC Hair Treatment",
+          description:
+            "A blood-derived growth factor treatment considered for selected hair thinning concerns, although evidence remains limited.",
+          image: "/images/treatments/gfc-treatment.webp",
+          ctaText: "Know More",
+          ctaLink: "#appointment",
+        },
+        {
+          id: "ht7",
+          title: "Hair Loss Treatment",
+          description:
+            "Personalised medical evaluation and treatment to identify and manage different causes of excessive hair fall and thinning.",
+          image: "/images/treatments/hair-loss-treatment.webp",
+          ctaText: "Know More",
+          ctaLink: "#appointment",
+        },
+        {
+          id: "ht8",
+          title: "Hair Transplant Clinic",
+          description:
+            "Specialist consultations, scalp assessments, and personalised planning for medical and surgical hair restoration.",
+          image: "/images/treatments/hair-transplant-clinic.webp",
+          ctaText: "Know More",
+          ctaLink: "#appointment",
+        },
+      ],
+      viewMoreText: "View More",
+      viewMoreLink: "#appointment",
+    },
+    assessmentSection: {
+      tagline: "Which Hair Treatment Is Right for You?",
+      heading: "The Right Solution Begins With Understanding Your Hair Loss",
+      description:
+        "Not every hair concern requires the same treatment. Some conditions can be managed medically, while others may benefit from hair transplantation.",
+      factorsLead: "Several factors influence treatment selection:",
+      factors: [
+        { id: "f1", text: "Type and severity of hair loss" },
+        { id: "f2", text: "Age and medical history" },
+        { id: "f3", text: "Hair and scalp condition" },
+        { id: "f4", text: "Pattern of thinning or baldness" },
+        { id: "f5", text: "Donor hair availability" },
+        { id: "f6", text: "Previous treatment history" },
+        { id: "f7", text: "Individual treatment expectations" },
+      ],
+      note:
+        "At Dr. Kumar’s Skin & Hair Transplant Center, we assess these factors to recommend appropriate treatment options based on clinical findings and individual needs. Patients searching for the best doctor for hair loss treatment in Kondapur, Hyderabad can consult Dr. Ashok Kumar for a detailed hair and scalp evaluation and personalised treatment recommendations.",
+      image: "/images/scalp-examination.webp",
+      imageAlt: "Clinical scalp examination by hair specialist",
+      ctaText: "",
+      ctaLink: "#appointment",
+    },
+    doctorSection: {
+      tagline: "Meet Your Hair Restoration Specialist",
+      name: "Dr. Ashok Kumar",
+      designation: "Dermatologist | Hair Transplant Specialist",
+      experience: "13+ Years of Experience",
+      bioParagraphs: [
+        "Dr. Ashok Kumar is an experienced dermatologist specialising in hair loss management, hair transplantation, and scalp conditions.",
+        "His expertise includes FUE and DHI hair transplantation, PRP and GFC treatments, and facial hair restoration. He focuses on accurate diagnosis, personalised treatment planning, patient safety, and natural-looking hair restoration.",
+        "For individuals searching for a hair transplant specialist in Kondapur, Hyderabad, Dr. Ashok Kumar provides consultation and treatment planning based on hair loss patterns, donor hair availability, and individual restoration goals.",
+      ],
+      image: "/images/doctor-specialist.webp",
+      imageAlt: "Dr. Ashok Kumar - Dermatologist and Hair Transplant Specialist",
+      ctaText: "Book a Consultation With Dr. Ashok Kumar",
+      ctaLink: "#appointment",
+    },
+    faqSection: {
+      heading: "Frequently Asked Questions",
+      items: [
+        {
+          id: "faq1",
+          question: "What are the common causes of hair loss?",
+          answer:
+            "Hair loss can result from genetics, hormonal changes, nutritional deficiencies, medical conditions, medications, and scalp disorders. A dermatologist can help identify the possible cause through clinical evaluation.",
+        },
+        {
+          id: "faq2",
+          question: "How long does it take to see results after a hair transplant?",
+          answer:
+            "Transplanted hair typically sheds during the first month, begins new growth around 3 to 4 months, and reaches full density and natural maturation at 9 to 12 months post-procedure.",
+        },
+        {
+          id: "faq3",
+          question: "Can hair loss be treated without a hair transplant?",
+          answer:
+            "Yes, many causes of hair fall and early thinning can be managed effectively with topical medications, oral therapies, PRP/GFC treatments, and lifestyle or nutritional corrections without surgery.",
+        },
+        {
+          id: "faq4",
+          question: "Can a receding hairline be treated?",
+          answer:
+            "Yes, receding hairlines can be stabilized medically in early stages and cosmetically restored with precision FUE or DHI transplantation for advanced recession.",
+        },
+        {
+          id: "faq5",
+          question: "What is the difference between FUE and DHI hair transplantation?",
+          answer:
+            "FUE involves extracting donor follicles and creating recipient sites before implantation. DHI uses a specialized implanter pen to create sites and insert follicles simultaneously, offering precise depth and angle control.",
+        },
+        {
+          id: "faq6",
+          question: "Is hair transplantation a permanent solution?",
+          answer:
+            "Yes, hair follicles harvested from the permanent donor zone (back and sides of the scalp) are genetically resistant to DHT and continue to grow naturally for life.",
+        },
+        {
+          id: "faq7",
+          question: "Are PRP and GFC treatments effective for hair loss?",
+          answer:
+            "PRP and GFC utilize autologous growth factors from your blood to stimulate sluggish follicles and improve hair density, particularly effective for early-stage hair thinning.",
+        },
+        {
+          id: "faq8",
+          question: "Why choose Dr. Kumar's Skin & Hair Transplant Center for hair treatments?",
+          answer:
+            "Dr. Kumar brings over 13 years of specialized clinical dermatology and hair restoration expertise, providing physician-performed procedures, transparent evaluations, and personalized care plans.",
+        },
+        {
+          id: "faq9",
+          question: "Is hair transplantation suitable for women?",
+          answer:
+            "Yes, suitable women experiencing stable localized thinning, traction alopecia, or pattern hair loss with adequate donor density can achieve excellent, natural-looking results.",
+        },
+        {
+          id: "faq10",
+          question: "How can I book a hair consultation with Dr. Ashok Kumar?",
+          answer:
+            "You can book a consultation easily by clicking 'Book a Consultation' on this page, calling our clinic directly, or visiting our center in Kondapur, Hyderabad.",
+        },
+      ],
+    },
     sections: {},
     createdAt: new Date().toISOString(),
     modifiedAt: new Date().toISOString(),
@@ -92,6 +276,150 @@ export const DEFAULT_SERVICE_PAGES: ServicePage[] = [
         ctaLink: "#appointment",
       },
     },
+    treatmentsSection: {
+      tagline: "Our Skin & Cosmetic Treatments",
+      heading: "Comprehensive Aesthetic & Skin Rejuvenation Services",
+      description:
+        "From revitalising clinical facials to advanced laser and peel therapies, we provide medical-grade aesthetic procedures tailored to your skin type.",
+      items: [
+        {
+          id: "st1",
+          title: "HydraFacial Deep Cleanse",
+          description: "Multi-step medical facial that exfoliates, extracts impurities, and infuses restorative antioxidant serums.",
+          image: "/images/oval1.webp",
+          ctaText: "Know More",
+          ctaLink: "#appointment",
+        },
+        {
+          id: "st2",
+          title: "Chemical Peels",
+          description: "Dermatological exfoliation for dark marks, superficial melasma, sun damage, and acne-prone skin.",
+          image: "/images/oval2.webp",
+          ctaText: "Know More",
+          ctaLink: "#appointment",
+        },
+        {
+          id: "st3",
+          title: "Laser Skin Toning",
+          description: "Q-Switched Nd:YAG laser treatments targeting deep pigmentation, tattoo removal, and photo-rejuvenation.",
+          image: "/images/oval3.webp",
+          ctaText: "Know More",
+          ctaLink: "#appointment",
+        },
+        {
+          id: "st4",
+          title: "Carbon Laser Peel",
+          description: "Hollywood peel protocol targeting enlarged pores, excess sebum production, and uneven skin tone.",
+          image: "/images/oval4.webp",
+          ctaText: "Know More",
+          ctaLink: "#appointment",
+        },
+      ],
+      viewMoreText: "View More",
+      viewMoreLink: "#appointment",
+    },
+    assessmentSection: {
+      tagline: "Which Hair Treatment Is Right for You?",
+      heading: "The Right Solution Begins With Understanding Your Hair Loss",
+      description:
+        "Not every hair concern requires the same treatment. Some conditions can be managed medically, while others may benefit from hair transplantation.",
+      factorsLead: "Several factors influence treatment selection:",
+      factors: [
+        { id: "f1", text: "Type and severity of hair loss" },
+        { id: "f2", text: "Age and medical history" },
+        { id: "f3", text: "Hair and scalp condition" },
+        { id: "f4", text: "Pattern of thinning or baldness" },
+        { id: "f5", text: "Donor hair availability" },
+        { id: "f6", text: "Previous treatment history" },
+        { id: "f7", text: "Individual treatment expectations" },
+      ],
+      note:
+        "At Dr. Kumar’s Skin & Hair Transplant Center, we assess these factors to recommend appropriate treatment options based on clinical findings and individual needs. Patients searching for the best doctor for hair loss treatment in Kondapur, Hyderabad can consult Dr. Ashok Kumar for a detailed hair and scalp evaluation and personalised treatment recommendations.",
+      image: "/images/scalp-examination.webp",
+      imageAlt: "Clinical scalp examination by hair specialist",
+      ctaText: "",
+      ctaLink: "#appointment",
+    },
+    doctorSection: {
+      tagline: "Meet Your Hair Restoration Specialist",
+      name: "Dr. Ashok Kumar",
+      designation: "Dermatologist | Hair Transplant Specialist",
+      experience: "13+ Years of Experience",
+      bioParagraphs: [
+        "Dr. Ashok Kumar is an experienced dermatologist specialising in hair loss management, hair transplantation, and scalp conditions.",
+        "His expertise includes FUE and DHI hair transplantation, PRP and GFC treatments, and facial hair restoration. He focuses on accurate diagnosis, personalised treatment planning, patient safety, and natural-looking hair restoration.",
+        "For individuals searching for a hair transplant specialist in Kondapur, Hyderabad, Dr. Ashok Kumar provides consultation and treatment planning based on hair loss patterns, donor hair availability, and individual restoration goals.",
+      ],
+      image: "/images/doctor-specialist.webp",
+      imageAlt: "Dr. Ashok Kumar - Dermatologist and Hair Transplant Specialist",
+      ctaText: "Book a Consultation With Dr. Ashok Kumar",
+      ctaLink: "#appointment",
+    },
+    faqSection: {
+      heading: "Frequently Asked Questions",
+      items: [
+        {
+          id: "faq1",
+          question: "What are the common causes of hair loss?",
+          answer:
+            "Hair loss can result from genetics, hormonal changes, nutritional deficiencies, medical conditions, medications, and scalp disorders. A dermatologist can help identify the possible cause through clinical evaluation.",
+        },
+        {
+          id: "faq2",
+          question: "How long does it take to see results after a hair transplant?",
+          answer:
+            "Transplanted hair typically sheds during the first month, begins new growth around 3 to 4 months, and reaches full density and natural maturation at 9 to 12 months post-procedure.",
+        },
+        {
+          id: "faq3",
+          question: "Can hair loss be treated without a hair transplant?",
+          answer:
+            "Yes, many causes of hair fall and early thinning can be managed effectively with topical medications, oral therapies, PRP/GFC treatments, and lifestyle or nutritional corrections without surgery.",
+        },
+        {
+          id: "faq4",
+          question: "Can a receding hairline be treated?",
+          answer:
+            "Yes, receding hairlines can be stabilized medically in early stages and cosmetically restored with precision FUE or DHI transplantation for advanced recession.",
+        },
+        {
+          id: "faq5",
+          question: "What is the difference between FUE and DHI hair transplantation?",
+          answer:
+            "FUE involves extracting donor follicles and creating recipient sites before implantation. DHI uses a specialized implanter pen to create sites and insert follicles simultaneously, offering precise depth and angle control.",
+        },
+        {
+          id: "faq6",
+          question: "Is hair transplantation a permanent solution?",
+          answer:
+            "Yes, hair follicles harvested from the permanent donor zone (back and sides of the scalp) are genetically resistant to DHT and continue to grow naturally for life.",
+        },
+        {
+          id: "faq7",
+          question: "Are PRP and GFC treatments effective for hair loss?",
+          answer:
+            "PRP and GFC utilize autologous growth factors from your blood to stimulate sluggish follicles and improve hair density, particularly effective for early-stage hair thinning.",
+        },
+        {
+          id: "faq8",
+          question: "Why choose Dr. Kumar's Skin & Hair Transplant Center for hair treatments?",
+          answer:
+            "Dr. Kumar brings over 13 years of specialized clinical dermatology and hair restoration expertise, providing physician-performed procedures, transparent evaluations, and personalized care plans.",
+        },
+        {
+          id: "faq9",
+          question: "Is hair transplantation suitable for women?",
+          answer:
+            "Yes, suitable women experiencing stable localized thinning, traction alopecia, or pattern hair loss with adequate donor density can achieve excellent, natural-looking results.",
+        },
+        {
+          id: "faq10",
+          question: "How can I book a hair consultation with Dr. Ashok Kumar?",
+          answer:
+            "You can book a consultation easily by clicking 'Book a Consultation' on this page, calling our clinic directly, or visiting our center in Kondapur, Hyderabad.",
+        },
+      ],
+    },
     sections: {},
     createdAt: new Date().toISOString(),
     modifiedAt: new Date().toISOString(),
@@ -111,6 +439,134 @@ export const DEFAULT_SERVICE_PAGES: ServicePage[] = [
     seoTitle: "Clinical Dermatology & Skin Disease Management | Dr. Kumar's",
     metaDescription:
       "Expert medical diagnosis and management for psoriasis, eczema, acne, vitiligo, and various skin allergies and infections.",
+    treatmentsSection: {
+      tagline: "Our Clinical Dermatology Care",
+      heading: "Specialised Medical Management for Skin Diseases",
+      description:
+        "Comprehensive diagnostic evaluations and targeted therapies for inflammatory, autoimmune, allergic, and infectious skin disorders.",
+      items: [
+        {
+          id: "dt1",
+          title: "Acne & Acne Scar Management",
+          description: "Customised medical treatment protocols combining systemic therapies, topical regimens, and subcision/MNRF.",
+          image: "/images/oval1.webp",
+          ctaText: "Know More",
+          ctaLink: "#appointment",
+        },
+        {
+          id: "dt2",
+          title: "Psoriasis & Eczema Therapy",
+          description: "Evidence-based management to calm inflammation, manage flare-ups, and restore epidermal barrier health.",
+          image: "/images/oval3.webp",
+          ctaText: "Know More",
+          ctaLink: "#appointment",
+        },
+      ],
+      viewMoreText: "View More",
+      viewMoreLink: "#appointment",
+    },
+    assessmentSection: {
+      tagline: "Which Hair Treatment Is Right for You?",
+      heading: "The Right Solution Begins With Understanding Your Hair Loss",
+      description:
+        "Not every hair concern requires the same treatment. Some conditions can be managed medically, while others may benefit from hair transplantation.",
+      factorsLead: "Several factors influence treatment selection:",
+      factors: [
+        { id: "f1", text: "Type and severity of hair loss" },
+        { id: "f2", text: "Age and medical history" },
+        { id: "f3", text: "Hair and scalp condition" },
+        { id: "f4", text: "Pattern of thinning or baldness" },
+        { id: "f5", text: "Donor hair availability" },
+        { id: "f6", text: "Previous treatment history" },
+        { id: "f7", text: "Individual treatment expectations" },
+      ],
+      note:
+        "At Dr. Kumar’s Skin & Hair Transplant Center, we assess these factors to recommend appropriate treatment options based on clinical findings and individual needs. Patients searching for the best doctor for hair loss treatment in Kondapur, Hyderabad can consult Dr. Ashok Kumar for a detailed hair and scalp evaluation and personalised treatment recommendations.",
+      image: "/images/scalp-examination.webp",
+      imageAlt: "Clinical scalp examination by hair specialist",
+      ctaText: "",
+      ctaLink: "#appointment",
+    },
+    doctorSection: {
+      tagline: "Meet Your Hair Restoration Specialist",
+      name: "Dr. Ashok Kumar",
+      designation: "Dermatologist | Hair Transplant Specialist",
+      experience: "13+ Years of Experience",
+      bioParagraphs: [
+        "Dr. Ashok Kumar is an experienced dermatologist specialising in hair loss management, hair transplantation, and scalp conditions.",
+        "His expertise includes FUE and DHI hair transplantation, PRP and GFC treatments, and facial hair restoration. He focuses on accurate diagnosis, personalised treatment planning, patient safety, and natural-looking hair restoration.",
+        "For individuals searching for a hair transplant specialist in Kondapur, Hyderabad, Dr. Ashok Kumar provides consultation and treatment planning based on hair loss patterns, donor hair availability, and individual restoration goals.",
+      ],
+      image: "/images/doctor-specialist.webp",
+      imageAlt: "Dr. Ashok Kumar - Dermatologist and Hair Transplant Specialist",
+      ctaText: "Book a Consultation With Dr. Ashok Kumar",
+      ctaLink: "#appointment",
+    },
+    faqSection: {
+      heading: "Frequently Asked Questions",
+      items: [
+        {
+          id: "faq1",
+          question: "What are the common causes of hair loss?",
+          answer:
+            "Hair loss can result from genetics, hormonal changes, nutritional deficiencies, medical conditions, medications, and scalp disorders. A dermatologist can help identify the possible cause through clinical evaluation.",
+        },
+        {
+          id: "faq2",
+          question: "How long does it take to see results after a hair transplant?",
+          answer:
+            "Transplanted hair typically sheds during the first month, begins new growth around 3 to 4 months, and reaches full density and natural maturation at 9 to 12 months post-procedure.",
+        },
+        {
+          id: "faq3",
+          question: "Can hair loss be treated without a hair transplant?",
+          answer:
+            "Yes, many causes of hair fall and early thinning can be managed effectively with topical medications, oral therapies, PRP/GFC treatments, and lifestyle or nutritional corrections without surgery.",
+        },
+        {
+          id: "faq4",
+          question: "Can a receding hairline be treated?",
+          answer:
+            "Yes, receding hairlines can be stabilized medically in early stages and cosmetically restored with precision FUE or DHI transplantation for advanced recession.",
+        },
+        {
+          id: "faq5",
+          question: "What is the difference between FUE and DHI hair transplantation?",
+          answer:
+            "FUE involves extracting donor follicles and creating recipient sites before implantation. DHI uses a specialized implanter pen to create sites and insert follicles simultaneously, offering precise depth and angle control.",
+        },
+        {
+          id: "faq6",
+          question: "Is hair transplantation a permanent solution?",
+          answer:
+            "Yes, hair follicles harvested from the permanent donor zone (back and sides of the scalp) are genetically resistant to DHT and continue to grow naturally for life.",
+        },
+        {
+          id: "faq7",
+          question: "Are PRP and GFC treatments effective for hair loss?",
+          answer:
+            "PRP and GFC utilize autologous growth factors from your blood to stimulate sluggish follicles and improve hair density, particularly effective for early-stage hair thinning.",
+        },
+        {
+          id: "faq8",
+          question: "Why choose Dr. Kumar's Skin & Hair Transplant Center for hair treatments?",
+          answer:
+            "Dr. Kumar brings over 13 years of specialized clinical dermatology and hair restoration expertise, providing physician-performed procedures, transparent evaluations, and personalized care plans.",
+        },
+        {
+          id: "faq9",
+          question: "Is hair transplantation suitable for women?",
+          answer:
+            "Yes, suitable women experiencing stable localized thinning, traction alopecia, or pattern hair loss with adequate donor density can achieve excellent, natural-looking results.",
+        },
+        {
+          id: "faq10",
+          question: "How can I book a hair consultation with Dr. Ashok Kumar?",
+          answer:
+            "You can book a consultation easily by clicking 'Book a Consultation' on this page, calling our clinic directly, or visiting our center in Kondapur, Hyderabad.",
+        },
+      ],
+    },
     sections: {},
     createdAt: new Date().toISOString(),
     modifiedAt: new Date().toISOString(),
@@ -130,6 +586,126 @@ export const DEFAULT_SERVICE_PAGES: ServicePage[] = [
     seoTitle: "Confidential STI & Sexual Health Diagnosis & Care | Dr. Kumar's",
     metaDescription:
       "Private and respectful assessment, testing, and comprehensive medical management for sexually transmitted infections.",
+    treatmentsSection: {
+      tagline: "Our Confidential Sexual Health Services",
+      heading: "Private, Compassionate & Comprehensive STI Care",
+      description:
+        "Discreet doctor consultations, confidential diagnostic blood & swab panels, and evidence-based therapeutic care in a secure clinic environment.",
+      items: [
+        {
+          id: "stt1",
+          title: "Confidential STI Screening",
+          description: "Complete laboratory testing panels for bacterial and viral infections with private results consultation.",
+          image: "/images/oval5.webp",
+          ctaText: "Know More",
+          ctaLink: "#appointment",
+        },
+      ],
+      viewMoreText: "View More",
+      viewMoreLink: "#appointment",
+    },
+    assessmentSection: {
+      tagline: "Which Hair Treatment Is Right for You?",
+      heading: "The Right Solution Begins With Understanding Your Hair Loss",
+      description:
+        "Not every hair concern requires the same treatment. Some conditions can be managed medically, while others may benefit from hair transplantation.",
+      factorsLead: "Several factors influence treatment selection:",
+      factors: [
+        { id: "f1", text: "Type and severity of hair loss" },
+        { id: "f2", text: "Age and medical history" },
+        { id: "f3", text: "Hair and scalp condition" },
+        { id: "f4", text: "Pattern of thinning or baldness" },
+        { id: "f5", text: "Donor hair availability" },
+        { id: "f6", text: "Previous treatment history" },
+        { id: "f7", text: "Individual treatment expectations" },
+      ],
+      note:
+        "At Dr. Kumar’s Skin & Hair Transplant Center, we assess these factors to recommend appropriate treatment options based on clinical findings and individual needs. Patients searching for the best doctor for hair loss treatment in Kondapur, Hyderabad can consult Dr. Ashok Kumar for a detailed hair and scalp evaluation and personalised treatment recommendations.",
+      image: "/images/scalp-examination.webp",
+      imageAlt: "Clinical scalp examination by hair specialist",
+      ctaText: "",
+      ctaLink: "#appointment",
+    },
+    doctorSection: {
+      tagline: "Meet Your Hair Restoration Specialist",
+      name: "Dr. Ashok Kumar",
+      designation: "Dermatologist | Hair Transplant Specialist",
+      experience: "13+ Years of Experience",
+      bioParagraphs: [
+        "Dr. Ashok Kumar is an experienced dermatologist specialising in hair loss management, hair transplantation, and scalp conditions.",
+        "His expertise includes FUE and DHI hair transplantation, PRP and GFC treatments, and facial hair restoration. He focuses on accurate diagnosis, personalised treatment planning, patient safety, and natural-looking hair restoration.",
+        "For individuals searching for a hair transplant specialist in Kondapur, Hyderabad, Dr. Ashok Kumar provides consultation and treatment planning based on hair loss patterns, donor hair availability, and individual restoration goals.",
+      ],
+      image: "/images/doctor-specialist.webp",
+      imageAlt: "Dr. Ashok Kumar - Dermatologist and Hair Transplant Specialist",
+      ctaText: "Book a Consultation With Dr. Ashok Kumar",
+      ctaLink: "#appointment",
+    },
+    faqSection: {
+      heading: "Frequently Asked Questions",
+      items: [
+        {
+          id: "faq1",
+          question: "What are the common causes of hair loss?",
+          answer:
+            "Hair loss can result from genetics, hormonal changes, nutritional deficiencies, medical conditions, medications, and scalp disorders. A dermatologist can help identify the possible cause through clinical evaluation.",
+        },
+        {
+          id: "faq2",
+          question: "How long does it take to see results after a hair transplant?",
+          answer:
+            "Transplanted hair typically sheds during the first month, begins new growth around 3 to 4 months, and reaches full density and natural maturation at 9 to 12 months post-procedure.",
+        },
+        {
+          id: "faq3",
+          question: "Can hair loss be treated without a hair transplant?",
+          answer:
+            "Yes, many causes of hair fall and early thinning can be managed effectively with topical medications, oral therapies, PRP/GFC treatments, and lifestyle or nutritional corrections without surgery.",
+        },
+        {
+          id: "faq4",
+          question: "Can a receding hairline be treated?",
+          answer:
+            "Yes, receding hairlines can be stabilized medically in early stages and cosmetically restored with precision FUE or DHI transplantation for advanced recession.",
+        },
+        {
+          id: "faq5",
+          question: "What is the difference between FUE and DHI hair transplantation?",
+          answer:
+            "FUE involves extracting donor follicles and creating recipient sites before implantation. DHI uses a specialized implanter pen to create sites and insert follicles simultaneously, offering precise depth and angle control.",
+        },
+        {
+          id: "faq6",
+          question: "Is hair transplantation a permanent solution?",
+          answer:
+            "Yes, hair follicles harvested from the permanent donor zone (back and sides of the scalp) are genetically resistant to DHT and continue to grow naturally for life.",
+        },
+        {
+          id: "faq7",
+          question: "Are PRP and GFC treatments effective for hair loss?",
+          answer:
+            "PRP and GFC utilize autologous growth factors from your blood to stimulate sluggish follicles and improve hair density, particularly effective for early-stage hair thinning.",
+        },
+        {
+          id: "faq8",
+          question: "Why choose Dr. Kumar's Skin & Hair Transplant Center for hair treatments?",
+          answer:
+            "Dr. Kumar brings over 13 years of specialized clinical dermatology and hair restoration expertise, providing physician-performed procedures, transparent evaluations, and personalized care plans.",
+        },
+        {
+          id: "faq9",
+          question: "Is hair transplantation suitable for women?",
+          answer:
+            "Yes, suitable women experiencing stable localized thinning, traction alopecia, or pattern hair loss with adequate donor density can achieve excellent, natural-looking results.",
+        },
+        {
+          id: "faq10",
+          question: "How can I book a hair consultation with Dr. Ashok Kumar?",
+          answer:
+            "You can book a consultation easily by clicking 'Book a Consultation' on this page, calling our clinic directly, or visiting our center in Kondapur, Hyderabad.",
+        },
+      ],
+    },
     sections: {},
     createdAt: new Date().toISOString(),
     modifiedAt: new Date().toISOString(),

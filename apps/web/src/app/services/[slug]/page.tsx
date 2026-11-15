@@ -3,6 +3,10 @@ import { notFound } from "next/navigation";
 import PublicShell from "@/components/PublicShell";
 import ServiceHeroSection from "@/components/services/ServiceHeroSection";
 import ServiceConcernsSectionView from "@/components/services/ServiceConcernsSection";
+import ServiceTreatmentsSectionView from "@/components/services/ServiceTreatmentsSection";
+import ServiceAssessmentSectionView from "@/components/services/ServiceAssessmentSection";
+import ServiceDoctorSectionView from "@/components/services/ServiceDoctorSection";
+import ServiceFaqSectionView from "@/components/services/ServiceFaqSection";
 import Appointment from "@/components/Appointment";
 import { getServicePageBySlug } from "@/lib/db/services";
 import { isServicePageLive, serviceCategories } from "@drkumar/shared";
@@ -78,11 +82,28 @@ export default async function ServiceDetailPage({ params }: Props) {
     },
   };
 
+  const faqLd =
+    page.faqSection?.items && page.faqSection.items.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: page.faqSection.items.map((f) => ({
+            "@type": "Question",
+            name: f.question,
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: f.answer,
+            },
+          })),
+        }
+      : null;
+
   const ld = (o: unknown) => ({ __html: JSON.stringify(o).replace(/</g, "\\u003c") });
 
   return (
     <PublicShell>
       <script type="application/ld+json" dangerouslySetInnerHTML={ld(serviceLd)} />
+      {faqLd && <script type="application/ld+json" dangerouslySetInnerHTML={ld(faqLd)} />}
 
       {/* Section 1: Hero Banner (Title, Subtitle, Image & CTA) */}
       <ServiceHeroSection page={page} />
@@ -93,6 +114,29 @@ export default async function ServiceDetailPage({ params }: Props) {
           section={page.concernsSection}
           categoryLabel={catObj?.label || "Hair"}
         />
+      )}
+
+      {/* Section 3: Treatments / Services Range Grid */}
+      {page.treatmentsSection && (
+        <ServiceTreatmentsSectionView
+          treatmentsSection={page.treatmentsSection}
+          serviceCategory={page.serviceCategory}
+        />
+      )}
+
+      {/* Section 4: Treatment Selection & Clinical Factors */}
+      {page.assessmentSection && (
+        <ServiceAssessmentSectionView section={page.assessmentSection} />
+      )}
+
+      {/* Section 5: Specialist / Doctor Profile */}
+      {page.doctorSection && (
+        <ServiceDoctorSectionView section={page.doctorSection} />
+      )}
+
+      {/* Section 6: Frequently Asked Questions (FAQ) */}
+      {page.faqSection && (
+        <ServiceFaqSectionView section={page.faqSection} />
       )}
 
       {/* Slot for subsequent sections (Section 3, 4...) */}
