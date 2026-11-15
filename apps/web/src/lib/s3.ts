@@ -2,11 +2,24 @@ import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
 import { randomUUID } from "node:crypto";
 
+function resolveCredentials() {
+  if (process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.AWS_EXECUTION_ENV) {
+    return undefined;
+  }
+  if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+    return {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      ...(process.env.AWS_SESSION_TOKEN ? { sessionToken: process.env.AWS_SESSION_TOKEN } : {}),
+    };
+  }
+  return undefined;
+}
+
+const credentials = resolveCredentials();
 const s3 = new S3Client({
   region: process.env.APP_AWS_REGION ?? process.env.AWS_REGION ?? "ap-south-1",
-  ...(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY
-    ? { credentials: { accessKeyId: process.env.AWS_ACCESS_KEY_ID, secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY } }
-    : {}),
+  ...(credentials ? { credentials } : {}),
 });
 
 export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;

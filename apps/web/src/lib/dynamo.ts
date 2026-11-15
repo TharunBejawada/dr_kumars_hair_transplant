@@ -11,17 +11,36 @@ if (typeof process !== "undefined" && typeof process.emitWarning === "function")
   };
 }
 
+function resolveCredentials() {
+  // In AWS Lambda (Amplify compute runtime), never override credentials.
+  // The AWS SDK automatically resolves credentials from the compute execution role
+  // (including temporary STS session tokens: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN).
+  if (process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.AWS_EXECUTION_ENV) {
+    return undefined;
+  }
+  // Local development with static IAM keys in .env.local
+  if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+    return {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      ...(process.env.AWS_SESSION_TOKEN ? { sessionToken: process.env.AWS_SESSION_TOKEN } : {}),
+    };
+  }
+  return undefined;
+}
+
 /** Singleton DynamoDB document client. In AWS, credentials come from the Amplify compute role (no keys in code). */
 let doc: DynamoDBDocumentClient | undefined;
 export function db() {
+  const credentials = resolveCredentials();
   doc ??= DynamoDBDocumentClient.from(
     new DynamoDBClient({
       region: process.env.APP_AWS_REGION ?? process.env.AWS_REGION ?? "ap-south-1",
       // Local development only (dynalite / DynamoDB Local).
       ...(process.env.DYNAMODB_ENDPOINT
         ? { endpoint: process.env.DYNAMODB_ENDPOINT, credentials: { accessKeyId: "local", secretAccessKey: "local" } }
-        : process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY
-        ? { credentials: { accessKeyId: process.env.AWS_ACCESS_KEY_ID, secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY } }
+        : credentials
+        ? { credentials }
         : {}),
     }),
     { marshallOptions: { removeUndefinedValues: true } },

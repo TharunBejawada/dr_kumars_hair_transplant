@@ -7,9 +7,9 @@ import {
   type ServiceCategoryId,
   serviceCategories,
 } from "@drkumar/shared";
-import { db, tableName } from "../dynamo";
+import { db } from "../dynamo";
 
-const T = () => tableName("SERVICES_TABLE");
+const T = () => process.env.SERVICES_TABLE;
 
 export class SlugTakenError extends Error {}
 
@@ -141,65 +141,73 @@ let memoryStore: ServicePage[] = [...DEFAULT_SERVICE_PAGES];
 
 export async function getServicePageBySlug(slug: string): Promise<ServicePage | undefined> {
   const normSlug = slug.toLowerCase();
-  try {
-    const r = await db().send(
-      new QueryCommand({
-        TableName: T(),
-        IndexName: "slug-index",
-        KeyConditionExpression: "#s = :s",
-        ExpressionAttributeNames: { "#s": "slug" },
-        ExpressionAttributeValues: { ":s": normSlug },
-        Limit: 1,
-      }),
-    );
-    const item = r.Items?.[0] as ServicePage | undefined;
-    if (item) return item;
-  } catch (err) {
-    // Fall back to memoryStore
-    console.warn("DynamoDB getServicePageBySlug query failed, using fallback:", (err as Error).message);
+  const tbl = T();
+  if (tbl) {
+    try {
+      const r = await db().send(
+        new QueryCommand({
+          TableName: tbl,
+          IndexName: "slug-index",
+          KeyConditionExpression: "#s = :s",
+          ExpressionAttributeNames: { "#s": "slug" },
+          ExpressionAttributeValues: { ":s": normSlug },
+          Limit: 1,
+        }),
+      );
+      const item = r.Items?.[0] as ServicePage | undefined;
+      if (item) return item;
+    } catch (err) {
+      console.warn("DynamoDB getServicePageBySlug query failed, using fallback:", (err as Error).message);
+    }
   }
   return memoryStore.find((p) => p.slug.toLowerCase() === normSlug);
 }
 
 export async function getServicePage(id: string): Promise<ServicePage | undefined> {
-  try {
-    const r = await db().send(new GetCommand({ TableName: T(), Key: { id } }));
-    const item = r.Item as ServicePage | undefined;
-    if (item) return item;
-  } catch (err) {
-    console.warn("DynamoDB getServicePage failed, using fallback:", (err as Error).message);
+  const tbl = T();
+  if (tbl) {
+    try {
+      const r = await db().send(new GetCommand({ TableName: tbl, Key: { id } }));
+      const item = r.Item as ServicePage | undefined;
+      if (item) return item;
+    } catch (err) {
+      console.warn("DynamoDB getServicePage failed, using fallback:", (err as Error).message);
+    }
   }
   return memoryStore.find((p) => p.id === id);
 }
 
 export async function listServicePages(category?: ServiceCategoryId | string): Promise<ServicePage[]> {
-  try {
-    const items: ServicePage[] = [];
-    let key: Record<string, unknown> | undefined;
-    do {
-      const r = await db().send(new ScanCommand({ TableName: T(), ExclusiveStartKey: key }));
-      items.push(...((r.Items ?? []) as ServicePage[]));
-      key = r.LastEvaluatedKey;
-    } while (key);
+  const tbl = T();
+  if (tbl) {
+    try {
+      const items: ServicePage[] = [];
+      let key: Record<string, unknown> | undefined;
+      do {
+        const r = await db().send(new ScanCommand({ TableName: tbl, ExclusiveStartKey: key }));
+        items.push(...((r.Items ?? []) as ServicePage[]));
+        key = r.LastEvaluatedKey;
+      } while (key);
 
-    if (items.length > 0) {
-      // Sync memoryStore
-      memoryStore = items;
-    } else {
-      // If table is completely empty, seed default pages into DB
-      for (const p of DEFAULT_SERVICE_PAGES) {
-        try {
-          await db().send(new PutCommand({ TableName: T(), Item: p }));
-          items.push(p);
-        } catch {
-          // ignore seed errors
+      if (items.length > 0) {
+        // Sync memoryStore
+        memoryStore = items;
+      } else {
+        // If table is completely empty, seed default pages into DB
+        for (const p of DEFAULT_SERVICE_PAGES) {
+          try {
+            await db().send(new PutCommand({ TableName: tbl, Item: p }));
+            items.push(p);
+          } catch {
+            // ignore seed errors
+          }
         }
+        if (items.length === 0) items.push(...DEFAULT_SERVICE_PAGES);
+        memoryStore = items;
       }
-      if (items.length === 0) items.push(...DEFAULT_SERVICE_PAGES);
-      memoryStore = items;
+    } catch (err) {
+      console.warn("DynamoDB listServicePages scan failed, using fallback:", (err as Error).message);
     }
-  } catch (err) {
-    console.warn("DynamoDB listServicePages scan failed, using fallback:", (err as Error).message);
   }
 
   let result = [...memoryStore];
@@ -228,16 +236,19 @@ export async function createServicePage(input: ServicePageInput): Promise<Servic
     modifiedAt: now,
   };
 
-  try {
-    await db().send(
-      new PutCommand({
-        TableName: T(),
-        Item: page,
-        ConditionExpression: "attribute_not_exists(id)",
-      }),
-    );
-  } catch (err) {
-    console.warn("DynamoDB createServicePage failed, saving to memory fallback:", (err as Error).message);
+  const tbl = T();
+  if (tbl) {
+    try {
+      await db().send(
+        new PutCommand({
+          TableName: tbl,
+          Item: page,
+          ConditionExpression: "attribute_not_exists(id)",
+        }),
+      );
+    } catch (err) {
+      console.warn("DynamoDB createServicePage failed, saving to memory fallback:", (err as Error).message);
+    }
   }
 
   // Update memoryStore
@@ -267,10 +278,13 @@ export async function updateServicePage(id: string, input: ServicePageInput): Pr
     modifiedAt: now,
   };
 
-  try {
-    await db().send(new PutCommand({ TableName: T(), Item: page }));
-  } catch (err) {
-    console.warn("DynamoDB updateServicePage failed, updating memory fallback:", (err as Error).message);
+  const tbl = T();
+  if (tbl) {
+    try {
+      await db().send(new PutCommand({ TableName: tbl, Item: page }));
+    } catch (err) {
+      console.warn("DynamoDB updateServicePage failed, updating memory fallback:", (err as Error).message);
+    }
   }
 
   const idx = memoryStore.findIndex((p) => p.id === id);
@@ -281,10 +295,13 @@ export async function updateServicePage(id: string, input: ServicePageInput): Pr
 }
 
 export async function deleteServicePage(id: string): Promise<void> {
-  try {
-    await db().send(new DeleteCommand({ TableName: T(), Key: { id } }));
-  } catch (err) {
-    console.warn("DynamoDB deleteServicePage failed:", (err as Error).message);
+  const tbl = T();
+  if (tbl) {
+    try {
+      await db().send(new DeleteCommand({ TableName: tbl, Key: { id } }));
+    } catch (err) {
+      console.warn("DynamoDB deleteServicePage failed:", (err as Error).message);
+    }
   }
   memoryStore = memoryStore.filter((p) => p.id !== id);
 }
