@@ -16,7 +16,7 @@ export default function ServiceHeroSection({ page }: { page: ServicePage }) {
   }
 
   return (
-    <section className="relative overflow-hidden min-h-[340px] md:min-h-[380px] lg:min-h-[420px] flex items-center bg-[#e4f7f4] border-b border-teal-100/60">
+    <section className="relative overflow-hidden min-h-[340px] md:min-h-[380px] lg:min-h-[420px] flex items-center bg-[#d8f5f1] border-b border-teal-100/60">
       {/* Hero Background Image (Crisp, High-Clarity) */}
       {page.image && (
         <div className="absolute inset-0 z-0">
@@ -34,7 +34,7 @@ export default function ServiceHeroSection({ page }: { page: ServicePage }) {
 
       {/* Mobile-only soft contrast overlay (hidden on sm/md/lg so the photo has 100% pristine clarity) */}
       <div
-        className="sm:hidden absolute inset-0 z-10 bg-gradient-to-r from-[#e4f7f4]/95 via-[#e4f7f4]/80 to-transparent pointer-events-none"
+        className="sm:hidden absolute inset-0 z-10 bg-gradient-to-r from-[#d8f5f1]/95 via-[#d8f5f1]/80 to-transparent pointer-events-none"
         aria-hidden
       />
 

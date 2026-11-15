@@ -1903,7 +1903,7 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
             <div className="overflow-hidden rounded-xl border border-gray-200 shadow-sm space-y-2 bg-white">
               {/* SECTION 1 LIVE PREVIEW */}
               {(previewTab === "section1" || previewTab === "full") && (
-                <div className="relative overflow-hidden p-5 border-b border-teal-100 min-h-[220px] flex items-center bg-[#e4f7f4]">
+                <div className="relative overflow-hidden p-5 border-b border-teal-100 min-h-[220px] flex items-center bg-[#d8f5f1]">
                   {/* Background Image Layer */}
                   {image && (
                     <div className="absolute inset-0 z-0">
@@ -1920,7 +1920,7 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
 
                   {/* Soft text backdrop gradient strictly on left */}
                   <div
-                    className="absolute inset-0 z-10 bg-gradient-to-r from-[#e4f7f4]/90 via-[#e4f7f4]/40 to-transparent via-40% to-60% pointer-events-none"
+                    className="absolute inset-0 z-10 bg-gradient-to-r from-[#d8f5f1]/90 via-[#d8f5f1]/40 to-transparent via-40% to-60% pointer-events-none"
                     aria-hidden
                   />
 
