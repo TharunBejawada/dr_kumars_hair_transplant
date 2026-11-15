@@ -13,6 +13,8 @@ import Footer from "@/components/Footer";
 import FloatingContact from "@/components/FloatingContact";
 import ConsultationPopup from "@/components/ConsultationPopup";
 import { clinic } from "@/lib/content";
+import { listTreatments } from "@/lib/db/treatments";
+import { isTreatmentLive } from "@drkumar/shared";
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -32,13 +34,25 @@ const jsonLd = {
   founder: { "@type": "Physician", name: "Dr. Ashok Kumar", medicalSpecialty: "Dermatology" },
 };
 
-export default function Home() {
+export default async function Home() {
+  let initialTreatments: { title: string; slug: string; serviceCategory: string }[] = [];
+  try {
+    const all = await listTreatments();
+    initialTreatments = all.filter(isTreatmentLive).map((t) => ({
+      title: t.title,
+      slug: t.slug,
+      serviceCategory: t.serviceCategory,
+    }));
+  } catch {
+    // Client Header gracefully falls back to /api/treatments
+  }
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <SmoothScroll />
       <Animations />
-      <Header />
+      <Header initialTreatments={initialTreatments} />
       <main>
         <Hero />
         <About />
