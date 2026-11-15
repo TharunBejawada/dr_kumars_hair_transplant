@@ -1,6 +1,16 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
+// Silence AWS SDK v3 future deprecation notice for Node 20 so it doesn't trigger the Next.js dev error overlay
+if (typeof process !== "undefined" && typeof process.emitWarning === "function") {
+  const orig = process.emitWarning;
+  process.emitWarning = (w: any, ...args: any[]) => {
+    if (typeof w === "string" && w.includes("NodeVersionSupportWarning")) return;
+    if (w && (w.name === "NodeVersionSupportWarning" || String(w.message).includes("NodeVersionSupportWarning"))) return;
+    return (orig as any).call(process, w, ...args);
+  };
+}
+
 /** Singleton DynamoDB document client. In AWS, credentials come from the Amplify compute role (no keys in code). */
 let doc: DynamoDBDocumentClient | undefined;
 export function db() {
