@@ -290,6 +290,7 @@ export const servicePageInputSchema = z.object({
   order: z.number().int().default(0),
   seoTitle: z.string().trim().max(200).default(""),
   metaDescription: z.string().trim().max(400).default(""),
+  metaKeywords: z.string().trim().max(500).default(""),
 
   /* Section 2: Concerns & Treatment Approaches */
   concernsSection: serviceConcernsSectionSchema.optional(),

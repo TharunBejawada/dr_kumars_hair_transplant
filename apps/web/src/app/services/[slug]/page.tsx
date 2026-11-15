@@ -37,11 +37,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     page.metaDescription ||
     page.subtitle ||
     `Expert ${page.title} treatments at ${clinic.name} in Kondapur, Hyderabad.`;
+  const keywords = page.metaKeywords
+    ? page.metaKeywords
+        .split(",")
+        .map((k) => k.trim())
+        .filter(Boolean)
+    : undefined;
   const url = `${siteUrl}/services/${page.slug}`;
 
   return {
     title: `${title} | ${clinic.name}`,
     description,
+    keywords,
     alternates: { canonical: url },
     openGraph: {
       type: "website",

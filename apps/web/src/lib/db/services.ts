@@ -29,6 +29,8 @@ export const DEFAULT_SERVICE_PAGES: ServicePage[] = [
     seoTitle: "Advanced Hair Loss & Hair Restoration Treatments in Kondapur, Hyderabad",
     metaDescription:
       "Personalised care for hair fall, thinning hair, baldness and advanced hair restoration procedures by Dr. Kumar in Kondapur, Hyderabad.",
+    metaKeywords:
+      "hair loss treatment kondapur, hair restoration hyderabad, hair transplant kondapur, dr ashok kumar, FUE hair transplant, DHI hair transplant, PRP hair treatment, GFC therapy, hair fall treatment hyderabad",
     concernsSection: {
       tagline: "Understanding Your Hair Concerns",
       heading: "Different Hair Problems Need Different Treatment Approaches",
@@ -257,6 +259,8 @@ export const DEFAULT_SERVICE_PAGES: ServicePage[] = [
     seoTitle: "Cosmetic & Skin Rejuvenation Treatments | Dr. Kumar's",
     metaDescription:
       "Comprehensive aesthetic treatments including HydraFacial, Chemical Peels, MNRF, and skin glow solutions tailored to your unique skin.",
+    metaKeywords:
+      "skin clinic kondapur, cosmetic dermatology hyderabad, chemical peel, hydrafacial hyderabad, anti aging treatment, acne scar removal, skin rejuvenation",
     concernsSection: {
       tagline: "Understanding Your Skin Concerns",
       heading: "Targeted Solutions for Healthier, Rejuvenated Skin",
@@ -439,6 +443,8 @@ export const DEFAULT_SERVICE_PAGES: ServicePage[] = [
     seoTitle: "Clinical Dermatology & Skin Disease Management | Dr. Kumar's",
     metaDescription:
       "Expert medical diagnosis and management for psoriasis, eczema, acne, vitiligo, and various skin allergies and infections.",
+    metaKeywords:
+      "dermatologist kondapur, skin specialist hyderabad, psoriasis treatment, eczema care, fungal infection treatment, allergy testing, vitiligo specialist",
     treatmentsSection: {
       tagline: "Our Clinical Dermatology Care",
       heading: "Specialised Medical Management for Skin Diseases",
@@ -586,6 +592,8 @@ export const DEFAULT_SERVICE_PAGES: ServicePage[] = [
     seoTitle: "Confidential STI & Sexual Health Diagnosis & Care | Dr. Kumar's",
     metaDescription:
       "Private and respectful assessment, testing, and comprehensive medical management for sexually transmitted infections.",
+    metaKeywords:
+      "std clinic hyderabad, sti testing kondapur, confidential sexual health, dermatologist std treatment, confidential consultation hyderabad",
     treatmentsSection: {
       tagline: "Our Confidential Sexual Health Services",
       heading: "Private, Compassionate & Comprehensive STI Care",

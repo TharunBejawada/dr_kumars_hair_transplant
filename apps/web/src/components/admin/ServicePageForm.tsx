@@ -156,6 +156,7 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
   const [status, setStatus] = useState<ServicePageStatus>(page?.status ?? "draft");
   const [seoTitle, setSeoTitle] = useState(page?.seoTitle ?? "");
   const [metaDescription, setMetaDescription] = useState(page?.metaDescription ?? "");
+  const [metaKeywords, setMetaKeywords] = useState(page?.metaKeywords ?? "");
 
   // Status & loaders
   const [errors, setErrors] = useState<Record<string, string[]>>({});
@@ -509,6 +510,7 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
       status,
       seoTitle,
       metaDescription,
+      metaKeywords: metaKeywords.trim(),
       ...(concernsSection ? { concernsSection } : {}),
       ...(treatmentsSection ? { treatmentsSection } : {}),
       ...(assessmentSection ? { assessmentSection } : {}),
@@ -1821,6 +1823,22 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
                   placeholder="Concise overview for Google search snippets (150-160 characters)"
                   className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[13px] outline-none focus:border-brand"
                 />
+              </div>
+              <div>
+                <label className="mb-1 block text-[13px] font-semibold text-gray-700">Meta Keywords</label>
+                <input
+                  type="text"
+                  value={metaKeywords}
+                  onChange={(e) => {
+                    setMetaKeywords(e.target.value);
+                    setDirty(true);
+                  }}
+                  placeholder="e.g. hair loss treatment, hair transplant hyderabad, best doctor"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[13px] outline-none focus:border-brand"
+                />
+                <p className="mt-1 text-[11px] text-gray-500">
+                  Comma-separated keywords for search engines and SEO ranking.
+                </p>
               </div>
             </div>
           </details>
