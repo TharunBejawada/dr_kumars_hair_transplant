@@ -10,6 +10,8 @@ export function db() {
       // Local development only (dynalite / DynamoDB Local).
       ...(process.env.DYNAMODB_ENDPOINT
         ? { endpoint: process.env.DYNAMODB_ENDPOINT, credentials: { accessKeyId: "local", secretAccessKey: "local" } }
+        : process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY
+        ? { credentials: { accessKeyId: process.env.AWS_ACCESS_KEY_ID, secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY } }
         : {}),
     }),
     { marshallOptions: { removeUndefinedValues: true } },
