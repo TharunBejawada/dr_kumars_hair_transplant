@@ -12,6 +12,7 @@ import Appointment from "@/components/Appointment";
 import Footer from "@/components/Footer";
 import FloatingContact from "@/components/FloatingContact";
 import ConsultationPopup from "@/components/ConsultationPopup";
+import ScrollToTop from "@/components/ScrollToTop";
 import { clinic } from "@/lib/content";
 import { listTreatments } from "@/lib/db/treatments";
 import { isTreatmentLive } from "@drkumar/shared";
@@ -66,6 +67,7 @@ export default async function Home() {
       <Footer />
       <FloatingContact />
       <ConsultationPopup />
+      <ScrollToTop />
     </>
   );
 }

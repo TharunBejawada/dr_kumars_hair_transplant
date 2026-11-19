@@ -22,3 +22,12 @@ export function setScrollLocked(locked: boolean) {
   if (locked) lenis?.stop(); else lenis?.start();
   document.documentElement.style.overflow = locked ? "hidden" : "";
 }
+
+/** Smoothly scrolls the window back to the top of the page. */
+export function scrollToTop() {
+  if (lenis) {
+    lenis.scrollTo(0, { duration: 1.2, easing: (t) => 1 - Math.pow(1 - t, 4) });
+  } else {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+}

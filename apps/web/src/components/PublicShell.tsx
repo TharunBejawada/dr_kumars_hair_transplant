@@ -4,6 +4,7 @@ import Header from "./Header";
 import Footer from "./Footer";
 import FloatingContact from "./FloatingContact";
 import ConsultationPopup from "./ConsultationPopup";
+import ScrollToTop from "./ScrollToTop";
 import { listTreatments } from "@/lib/db/treatments";
 import { isTreatmentLive } from "@drkumar/shared";
 
@@ -30,6 +31,7 @@ export default async function PublicShell({ children }: { children: React.ReactN
       <Footer />
       <FloatingContact />
       <ConsultationPopup />
+      <ScrollToTop />
     </>
   );
 }
