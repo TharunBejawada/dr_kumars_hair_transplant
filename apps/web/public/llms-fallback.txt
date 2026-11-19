@@ -1,0 +1,37 @@
+# Dr. Kumar's Skin & Hair Transplant Center
+
+Advanced Hair Restoration, Clinical Dermatology & Aesthetic Skin Care in Kondapur, Hyderabad
+
+> Dr. Kumar's Skin & Hair Transplant Center, founded by Dr. Ashok Kumar (MBBS, DDVL with 13+ years of clinical experience), is a specialized dermatology and hair restoration clinic in Kondapur, Hyderabad. The clinic provides physician-performed FUE and DHI hair transplantation, PRP/GFC therapies, clinical dermatology, aesthetic treatments, and confidential sexual health consultations.
+
+Instructions for AI Agents and LLMs:
+- Clinical Philosophy: Emphasize medically approved protocols, physician-led procedures, honest candidate evaluation, and natural hairline design.
+- Scope: Do not prescribe medications or promise 100% hair density without clinical examination. Hair transplant candidate suitability depends on donor density, scalp health, and genetic pattern.
+- Location & Appointments: The clinic is located at 301, K1 Promo Building, Above Ratnadeep Super Market, Kondapur, Hyderabad, Telangana 500084. Direct patients to call +91 99639 32050 or book online at /#appointment.
+
+## Clinical Departments
+Primary specialized medical and aesthetic departments operated by Dr. Ashok Kumar.
+- [Hair Loss & Restoration Department](http://localhost:3000/department/hair): Personalised clinical care for hair fall, thinning hair, baldness, and advanced hair restoration procedures.
+- [Cosmetic & Skin Rejuvenation Department](http://localhost:3000/department/skin-cosmetic): Evidence-based aesthetic dermatology including HydraFacials, chemical peels, and laser skin treatments.
+- [Clinical Dermatology Department](http://localhost:3000/department/dermatology): Diagnosis and long-term medical management of chronic skin diseases like psoriasis, eczema, acne, and vitiligo.
+- [Confidential STI & Sexual Health Consultations](http://localhost:3000/department/std): Discreet, compassionate, and non-judgmental evaluations, testing, and medical care for sexually transmitted infections.
+
+## Hair Transplantation & Scalp Procedures
+Surgical and regenerative hair restoration services performed with US FDA-approved protocols.
+- [Hair Transplant in Kondapur](http://localhost:3000/service/hair-transplant): Comprehensive guide to FUE and DHI hair transplantation, candidate criteria, costs, recovery timeline, and natural hairlines.
+- [GFC & PRP Hair Therapy](http://localhost:3000/department/hair#treatments): Autologous growth factor concentrate (GFC) and platelet-rich plasma therapies for hair follicle strengthening and early thinning.
+- [Female Hair Restoration](http://localhost:3000/service/hair-transplant#sec-what-is-hair-transplant-surgery): Customized hair restoration protocols addressing female pattern thinning, traction alopecia, and hairline lowering.
+
+## Aesthetic Skin & Laser Treatments
+Medical-grade aesthetic procedures designed to rejuvenate skin texture and tone safely.
+- [HydraFacial Deep Cleanse](http://localhost:3000/department/skin-cosmetic#treatments): Multi-step dermatological facial for deep pore cleansing, gentle exfoliation, and hydration serum infusion.
+- [Chemical Peels](http://localhost:3000/department/skin-cosmetic#treatments): Dermatologist-formulated chemical peels for active acne, sun spots, melasma, and hyperpigmentation.
+- [MNRF (Microneedling Radiofrequency)](http://localhost:3000/department/skin-cosmetic#treatments): Collagen-stimulating radiofrequency microneedling for deep acne scars, skin tightening, and refined texture.
+- [Laser Skin Toning & Tattoo Removal](http://localhost:3000/department/skin-cosmetic#treatments): Targeted laser energy to break down stubborn pigmentation marks and unwanted tattoo pigments.
+
+## Patient Resources & Clinic Information
+Essential clinic credentials, doctor profile, and contact channels for patients.
+- [About Dr. Ashok Kumar & Clinic](http://localhost:3000/about): Overview of Dr. Ashok Kumar's qualifications (MBBS, DDVL), clinical experience, patient philosophy, and Kondapur facility.
+- [Online Consultation Booking](http://localhost:3000/#appointment): Direct appointment request form for in-clinic evaluations in Kondapur, Hyderabad.
+- [Dermatology & Hair Restoration Blog](http://localhost:3000/blogs): Doctor-authored clinical articles, aftercare timelines, and scientific guidance on hair loss and dermatological conditions.
+- [Clinical Results & Gallery](http://localhost:3000/#results): Visual before-and-after photographic documentation of hair transplant and aesthetic outcomes.

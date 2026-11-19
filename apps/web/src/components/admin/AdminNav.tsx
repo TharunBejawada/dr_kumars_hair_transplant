@@ -9,6 +9,7 @@ const items = [
   { href: "/admin/services", label: "Services" },
   { href: "/admin/treatments", label: "Treatments" },
   { href: "/admin/blogs", label: "Blogs" },
+  { href: "/admin/llms-txt", label: "LLMs.txt" },
   { href: "/admin/account", label: "Change password" },
 ];
 
