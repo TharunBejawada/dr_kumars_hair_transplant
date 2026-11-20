@@ -64,7 +64,7 @@ export default async function Home() {
         <Results />
         <Appointment />
       </main>
-      <Footer />
+      <Footer initialTreatments={initialTreatments} />
       <FloatingContact />
       <ConsultationPopup />
       <ScrollToTop />

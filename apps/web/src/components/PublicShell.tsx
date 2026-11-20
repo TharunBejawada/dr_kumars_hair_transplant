@@ -28,7 +28,7 @@ export default async function PublicShell({ children }: { children: React.ReactN
       <Animations />
       <Header initialTreatments={initialTreatments} />
       <main>{children}</main>
-      <Footer />
+      <Footer initialTreatments={initialTreatments} />
       <FloatingContact />
       <ConsultationPopup />
       <ScrollToTop />

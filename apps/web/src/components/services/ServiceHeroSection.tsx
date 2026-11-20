@@ -46,10 +46,6 @@ export default function ServiceHeroSection({ page }: { page: ServicePage }) {
             Home
           </Link>
           <span>/</span>
-          <Link href="/department" className="hover:text-brand transition">
-            Department
-          </Link>
-          <span>/</span>
           <span className="text-gray-800 font-medium">{catObj?.label || page.serviceCategory}</span>
         </nav>
 
