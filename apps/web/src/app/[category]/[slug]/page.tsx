@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound, permanentRedirect } from "next/navigation";
+import { permanentRedirect, redirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import PublicShell from "@/components/PublicShell";
@@ -70,7 +70,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CategoryTreatmentDetailPage({ params }: Props) {
   const { category, slug } = await params;
   const treatment = await loadTreatment(slug);
-  if (!treatment) notFound();
+  if (!treatment) redirect("/");
 
   // If accessed with wrong department prefix, permanently redirect to canonical URL
   if (treatment.serviceCategory.toLowerCase() !== category.toLowerCase()) {

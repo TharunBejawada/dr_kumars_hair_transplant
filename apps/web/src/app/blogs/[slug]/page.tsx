@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import PublicShell from "@/components/PublicShell";
 import ShareLinks from "@/components/ShareLinks";
 import { getLiveBlogByUrl, listLiveBlogsCached } from "@/lib/db/blogs";
@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPage({ params }: Props) {
   const blog = await load((await params).slug);
-  if (!blog) notFound();
+  if (!blog) redirect("/");
 
   const url = `${siteUrl}/blogs/${blog.url}`;
   const related = await listLiveBlogsCached()

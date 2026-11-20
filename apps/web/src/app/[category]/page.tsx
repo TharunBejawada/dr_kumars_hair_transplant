@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import PublicShell from "@/components/PublicShell";
 import ServiceHeroSection from "@/components/services/ServiceHeroSection";
@@ -82,7 +82,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CategoryDepartmentPage({ params }: Props) {
   const { category } = await params;
   const page = await loadPage(category);
-  if (!page) notFound();
+  if (!page) redirect("/");
 
   const catObj = serviceCategories.find((c) => c.id === page.serviceCategory);
 
