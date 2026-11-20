@@ -1,5 +1,7 @@
 import { DeleteCommand, GetCommand, PutCommand, QueryCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
 import { randomUUID } from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
 import {
   isTreatmentLive,
   type Treatment,
@@ -12,7 +14,28 @@ import {
 import { cleanHtml } from "../sanitize";
 import { db } from "../dynamo";
 
-const T = () => process.env.TREATMENTS_TABLE || process.env.SERVICES_TABLE;
+function getTableName(): string | undefined {
+  if (process.env.TREATMENTS_TABLE) return process.env.TREATMENTS_TABLE;
+  if (process.env.SERVICES_TABLE) return process.env.SERVICES_TABLE;
+
+  try {
+    const candidates = [
+      path.join(process.cwd(), "amplify_outputs.json"),
+      path.join(process.cwd(), "apps/web/amplify_outputs.json"),
+    ];
+    for (const p of candidates) {
+      if (fs.existsSync(p)) {
+        const parsed = JSON.parse(fs.readFileSync(p, "utf-8"));
+        if (parsed?.custom?.treatmentsTable) return parsed.custom.treatmentsTable;
+        if (parsed?.custom?.servicesTable) return parsed.custom.servicesTable;
+      }
+    }
+  } catch {}
+
+  return undefined;
+}
+
+const T = () => getTableName();
 
 export class TreatmentSlugTakenError extends Error {}
 
@@ -143,9 +166,10 @@ export async function createTreatment(input: TreatmentInput): Promise<Treatment>
   };
 
   const tbl = T();
-  if (tbl) {
-    await db().send(new PutCommand({ TableName: tbl, Item: { ...treatment, itemType: "treatment" } }));
+  if (!tbl) {
+    throw new Error("Database configuration error: Neither TREATMENTS_TABLE nor SERVICES_TABLE is configured in the environment.");
   }
+  await db().send(new PutCommand({ TableName: tbl, Item: { ...treatment, itemType: "treatment" } }));
 
   const existingIdx = memoryTreatments.findIndex((t) => t.id === treatment.id);
   if (existingIdx >= 0) {
@@ -203,9 +227,10 @@ export async function updateTreatment(id: string, input: Partial<TreatmentInput>
   };
 
   const tbl = T();
-  if (tbl) {
-    await db().send(new PutCommand({ TableName: tbl, Item: { ...updated, itemType: "treatment" } }));
+  if (!tbl) {
+    throw new Error("Database configuration error: Neither TREATMENTS_TABLE nor SERVICES_TABLE is configured in the environment.");
   }
+  await db().send(new PutCommand({ TableName: tbl, Item: { ...updated, itemType: "treatment" } }));
 
   const idx = memoryTreatments.findIndex((t) => t.id === id);
   if (idx >= 0) memoryTreatments[idx] = updated;
