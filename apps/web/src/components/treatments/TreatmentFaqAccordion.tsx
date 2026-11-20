@@ -46,22 +46,45 @@ function parseFaqsFromHtml(rawHtml: string): FaqItem[] {
 }
 
 interface Props {
-  title: string;
-  data: string;
+  title?: string;
+  items?: { question: string; answer: string; id?: string }[];
+  data?: string;
 }
 
-export default function TreatmentFaqAccordion({ title, data }: Props) {
-  // CRITICAL REQUIREMENT: "all faqs should be close ointially when uuser clicks they have to be open."
+export default function TreatmentFaqAccordion({ title = "Frequently Asked Questions", items, data }: Props) {
+  // CRITICAL REQUIREMENT: All FAQs start closed initially. User clicks to expand.
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
-  const faqItems = useMemo(() => parseFaqsFromHtml(data), [data]);
+  const faqItems = useMemo<FaqItem[]>(() => {
+    if (items && items.length > 0) {
+      return items.map((it) => {
+        const answerRaw = it.answer.trim();
+        const answerHtml =
+          answerRaw.startsWith("<p") || answerRaw.startsWith("<div")
+            ? answerRaw
+            : answerRaw
+                .split(/\n\s*\n/)
+                .map((para) => `<p>${para.replace(/\n/g, "<br/>")}</p>`)
+                .join("");
+        return {
+          question: it.question.trim(),
+          answerHtml,
+        };
+      });
+    }
+    if (data) {
+      return parseFaqsFromHtml(data);
+    }
+    return [];
+  }, [items, data]);
 
   function toggle(idx: number) {
     setOpenIndex((curr) => (curr === idx ? null : idx));
   }
 
-  // Fallback: If no structured questions detected, render standard rich text
+  // Fallback: If no structured questions detected, render standard rich text if data exists
   if (faqItems.length === 0) {
+    if (!data) return null;
     return (
       <div className="space-y-4">
         <h2 className="text-[24px] sm:text-[28px] font-bold text-gray-900 tracking-tight">
@@ -123,4 +146,3 @@ export default function TreatmentFaqAccordion({ title, data }: Props) {
     </div>
   );
 }
-

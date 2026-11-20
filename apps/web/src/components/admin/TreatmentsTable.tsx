@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import {
   type Treatment,
@@ -11,7 +11,15 @@ import {
 } from "@drkumar/shared";
 import { useConfirm } from "./Confirm";
 import { useToast } from "./Toast";
-import { FaMagnifyingGlass, FaPen, FaTrashCan, FaPlus, FaLayerGroup, FaArrowUpRightFromSquare } from "react-icons/fa6";
+import {
+  FaMagnifyingGlass,
+  FaPen,
+  FaTrashCan,
+  FaPlus,
+  FaLayerGroup,
+  FaArrowUpRightFromSquare,
+  FaRotateRight,
+} from "react-icons/fa6";
 
 const statusColors: Record<TreatmentStatus, string> = {
   published: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20",
@@ -30,9 +38,37 @@ export default function TreatmentsTable({ initial }: { initial: Treatment[] }) {
   const toast = useToast();
   const confirm = useConfirm();
   const [treatments, setTreatments] = useState<Treatment[]>(initial);
+  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
+
+  const refreshTreatments = useCallback(async (quiet = false) => {
+    if (!quiet) setLoading(true);
+    try {
+      const res = await fetch(`/api/admin/treatments?_t=${Date.now()}`, { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.treatments)) {
+          setTreatments(data.treatments);
+        }
+      }
+    } catch (err) {
+      console.warn("Failed to refresh treatments list:", err);
+    } finally {
+      if (!quiet) setLoading(false);
+    }
+  }, []);
+
+  // Sync state whenever props update
+  useEffect(() => {
+    setTreatments(initial);
+  }, [initial]);
+
+  // Always refresh on mount to bypass Next.js client router cache
+  useEffect(() => {
+    refreshTreatments(true);
+  }, [refreshTreatments]);
 
   async function onDelete(treatment: Treatment) {
     const ok = await confirm({
@@ -50,6 +86,7 @@ export default function TreatmentsTable({ initial }: { initial: Treatment[] }) {
     }
     setTreatments((prev) => prev.filter((t) => t.id !== treatment.id));
     toast("Treatment deleted successfully");
+    refreshTreatments(true);
   }
 
   const filtered = treatments.filter((t) => {
@@ -105,7 +142,7 @@ export default function TreatmentsTable({ initial }: { initial: Treatment[] }) {
         })}
       </div>
 
-      {/* Search & Status Filters */}
+      {/* Search, Status Filters & Manual Refresh */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="relative w-full max-w-sm">
           <FaMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 size-3.5" />
@@ -118,7 +155,18 @@ export default function TreatmentsTable({ initial }: { initial: Treatment[] }) {
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => refreshTreatments(false)}
+            disabled={loading}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-[12.5px] font-semibold text-gray-700 hover:bg-gray-50 transition shadow-2xs cursor-pointer disabled:opacity-50"
+            title="Refresh treatments list"
+          >
+            <FaRotateRight className={`size-3 text-brand ${loading ? "animate-spin" : ""}`} />
+            <span>{loading ? "Refreshing..." : "Refresh"}</span>
+          </button>
+
           <label className="text-[12.5px] font-medium text-gray-600">Status:</label>
           <select
             value={selectedStatus}
@@ -192,7 +240,7 @@ export default function TreatmentsTable({ initial }: { initial: Treatment[] }) {
                               {t.title}
                             </Link>
                             <span className="block text-[11px] font-mono text-gray-400">
-                              /service/{t.slug}
+                              /{t.serviceCategory}/{t.slug}
                             </span>
                             {t.summary && (
                               <p className="text-[12px] text-gray-500 line-clamp-1 mt-0.5 max-w-md">
@@ -226,14 +274,14 @@ export default function TreatmentsTable({ initial }: { initial: Treatment[] }) {
 
                       {/* Order */}
                       <td className="py-3.5 px-4 text-center font-mono text-[12px] text-gray-600">
-                        {t.order}
+                        {t.order ?? 0}
                       </td>
 
                       {/* Actions */}
                       <td className="py-3.5 px-4 text-right whitespace-nowrap">
                         <div className="inline-flex items-center gap-1.5">
                           <a
-                            href={`/service/${t.slug}`}
+                            href={`/${t.serviceCategory}/${t.slug}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex size-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-teal-50 hover:text-teal-700 hover:border-teal-200 transition shadow-2xs"
@@ -269,4 +317,3 @@ export default function TreatmentsTable({ initial }: { initial: Treatment[] }) {
     </div>
   );
 }
-

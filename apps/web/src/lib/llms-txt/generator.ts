@@ -88,80 +88,6 @@ export function renderLlmsTxt(config: LlmsTxtConfig): string {
 }
 
 /**
- * Renders comprehensive, exhaustive directory markdown for `/llms-full.txt`.
- * Includes all links where `inLlmsFullTxt === true`.
- */
-export function renderLlmsFullTxt(config: LlmsTxtConfig): string {
-  const baseUrl = config.baseUrl || DEFAULT_BASE_URL;
-  const parts: string[] = [];
-
-  // 1. Title
-  parts.push(`# ${config.title.trim()} (Full Directory)`);
-
-  // 2. Tagline
-  if (config.tagline?.trim()) {
-    parts.push(config.tagline.trim());
-  }
-
-  // 3. Blockquote Summary
-  if (config.summary?.trim()) {
-    const quoteLines = config.summary
-      .trim()
-      .split("\n")
-      .map((line) => `> ${line}`);
-    parts.push(quoteLines.join("\n"));
-  }
-
-  // 4. System Instructions / Context
-  if (config.systemInstructions?.trim()) {
-    parts.push(config.systemInstructions.trim());
-  }
-
-  // Group regular sections and optional sections
-  const regularSections = config.sections.filter((s) => !s.isOptional);
-  const optionalSections = config.sections.filter((s) => s.isOptional);
-
-  // 5. Regular Sections
-  for (const section of regularSections) {
-    const activeLinks = (section.links || []).filter((l) => l.inLlmsFullTxt);
-    if (activeLinks.length === 0) continue;
-
-    const sectionLines: string[] = [`## ${section.title.trim()}`];
-
-    if (section.description?.trim()) {
-      sectionLines.push(section.description.trim());
-    }
-
-    for (const link of activeLinks) {
-      sectionLines.push(formatLinkItem(link, baseUrl));
-    }
-
-    parts.push(sectionLines.join("\n"));
-  }
-
-  // 6. Optional & Extended Resources
-  if (optionalSections.length > 0) {
-    parts.push(`## Extended & Optional Resources\nSecondary clinical references, legal notices, and extended guides.`);
-
-    for (const section of optionalSections) {
-      const activeLinks = (section.links || []).filter((l) => l.inLlmsFullTxt);
-      if (activeLinks.length === 0) continue;
-
-      const sectionLines: string[] = [`### ${section.title.trim()}`];
-      if (section.description?.trim()) {
-        sectionLines.push(section.description.trim());
-      }
-      for (const link of activeLinks) {
-        sectionLines.push(formatLinkItem(link, baseUrl));
-      }
-      parts.push(sectionLines.join("\n"));
-    }
-  }
-
-  return parts.join("\n\n").trim() + "\n";
-}
-
-/**
  * Returns clean default configuration for Dr. Kumar's clinic.
  * Static entries strictly restricted to: Home, About Us, Doctor, and Contact Us.
  * Services, Treatments, and Blogs are loaded dynamically from the database.
@@ -191,7 +117,6 @@ export function getDefaultLlmsConfig(siteUrl?: string): LlmsTxtConfig {
             url: "/",
             description: "Specialized dermatology and advanced hair restoration center in Kondapur, Hyderabad.",
             inLlmsTxt: true,
-            inLlmsFullTxt: true,
             entityType: "page",
           },
           {
@@ -200,7 +125,6 @@ export function getDefaultLlmsConfig(siteUrl?: string): LlmsTxtConfig {
             url: "/about",
             description: "Overview of clinic philosophy, doctor credentials, sterile surgical facilities, and patient-first medical standards.",
             inLlmsTxt: true,
-            inLlmsFullTxt: true,
             entityType: "page",
           },
           {
@@ -209,7 +133,6 @@ export function getDefaultLlmsConfig(siteUrl?: string): LlmsTxtConfig {
             url: "/#doctor",
             description: "Founder and chief dermatologist with 13+ years of clinical experience in hair transplantation, clinical dermatology, and aesthetic medicine.",
             inLlmsTxt: true,
-            inLlmsFullTxt: true,
             entityType: "page",
           },
           {
@@ -218,7 +141,6 @@ export function getDefaultLlmsConfig(siteUrl?: string): LlmsTxtConfig {
             url: "/#contact",
             description: "Clinic address: 301, K1 Promo Building, Above Ratnadeep Super Market, Kondapur, Hyderabad. Phone: +91 99639 32050.",
             inLlmsTxt: true,
-            inLlmsFullTxt: true,
             entityType: "page",
           },
         ],

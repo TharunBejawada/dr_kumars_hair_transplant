@@ -1,6 +1,7 @@
 import { servicePageInputSchema } from "@drkumar/shared";
 import { json, withAdmin } from "@/lib/auth/api";
 import { createServicePage, listServicePages, SlugTakenError } from "@/lib/db/services";
+import { revalidatePath } from "next/cache";
 
 export const runtime = "nodejs";
 
@@ -19,6 +20,8 @@ export const POST = withAdmin(async (req) => {
   }
   try {
     const page = await createServicePage(parsed.data);
+    revalidatePath(`/${page.slug}`);
+    revalidatePath("/services");
     return json({ page }, 201);
   } catch (e) {
     if (e instanceof SlugTakenError) {

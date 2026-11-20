@@ -16,9 +16,9 @@ function safeDate(val: string | null | undefined, fallback: Date): Date {
 /**
  * Dynamic sitemap generator compliant with the Sitemaps XML protocol (sitemaps.org).
  * Dynamically includes:
- * 1. Core static pages (Home, About, Departments Directory, Services Directory, Blogs)
- * 2. Dynamic clinical departments/services (/department/[slug]) from DynamoDB
- * 3. Dynamic clinical treatments (/service/[slug]) from DynamoDB
+ * 1. Core static pages (Home, About, Services Directory, Blogs)
+ * 2. Dynamic clinical departments/categories (/[category]) from DynamoDB
+ * 3. Dynamic clinical treatments (/[category]/[slug]) from DynamoDB
  * 4. Dynamic published blog articles (/blogs/[slug]) from DynamoDB
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -39,12 +39,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
-      url: `${siteUrl}/department`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
       url: `${siteUrl}/services`,
       lastModified: now,
       changeFrequency: "weekly",
@@ -58,7 +52,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // 2. Dynamic Services / Departments (/department/[slug])
+  // 2. Dynamic Services / Departments (/[category])
   let servicePages: MetadataRoute.Sitemap = [];
   try {
     const services = await listLiveServicePages();
@@ -67,7 +61,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     for (const s of services) {
       serviceSlugs.add(s.slug);
       servicePages.push({
-        url: `${siteUrl}/department/${s.slug}`,
+        url: `${siteUrl}/${s.slug}`,
         lastModified: safeDate(s.modifiedAt, now),
         changeFrequency: "weekly",
         priority: 0.9,
@@ -79,7 +73,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     for (const slug of coreDepartmentSlugs) {
       if (!serviceSlugs.has(slug)) {
         servicePages.push({
-          url: `${siteUrl}/department/${slug}`,
+          url: `${siteUrl}/${slug}`,
           lastModified: now,
           changeFrequency: "weekly",
           priority: 0.9,
@@ -90,13 +84,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.warn("Sitemap: Failed to load services from DB:", (err as Error).message);
   }
 
-  // 3. Dynamic Treatments (/service/[slug])
+  // 3. Dynamic Treatments (/[category]/[slug])
   let treatmentPages: MetadataRoute.Sitemap = [];
   try {
     const treatments = await listTreatments();
     const liveTreatments = treatments.filter(isTreatmentLive);
     treatmentPages = liveTreatments.map((t) => ({
-      url: `${siteUrl}/service/${t.slug}`,
+      url: `${siteUrl}/${t.serviceCategory}/${t.slug}`,
       lastModified: safeDate(t.modifiedAt || t.createdAt, now),
       changeFrequency: "weekly",
       priority: 0.9,

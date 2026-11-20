@@ -6,6 +6,7 @@ import {
   TreatmentSlugTakenError,
   updateTreatment,
 } from "@/lib/db/treatments";
+import { revalidatePath } from "next/cache";
 
 export const runtime = "nodejs";
 
@@ -22,7 +23,12 @@ export const PUT = withAdmin<{ id: string }>(async (req, _s, { params }) => {
   }
   try {
     const treatment = await updateTreatment((await params).id, parsed.data);
-    return treatment ? json({ treatment }) : json({ error: "Treatment not found" }, 404);
+    if (!treatment) return json({ error: "Treatment not found" }, 404);
+    revalidatePath("/admin/treatments");
+    revalidatePath(`/${treatment.serviceCategory}/${treatment.slug}`);
+    revalidatePath(`/${treatment.serviceCategory}`);
+    revalidatePath("/services");
+    return json({ treatment });
   } catch (e) {
     if (e instanceof TreatmentSlugTakenError) {
       return json(
@@ -30,12 +36,20 @@ export const PUT = withAdmin<{ id: string }>(async (req, _s, { params }) => {
         409,
       );
     }
-    throw e;
+    console.error("Failed to update treatment:", e);
+    return json({ error: (e as Error).message || "Failed to update treatment" }, 500);
   }
 });
 
 export const DELETE = withAdmin<{ id: string }>(async (_req, _s, { params }) => {
-  await deleteTreatment((await params).id);
+  const id = (await params).id;
+  const existing = await getTreatment(id);
+  await deleteTreatment(id);
+  revalidatePath("/admin/treatments");
+  if (existing?.slug) {
+    revalidatePath(`/${existing.serviceCategory}/${existing.slug}`);
+    revalidatePath(`/${existing.serviceCategory}`);
+  }
+  revalidatePath("/services");
   return json({ ok: true });
 });
-

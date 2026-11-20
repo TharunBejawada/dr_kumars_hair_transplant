@@ -1,6 +1,7 @@
 import { servicePageInputSchema } from "@drkumar/shared";
 import { json, withAdmin } from "@/lib/auth/api";
 import { deleteServicePage, getServicePage, SlugTakenError, updateServicePage } from "@/lib/db/services";
+import { revalidatePath } from "next/cache";
 
 export const runtime = "nodejs";
 
@@ -17,7 +18,10 @@ export const PUT = withAdmin<{ id: string }>(async (req, _s, { params }) => {
   }
   try {
     const page = await updateServicePage((await params).id, parsed.data);
-    return page ? json({ page }) : json({ error: "Service page not found" }, 404);
+    if (!page) return json({ error: "Service page not found" }, 404);
+    revalidatePath(`/${page.slug}`);
+    revalidatePath("/services");
+    return json({ page });
   } catch (e) {
     if (e instanceof SlugTakenError) {
       return json(
@@ -30,7 +34,12 @@ export const PUT = withAdmin<{ id: string }>(async (req, _s, { params }) => {
 });
 
 export const DELETE = withAdmin<{ id: string }>(async (_req, _s, { params }) => {
+  const page = await getServicePage((await params).id);
   await deleteServicePage((await params).id);
+  if (page?.slug) {
+    revalidatePath(`/${page.slug}`);
+  }
+  revalidatePath("/services");
   return json({ ok: true });
 });
 

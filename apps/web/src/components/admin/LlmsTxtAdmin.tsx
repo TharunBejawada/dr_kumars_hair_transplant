@@ -8,10 +8,7 @@ import {
   type LlmsTxtLink,
 } from "@drkumar/shared";
 import {
-  estimateTokens,
   getDefaultLlmsConfig,
-  renderLlmsFullTxt,
-  renderLlmsTxt,
   resolveLinkUrl,
 } from "@/lib/llms-txt/generator";
 import { useToast } from "./Toast";
@@ -21,11 +18,8 @@ import {
   FaArrowUp,
   FaArrowUpRightFromSquare,
   FaBolt,
-  FaCheck,
   FaChevronDown,
   FaChevronUp,
-  FaCopy,
-  FaDownload,
   FaFloppyDisk,
   FaMagnifyingGlass,
   FaPlus,
@@ -45,8 +39,6 @@ export default function LlmsTxtAdmin({ initialConfig }: LlmsTxtAdminProps) {
   const [savedConfig, setSavedConfig] = useState<LlmsTxtConfig>(initialConfig);
   const [saving, setSaving] = useState(false);
   const [syncing, setSyncing] = useState(false);
-  const [previewTab, setPreviewTab] = useState<"standard" | "full">("standard");
-  const [copied, setCopied] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
 
@@ -54,14 +46,6 @@ export default function LlmsTxtAdmin({ initialConfig }: LlmsTxtAdminProps) {
   const isDirty = useMemo(() => {
     return JSON.stringify(config) !== JSON.stringify(savedConfig);
   }, [config, savedConfig]);
-
-  // Live markdown renderings
-  const renderedStandard = useMemo(() => renderLlmsTxt(config), [config]);
-  const renderedFull = useMemo(() => renderLlmsFullTxt(config), [config]);
-  const activeRenderedText = previewTab === "standard" ? renderedStandard : renderedFull;
-
-  const charCount = activeRenderedText.length;
-  const tokenEstimate = estimateTokens(activeRenderedText);
 
   // Toggle collapse for a section
   const toggleSectionCollapse = (sectionId: string) => {
@@ -196,33 +180,6 @@ export default function LlmsTxtAdmin({ initialConfig }: LlmsTxtAdminProps) {
     }));
   };
 
-  // Copy active markdown to clipboard
-  const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(activeRenderedText);
-      setCopied(true);
-      toast(`Copied ${previewTab === "standard" ? "/llms.txt" : "/llms-full.txt"} to clipboard!`, "success");
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast("Failed to copy to clipboard", "error");
-    }
-  };
-
-  // Download active markdown file
-  const downloadFile = () => {
-    const filename = previewTab === "standard" ? "llms.txt" : "llms-full.txt";
-    const blob = new Blob([activeRenderedText], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    toast(`Downloaded ${filename}`, "success");
-  };
-
   // Save changes to backend
   const handleSave = async () => {
     setSaving(true);
@@ -240,7 +197,7 @@ export default function LlmsTxtAdmin({ initialConfig }: LlmsTxtAdminProps) {
 
       setSavedConfig(data.config);
       setConfig(data.config);
-      toast("LLMs.txt configuration saved and published successfully!", "success");
+      toast("LLMs.txt configuration saved successfully!", "success");
     } catch (err) {
       toast((err as Error).message, "error");
     } finally {
@@ -335,12 +292,12 @@ export default function LlmsTxtAdmin({ initialConfig }: LlmsTxtAdminProps) {
                 </span>
               ) : (
                 <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-800">
-                  Published & Synced
+                  Published &amp; Synced
                 </span>
               )}
             </div>
             <p className="text-[13px] text-gray-500">
-              Live specification standard compliant (
+              Directly rendered on-demand &bull; Compliant with{" "}
               <a
                 href="https://llmstxt.org"
                 target="_blank"
@@ -349,27 +306,18 @@ export default function LlmsTxtAdmin({ initialConfig }: LlmsTxtAdminProps) {
               >
                 https://llmstxt.org
               </a>
-              )
             </p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {/* View Live Endpoints */}
+          {/* View Live Endpoint */}
           <Link
             href="/llms.txt"
             target="_blank"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-[13px] font-medium text-gray-700 hover:bg-gray-100 transition"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 px-3.5 py-2 text-[13px] font-medium text-gray-700 hover:bg-gray-100 transition"
           >
-            <span>/llms.txt</span>
-            <FaArrowUpRightFromSquare className="size-3 text-gray-400" />
-          </Link>
-          <Link
-            href="/llms-full.txt"
-            target="_blank"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-[13px] font-medium text-gray-700 hover:bg-gray-100 transition"
-          >
-            <span>/llms-full.txt</span>
+            <span>View /llms.txt</span>
             <FaArrowUpRightFromSquare className="size-3 text-gray-400" />
           </Link>
 
@@ -407,535 +355,426 @@ export default function LlmsTxtAdmin({ initialConfig }: LlmsTxtAdminProps) {
         </div>
       </div>
 
-      {/* Main 2-Column Split: Builder on Left, Live Preview on Right */}
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-12">
-        {/* Left Column: Configuration & Section Builder (7 cols) */}
-        <div className="space-y-6 xl:col-span-7">
-          {/* Header & Meta Config Card */}
-          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-            <h3 className="text-[16px] font-bold text-gray-900 mb-4 pb-2 border-b border-gray-100 flex items-center justify-between">
-              <span>Header & Meta Configuration</span>
-              <span className="text-[12px] font-normal text-gray-400">Spec Layer 1</span>
-            </h3>
+      {/* Main Single Column Editor (Sidebar preview removed) */}
+      <div className="space-y-6">
+        {/* Header & Meta Config Card */}
+        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+          <h3 className="text-[16px] font-bold text-gray-900 mb-4 pb-2 border-b border-gray-100 flex items-center justify-between">
+            <span>Header &amp; Meta Configuration</span>
+            <span className="text-[12px] font-normal text-gray-400">Spec Layer 1</span>
+          </h3>
 
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="block text-[13px] font-semibold text-gray-700">
-                    Site / Clinic Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={config.title}
-                    onChange={(e) =>
-                      setConfig((prev) => ({ ...prev, title: e.target.value }))
-                    }
-                    placeholder="e.g. Dr. Kumar's Skin & Hair Transplant Center"
-                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-[14px] text-gray-900 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[13px] font-semibold text-gray-700">
-                    Base URL (Domain)
-                  </label>
-                  <input
-                    type="text"
-                    value={config.baseUrl}
-                    onChange={(e) =>
-                      setConfig((prev) => ({ ...prev, baseUrl: e.target.value }))
-                    }
-                    placeholder="https://drkumarshairtransplant.com"
-                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-[14px] text-gray-900 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
-                  />
-                </div>
-              </div>
-
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="block text-[13px] font-semibold text-gray-700">
-                  Tagline
+                  Site / Clinic Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
-                  value={config.tagline}
+                  value={config.title}
                   onChange={(e) =>
-                    setConfig((prev) => ({ ...prev, tagline: e.target.value }))
+                    setConfig((prev) => ({ ...prev, title: e.target.value }))
                   }
-                  placeholder="e.g. Advanced Hair Restoration, Clinical Dermatology & Aesthetic Skin Care in Kondapur, Hyderabad"
+                  placeholder="e.g. Dr. Kumar's Skin & Hair Transplant Center"
                   className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-[14px] text-gray-900 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
                 />
               </div>
 
               <div>
                 <label className="block text-[13px] font-semibold text-gray-700">
-                  Blockquote Summary (Mandatory for LLMs){" "}
-                  <span className="text-red-500">*</span>
+                  Base URL (Domain)
                 </label>
-                <p className="text-[12px] text-gray-500 mb-1">
-                  A high-signal 1–3 sentence overview of clinic authority, physician credentials, and scope.
-                </p>
-                <textarea
-                  rows={3}
-                  value={config.summary}
-                  onChange={(e) =>
-                    setConfig((prev) => ({ ...prev, summary: e.target.value }))
-                  }
-                  placeholder="Short, factual summary describing the clinic and specialties for AI crawlers..."
-                  className="w-full rounded-lg border border-gray-300 p-2.5 text-[14px] text-gray-900 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[13px] font-semibold text-gray-700">
-                  System Instructions & Clinical Disclaimers (Optional)
-                </label>
-                <p className="text-[12px] text-gray-500 mb-1">
-                  Specific behavioral guidance for AI agents (e.g. candidate safety criteria, contact phone, consultation policy).
-                </p>
-                <textarea
-                  rows={3}
-                  value={config.systemInstructions}
-                  onChange={(e) =>
-                    setConfig((prev) => ({
-                      ...prev,
-                      systemInstructions: e.target.value,
-                    }))
-                  }
-                  placeholder="Instructions for AI models responding to patients..."
-                  className="w-full rounded-lg border border-gray-300 p-2.5 text-[14px] text-gray-900 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Section & Link Builder Header with Live Search */}
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h3 className="text-[18px] font-bold text-gray-900">
-                Sections & Curated Links ({config.sections.length})
-              </h3>
-              <p className="text-[13px] text-gray-500">
-                Organize resources into markdown headings and links with LLMs.txt visibility toggles.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <FaMagnifyingGlass className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search sections & links..."
-                  className="h-9 w-48 sm:w-60 rounded-lg border border-gray-300 pl-8 pr-3 text-[13px] text-gray-900 placeholder:text-gray-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                  value={config.baseUrl}
+                  onChange={(e) =>
+                    setConfig((prev) => ({ ...prev, baseUrl: e.target.value }))
+                  }
+                  placeholder="https://drkumarshairtransplant.com"
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-[14px] text-gray-900 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
                 />
               </div>
-
-              <button
-                type="button"
-                onClick={addSection}
-                className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-brand px-3.5 text-[13px] font-semibold text-white shadow-sm hover:bg-brand-2 transition"
-              >
-                <FaPlus className="size-3" />
-                <span>Add Section</span>
-              </button>
             </div>
-          </div>
 
-          {/* Sections List */}
-          <div className="space-y-4">
-            {filteredSections.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-gray-300 p-8 text-center text-gray-500">
-                <p className="text-[15px] font-medium">No matching sections found.</p>
-                <p className="mt-1 text-[13px]">
-                  Try clearing your search query or add a new section above.
-                </p>
-              </div>
-            ) : (
-              filteredSections.map((section, sIndex) => {
-                const isCollapsed = Boolean(collapsedSections[section.id]);
-                const standardLinkCount = section.links.filter((l) => l.inLlmsTxt).length;
-                const fullLinkCount = section.links.filter((l) => l.inLlmsFullTxt).length;
+            <div>
+              <label className="block text-[13px] font-semibold text-gray-700">
+                Tagline
+              </label>
+              <input
+                type="text"
+                value={config.tagline}
+                onChange={(e) =>
+                  setConfig((prev) => ({ ...prev, tagline: e.target.value }))
+                }
+                placeholder="e.g. Advanced Hair Restoration, Clinical Dermatology &amp; Aesthetic Skin Care in Kondapur, Hyderabad"
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-[14px] text-gray-900 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+              />
+            </div>
 
-                return (
-                  <div
-                    key={section.id}
-                    className={`rounded-xl border transition-all ${
-                      section.isOptional
-                        ? "border-amber-200 bg-amber-50/20"
-                        : "border-gray-200 bg-white"
-                    } shadow-sm overflow-hidden`}
-                  >
-                    {/* Section Header Bar */}
-                    <div className="flex items-center justify-between gap-3 bg-gray-50/80 px-4 py-3 border-b border-gray-200">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <button
-                          type="button"
-                          onClick={() => toggleSectionCollapse(section.id)}
-                          className="text-gray-500 hover:text-gray-700 p-1"
-                        >
-                          {isCollapsed ? (
-                            <FaChevronDown className="size-3.5" />
-                          ) : (
-                            <FaChevronUp className="size-3.5" />
-                          )}
-                        </button>
+            <div>
+              <label className="block text-[13px] font-semibold text-gray-700">
+                Blockquote Summary (Mandatory for LLMs){" "}
+                <span className="text-red-500">*</span>
+              </label>
+              <p className="text-[12px] text-gray-500 mb-1">
+                A high-signal 1–3 sentence overview of clinic authority, physician credentials, and scope.
+              </p>
+              <textarea
+                rows={3}
+                value={config.summary}
+                onChange={(e) =>
+                  setConfig((prev) => ({ ...prev, summary: e.target.value }))
+                }
+                placeholder="Short, factual summary describing the clinic and specialties for AI crawlers..."
+                className="w-full rounded-lg border border-gray-300 p-2.5 text-[14px] text-gray-900 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+              />
+            </div>
 
-                        <div className="flex flex-wrap items-center gap-2">
-                          <input
-                            type="text"
-                            value={section.title}
-                            onChange={(e) =>
-                              updateSection(section.id, {
-                                title: e.target.value,
-                              })
-                            }
-                            placeholder="Section Title (e.g. Clinical Departments)"
-                            className="h-8 rounded border border-transparent bg-transparent px-2 font-bold text-gray-900 text-[15px] hover:border-gray-300 focus:border-brand focus:bg-white focus:outline-none"
-                          />
-
-                          {section.isOptional && (
-                            <span className="rounded bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-800">
-                              Optional / Extended (llms-full.txt only)
-                            </span>
-                          )}
-
-                          <span className="text-[12px] text-gray-400">
-                            ({standardLinkCount} in core, {fullLinkCount} in full)
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Section Actions */}
-                      <div className="flex items-center gap-1 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => moveSection(sIndex, "up")}
-                          disabled={sIndex === 0}
-                          className="p-1.5 text-gray-400 hover:text-gray-700 disabled:opacity-30"
-                          title="Move section up"
-                        >
-                          <FaArrowUp className="size-3" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => moveSection(sIndex, "down")}
-                          disabled={sIndex === config.sections.length - 1}
-                          className="p-1.5 text-gray-400 hover:text-gray-700 disabled:opacity-30"
-                          title="Move section down"
-                        >
-                          <FaArrowDown className="size-3" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            removeSection(section.id, section.title)
-                          }
-                          className="p-1.5 text-red-400 hover:text-red-600 ml-1"
-                          title="Delete section"
-                        >
-                          <FaTrash className="size-3" />
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Section Body */}
-                    {!isCollapsed && (
-                      <div className="p-4 space-y-4">
-                        {/* Section Options */}
-                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-12">
-                          <div className="sm:col-span-8">
-                            <label className="block text-[12px] font-semibold text-gray-600">
-                              Section Intro / Subtitle (Optional)
-                            </label>
-                            <input
-                              type="text"
-                              value={section.description || ""}
-                              onChange={(e) =>
-                                updateSection(section.id, {
-                                  description: e.target.value,
-                                })
-                              }
-                              placeholder="Brief description printed beneath the heading in markdown..."
-                              className="mt-0.5 w-full rounded border border-gray-300 px-2.5 py-1.5 text-[13px] text-gray-800 focus:border-brand focus:outline-none"
-                            />
-                          </div>
-
-                          <div className="sm:col-span-4 flex items-center pt-4">
-                            <label className="flex items-center gap-2 cursor-pointer text-[13px] font-medium text-gray-700">
-                              <input
-                                type="checkbox"
-                                checked={Boolean(section.isOptional)}
-                                onChange={(e) =>
-                                  updateSection(section.id, {
-                                    isOptional: e.target.checked,
-                                  })
-                                }
-                                className="size-4 rounded text-brand focus:ring-brand"
-                              />
-                              <span>Mark as Extended / Optional Section</span>
-                            </label>
-                          </div>
-                        </div>
-
-                        {/* Links in this section */}
-                        <div className="space-y-3 pt-2">
-                          <div className="flex items-center justify-between text-[13px] font-semibold text-gray-700 border-b border-gray-100 pb-1.5">
-                            <span>Links in this section ({section.links.length})</span>
-                            <button
-                              type="button"
-                              onClick={() => addLink(section.id)}
-                              className="inline-flex items-center gap-1 text-[12px] font-bold text-brand hover:text-brand-2"
-                            >
-                              <FaPlus className="size-2.5" />
-                              <span>Add Link</span>
-                            </button>
-                          </div>
-
-                          {section.links.length === 0 ? (
-                            <p className="text-[13px] text-gray-400 italic py-2">
-                              No links added to this section yet. Click &quot;Add Link&quot; above.
-                            </p>
-                          ) : (
-                            section.links.map((link, lIndex) => {
-                              const resolved = resolveLinkUrl(link.url, config.baseUrl);
-                              return (
-                                <div
-                                  key={link.id}
-                                  className="rounded-lg border border-gray-200 bg-gray-50/50 p-3 hover:border-gray-300 transition"
-                                >
-                                  <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-12">
-                                    {/* Link Title */}
-                                    <div className="sm:col-span-4">
-                                      <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-500">
-                                        Link Title
-                                      </label>
-                                      <input
-                                        type="text"
-                                        value={link.title}
-                                        onChange={(e) =>
-                                          updateLink(section.id, link.id, {
-                                            title: e.target.value,
-                                          })
-                                        }
-                                        placeholder="e.g. Hair Transplant in Kondapur"
-                                        className="mt-0.5 w-full rounded border border-gray-300 px-2 py-1.5 text-[13px] font-semibold text-gray-900 focus:border-brand focus:outline-none"
-                                      />
-                                    </div>
-
-                                    {/* URL / Path */}
-                                    <div className="sm:col-span-4">
-                                      <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-500 flex items-center justify-between">
-                                        <span>URL or Path</span>
-                                        <a
-                                          href={resolved}
-                                          target="_blank"
-                                          rel="noreferrer"
-                                          className="text-brand hover:underline text-[10px] lowercase"
-                                        >
-                                          test link ↗
-                                        </a>
-                                      </label>
-                                      <input
-                                        type="text"
-                                        value={link.url}
-                                        onChange={(e) =>
-                                          updateLink(section.id, link.id, {
-                                            url: e.target.value,
-                                          })
-                                        }
-                                        placeholder="/service/hair-transplant"
-                                        className="mt-0.5 w-full rounded border border-gray-300 px-2 py-1.5 text-[13px] font-mono text-gray-800 focus:border-brand focus:outline-none"
-                                      />
-                                    </div>
-
-                                    {/* Toggles and controls */}
-                                    <div className="sm:col-span-4 flex items-center justify-between pt-3 sm:pt-0 sm:justify-end gap-3">
-                                      <label className="flex items-center gap-1.5 text-[12px] font-medium text-gray-700 cursor-pointer">
-                                        <input
-                                          type="checkbox"
-                                          checked={link.inLlmsTxt}
-                                          onChange={(e) =>
-                                            updateLink(section.id, link.id, {
-                                              inLlmsTxt: e.target.checked,
-                                            })
-                                          }
-                                          className="size-3.5 rounded text-brand focus:ring-brand"
-                                        />
-                                        <span>llms.txt</span>
-                                      </label>
-
-                                      <label className="flex items-center gap-1.5 text-[12px] font-medium text-gray-700 cursor-pointer">
-                                        <input
-                                          type="checkbox"
-                                          checked={link.inLlmsFullTxt}
-                                          onChange={(e) =>
-                                            updateLink(section.id, link.id, {
-                                              inLlmsFullTxt: e.target.checked,
-                                            })
-                                          }
-                                          className="size-3.5 rounded text-brand focus:ring-brand"
-                                        />
-                                        <span>llms-full.txt</span>
-                                      </label>
-
-                                      <div className="flex items-center gap-1 ml-1">
-                                        <button
-                                          type="button"
-                                          onClick={() =>
-                                            moveLink(section.id, lIndex, "up")
-                                          }
-                                          disabled={lIndex === 0}
-                                          className="p-1 text-gray-400 hover:text-gray-700 disabled:opacity-30"
-                                          title="Move link up"
-                                        >
-                                          <FaArrowUp className="size-2.5" />
-                                        </button>
-                                        <button
-                                          type="button"
-                                          onClick={() =>
-                                            moveLink(section.id, lIndex, "down")
-                                          }
-                                          disabled={
-                                            lIndex === section.links.length - 1
-                                          }
-                                          className="p-1 text-gray-400 hover:text-gray-700 disabled:opacity-30"
-                                          title="Move link down"
-                                        >
-                                          <FaArrowDown className="size-2.5" />
-                                        </button>
-                                        <button
-                                          type="button"
-                                          onClick={() =>
-                                            removeLink(section.id, link.id)
-                                          }
-                                          className="p-1 text-red-400 hover:text-red-600"
-                                          title="Remove link"
-                                        >
-                                          <FaTrash className="size-2.5" />
-                                        </button>
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  {/* Link Description */}
-                                  <div className="mt-2">
-                                    <input
-                                      type="text"
-                                      value={link.description}
-                                      onChange={(e) =>
-                                        updateLink(section.id, link.id, {
-                                          description: e.target.value,
-                                        })
-                                      }
-                                      placeholder="Clean 1-sentence description explaining what this page covers for AI models..."
-                                      className="w-full rounded border border-gray-300 px-2 py-1 text-[12.5px] text-gray-700 focus:border-brand focus:outline-none"
-                                    />
-                                  </div>
-                                </div>
-                              );
-                            })
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })
-            )}
+            <div>
+              <label className="block text-[13px] font-semibold text-gray-700">
+                System Instructions &amp; Clinical Disclaimers (Optional)
+              </label>
+              <p className="text-[12px] text-gray-500 mb-1">
+                Specific behavioral guidance for AI agents (e.g. candidate safety criteria, contact phone, consultation policy).
+              </p>
+              <textarea
+                rows={3}
+                value={config.systemInstructions}
+                onChange={(e) =>
+                  setConfig((prev) => ({
+                    ...prev,
+                    systemInstructions: e.target.value,
+                  }))
+                }
+                placeholder="Instructions for AI models responding to patients..."
+                className="w-full rounded-lg border border-gray-300 p-2.5 text-[14px] text-gray-900 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+              />
+            </div>
           </div>
         </div>
 
-        {/* Right Column: Interactive Live Preview (5 cols) */}
-        <div className="xl:col-span-5">
-          <div className="sticky top-6 rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-            {/* Preview Tab Header */}
-            <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50/90 px-4 py-2.5">
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => setPreviewTab("standard")}
-                  className={`rounded-lg px-3 py-1.5 text-[13px] font-bold transition ${
-                    previewTab === "standard"
-                      ? "bg-white text-brand shadow-sm"
-                      : "text-gray-600 hover:text-gray-900"
-                  }`}
-                >
-                  llms.txt (Curated)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPreviewTab("full")}
-                  className={`rounded-lg px-3 py-1.5 text-[13px] font-bold transition ${
-                    previewTab === "full"
-                      ? "bg-white text-brand shadow-sm"
-                      : "text-gray-600 hover:text-gray-900"
-                  }`}
-                >
-                  llms-full.txt (Full)
-                </button>
-              </div>
-
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={copyToClipboard}
-                  className="inline-flex items-center gap-1 rounded border border-gray-200 bg-white px-2.5 py-1 text-[12px] font-semibold text-gray-700 shadow-xs hover:bg-gray-50 transition"
-                  title="Copy formatted markdown to clipboard"
-                >
-                  {copied ? (
-                    <>
-                      <FaCheck className="size-3 text-emerald-600" />
-                      <span className="text-emerald-600">Copied</span>
-                    </>
-                  ) : (
-                    <>
-                      <FaCopy className="size-3 text-gray-400" />
-                      <span>Copy</span>
-                    </>
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={downloadFile}
-                  className="rounded border border-gray-200 bg-white p-1 text-gray-500 hover:text-gray-800 transition"
-                  title="Download .txt file"
-                >
-                  <FaDownload className="size-3" />
-                </button>
-              </div>
-            </div>
-
-            {/* Spec / Size Stats Banner */}
-            <div className="flex items-center justify-between bg-teal-50/60 px-4 py-2 text-[12px] text-teal-900 border-b border-teal-100">
-              <div className="flex items-center gap-3">
-                <span>
-                  <strong>{charCount.toLocaleString()}</strong> characters
-                </span>
-                <span>•</span>
-                <span>
-                  <strong>~{tokenEstimate.toLocaleString()}</strong> tokens est.
-                </span>
-              </div>
-              <span className="font-semibold text-teal-800">
-                {previewTab === "standard" ? "Core signal" : "Full directory"}
-              </span>
-            </div>
-
-            {/* Markdown Monospace Display */}
-            <div className="relative">
-              <pre className="max-h-[calc(100vh-260px)] min-h-[480px] overflow-auto p-4 text-[12.5px] font-mono leading-relaxed text-gray-800 bg-[#fafafa] selection:bg-teal-200 selection:text-teal-950">
-                {activeRenderedText}
-              </pre>
-            </div>
-
-            {/* Preview Footer */}
-            <div className="border-t border-gray-100 bg-gray-50 p-3 text-[12px] text-gray-500 flex items-center justify-between">
-              <span>Standard Markdown format compliant with llmstxt.org</span>
-              <span className="text-gray-400">Content-Type: text/plain</span>
-            </div>
+        {/* Section & Link Builder Header with Live Search */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 className="text-[18px] font-bold text-gray-900">
+              Sections &amp; Curated Links ({config.sections.length})
+            </h3>
+            <p className="text-[13px] text-gray-500">
+              Organize resources into markdown headings and toggle inclusion in /llms.txt.
+            </p>
           </div>
+
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <FaMagnifyingGlass className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search sections &amp; links..."
+                className="h-9 w-48 sm:w-60 rounded-lg border border-gray-300 pl-8 pr-3 text-[13px] text-gray-900 placeholder:text-gray-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={addSection}
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-brand px-3.5 text-[13px] font-semibold text-white shadow-sm hover:bg-brand-2 transition"
+            >
+              <FaPlus className="size-3" />
+              <span>Add Section</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Sections List */}
+        <div className="space-y-4">
+          {filteredSections.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-gray-300 p-8 text-center text-gray-500">
+              <p className="text-[15px] font-medium">No matching sections found.</p>
+              <p className="mt-1 text-[13px]">
+                Try clearing your search query or add a new section above.
+              </p>
+            </div>
+          ) : (
+            filteredSections.map((section, sIndex) => {
+              const isCollapsed = Boolean(collapsedSections[section.id]);
+              const activeLinkCount = section.links.filter((l) => l.inLlmsTxt).length;
+
+              return (
+                <div
+                  key={section.id}
+                  className={`rounded-xl border transition-all ${
+                    section.isOptional
+                      ? "border-amber-200 bg-amber-50/20"
+                      : "border-gray-200 bg-white"
+                  } shadow-sm overflow-hidden`}
+                >
+                  {/* Section Header Bar */}
+                  <div className="flex items-center justify-between gap-3 bg-gray-50/80 px-4 py-3 border-b border-gray-200">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <button
+                        type="button"
+                        onClick={() => toggleSectionCollapse(section.id)}
+                        className="text-gray-500 hover:text-gray-700 p-1"
+                      >
+                        {isCollapsed ? (
+                          <FaChevronDown className="size-3.5" />
+                        ) : (
+                          <FaChevronUp className="size-3.5" />
+                        )}
+                      </button>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        <input
+                          type="text"
+                          value={section.title}
+                          onChange={(e) =>
+                            updateSection(section.id, {
+                              title: e.target.value,
+                            })
+                          }
+                          placeholder="Section Title (e.g. Clinical Departments)"
+                          className="h-8 rounded border border-transparent bg-transparent px-2 font-bold text-gray-900 text-[15px] hover:border-gray-300 focus:border-brand focus:bg-white focus:outline-none"
+                        />
+
+                        {section.isOptional && (
+                          <span className="rounded bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-800">
+                            Optional Section
+                          </span>
+                        )}
+
+                        <span className="text-[12px] text-gray-400">
+                          ({activeLinkCount} / {section.links.length} active)
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Section Actions */}
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => moveSection(sIndex, "up")}
+                        disabled={sIndex === 0}
+                        className="p-1.5 text-gray-400 hover:text-gray-700 disabled:opacity-30"
+                        title="Move section up"
+                      >
+                        <FaArrowUp className="size-3" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moveSection(sIndex, "down")}
+                        disabled={sIndex === config.sections.length - 1}
+                        className="p-1.5 text-gray-400 hover:text-gray-700 disabled:opacity-30"
+                        title="Move section down"
+                      >
+                        <FaArrowDown className="size-3" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          removeSection(section.id, section.title)
+                        }
+                        className="p-1.5 text-red-400 hover:text-red-600 ml-1"
+                        title="Delete section"
+                      >
+                        <FaTrash className="size-3" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Section Body */}
+                  {!isCollapsed && (
+                    <div className="p-4 space-y-4">
+                      {/* Section Options */}
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-12">
+                        <div className="sm:col-span-8">
+                          <label className="block text-[12px] font-semibold text-gray-600">
+                            Section Intro / Subtitle (Optional)
+                          </label>
+                          <input
+                            type="text"
+                            value={section.description || ""}
+                            onChange={(e) =>
+                              updateSection(section.id, {
+                                description: e.target.value,
+                              })
+                            }
+                            placeholder="Brief description printed beneath the heading in markdown..."
+                            className="mt-0.5 w-full rounded border border-gray-300 px-2.5 py-1.5 text-[13px] text-gray-800 focus:border-brand focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="sm:col-span-4 flex items-center pt-4">
+                          <label className="flex items-center gap-2 cursor-pointer text-[13px] font-medium text-gray-700">
+                            <input
+                              type="checkbox"
+                              checked={Boolean(section.isOptional)}
+                              onChange={(e) =>
+                                updateSection(section.id, {
+                                  isOptional: e.target.checked,
+                                })
+                              }
+                              className="size-4 rounded text-brand focus:ring-brand"
+                            />
+                            <span>Mark as Optional Section (### Optional)</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* Links in this section */}
+                      <div className="space-y-3 pt-2">
+                        <div className="flex items-center justify-between text-[13px] font-semibold text-gray-700 border-b border-gray-100 pb-1.5">
+                          <span>Links in this section ({section.links.length})</span>
+                          <button
+                            type="button"
+                            onClick={() => addLink(section.id)}
+                            className="inline-flex items-center gap-1 text-[12px] font-bold text-brand hover:text-brand-2"
+                          >
+                            <FaPlus className="size-2.5" />
+                            <span>Add Link</span>
+                          </button>
+                        </div>
+
+                        {section.links.length === 0 ? (
+                          <p className="text-[13px] text-gray-400 italic py-2">
+                            No links added to this section yet. Click &quot;Add Link&quot; above.
+                          </p>
+                        ) : (
+                          section.links.map((link, lIndex) => {
+                            const resolved = resolveLinkUrl(link.url, config.baseUrl);
+                            return (
+                              <div
+                                key={link.id}
+                                className="rounded-lg border border-gray-200 bg-gray-50/50 p-3 hover:border-gray-300 transition"
+                              >
+                                <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-12">
+                                  {/* Link Title */}
+                                  <div className="sm:col-span-5">
+                                    <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-500">
+                                      Link Title
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={link.title}
+                                      onChange={(e) =>
+                                        updateLink(section.id, link.id, {
+                                          title: e.target.value,
+                                        })
+                                      }
+                                      placeholder="e.g. Hair Transplant in Kondapur"
+                                      className="mt-0.5 w-full rounded border border-gray-300 px-2 py-1.5 text-[13px] font-semibold text-gray-900 focus:border-brand focus:outline-none"
+                                    />
+                                  </div>
+
+                                  {/* URL / Path */}
+                                  <div className="sm:col-span-4">
+                                    <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-500 flex items-center justify-between">
+                                      <span>URL or Path</span>
+                                      <a
+                                        href={resolved}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="text-brand hover:underline text-[10px] lowercase"
+                                      >
+                                        test link ↗
+                                      </a>
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={link.url}
+                                      onChange={(e) =>
+                                        updateLink(section.id, link.id, {
+                                          url: e.target.value,
+                                        })
+                                      }
+                                      placeholder="/hair/hair-transplant"
+                                      className="mt-0.5 w-full rounded border border-gray-300 px-2 py-1.5 text-[13px] font-mono text-gray-800 focus:border-brand focus:outline-none"
+                                    />
+                                  </div>
+
+                                  {/* Toggles and controls */}
+                                  <div className="sm:col-span-3 flex items-center justify-between pt-3 sm:pt-0 sm:justify-end gap-3">
+                                    <label className="flex items-center gap-1.5 text-[12px] font-medium text-gray-700 cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={link.inLlmsTxt}
+                                        onChange={(e) =>
+                                          updateLink(section.id, link.id, {
+                                            inLlmsTxt: e.target.checked,
+                                            inLlmsFullTxt: e.target.checked,
+                                          })
+                                        }
+                                        className="size-3.5 rounded text-brand focus:ring-brand"
+                                      />
+                                      <span>Include in llms.txt</span>
+                                    </label>
+
+                                    <div className="flex items-center gap-1 ml-1">
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          moveLink(section.id, lIndex, "up")
+                                        }
+                                        disabled={lIndex === 0}
+                                        className="p-1 text-gray-400 hover:text-gray-700 disabled:opacity-30"
+                                        title="Move link up"
+                                      >
+                                        <FaArrowUp className="size-2.5" />
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          moveLink(section.id, lIndex, "down")
+                                        }
+                                        disabled={
+                                          lIndex === section.links.length - 1
+                                        }
+                                        className="p-1 text-gray-400 hover:text-gray-700 disabled:opacity-30"
+                                        title="Move link down"
+                                      >
+                                        <FaArrowDown className="size-2.5" />
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          removeLink(section.id, link.id)
+                                        }
+                                        className="p-1 text-red-400 hover:text-red-600"
+                                        title="Remove link"
+                                      >
+                                        <FaTrash className="size-2.5" />
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Link Description */}
+                                <div className="mt-2">
+                                  <input
+                                    type="text"
+                                    value={link.description}
+                                    onChange={(e) =>
+                                      updateLink(section.id, link.id, {
+                                        description: e.target.value,
+                                      })
+                                    }
+                                    placeholder="Clean 1-sentence description explaining what this page covers for AI models..."
+                                    className="w-full rounded border border-gray-300 px-2 py-1 text-[12.5px] text-gray-700 focus:border-brand focus:outline-none"
+                                  />
+                                </div>
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
     </div>

@@ -5,6 +5,7 @@ import {
   type Treatment,
   type TreatmentInput,
   type TreatmentContentSection,
+  type TreatmentFaqSection,
   type ServiceCategoryId,
   serviceCategories,
 } from "@drkumar/shared";
@@ -85,7 +86,7 @@ export async function listTreatments(serviceCategory?: ServiceCategoryId | strin
   if (serviceCategory && serviceCategory !== "all") {
     res = res.filter((t) => t.serviceCategory === serviceCategory);
   }
-  return res.sort((a, b) => a.order - b.order || a.title.localeCompare(b.title));
+  return res.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0) || a.title.localeCompare(b.title));
 }
 
 export async function createTreatment(input: TreatmentInput): Promise<Treatment> {
@@ -101,24 +102,36 @@ export async function createTreatment(input: TreatmentInput): Promise<Treatment>
     data: cleanHtml(s.data ?? ""),
   }));
 
+  const sanitizedFaqSection: TreatmentFaqSection | undefined = input.faqSection
+    ? {
+        heading: (input.faqSection.heading ?? "Frequently Asked Questions").trim(),
+        items: (input.faqSection.items ?? [])
+          .map((item) => ({
+            id: item.id || `faq-${randomUUID().slice(0, 8)}`,
+            question: (item.question ?? "").trim(),
+            answer: cleanHtml((item.answer ?? "").trim()),
+          }))
+          .filter((item) => item.question.length > 0 || item.answer.length > 0),
+      }
+    : undefined;
+
   const now = new Date().toISOString();
   const treatment: Treatment = {
     ...input,
     id: `trt-${randomUUID()}`,
     slug: normSlug,
+    order: Number(input.order) || 1,
     contentSections: sanitizedContentSections,
     sections: sanitizedContentSections,
+    faqSection: sanitizedFaqSection,
+    faqs: sanitizedFaqSection?.items ?? [],
     createdAt: now,
     modifiedAt: now,
   };
 
   const tbl = T();
   if (tbl) {
-    try {
-      await db().send(new PutCommand({ TableName: tbl, Item: { ...treatment, itemType: "treatment" } }));
-    } catch (err) {
-      console.warn("DynamoDB createTreatment put failed, updating memory:", (err as Error).message);
-    }
+    await db().send(new PutCommand({ TableName: tbl, Item: { ...treatment, itemType: "treatment" } }));
   }
 
   memoryTreatments.push(treatment);
@@ -144,23 +157,36 @@ export async function updateTreatment(id: string, input: Partial<TreatmentInput>
     }))
     : undefined;
 
+  const sanitizedFaqSection: TreatmentFaqSection | undefined = input.faqSection !== undefined
+    ? {
+        heading: (input.faqSection?.heading ?? "Frequently Asked Questions").trim(),
+        items: (input.faqSection?.items ?? [])
+          .map((item) => ({
+            id: item.id || `faq-${randomUUID().slice(0, 8)}`,
+            question: (item.question ?? "").trim(),
+            answer: cleanHtml((item.answer ?? "").trim()),
+          }))
+          .filter((item) => item.question.length > 0 || item.answer.length > 0),
+      }
+    : undefined;
+
   const updated: Treatment = {
     ...existing,
     ...input,
     slug: (input.slug ?? existing.slug).toLowerCase(),
+    order: input.order !== undefined ? Number(input.order) || 1 : existing.order,
     ...(sanitizedContentSections
       ? { contentSections: sanitizedContentSections, sections: sanitizedContentSections }
+      : {}),
+    ...(input.faqSection !== undefined
+      ? { faqSection: sanitizedFaqSection, faqs: sanitizedFaqSection?.items ?? [] }
       : {}),
     modifiedAt: new Date().toISOString(),
   };
 
   const tbl = T();
   if (tbl) {
-    try {
-      await db().send(new PutCommand({ TableName: tbl, Item: { ...updated, itemType: "treatment" } }));
-    } catch (err) {
-      console.warn("DynamoDB updateTreatment put failed, updating memory:", (err as Error).message);
-    }
+    await db().send(new PutCommand({ TableName: tbl, Item: { ...updated, itemType: "treatment" } }));
   }
 
   const idx = memoryTreatments.findIndex((t) => t.id === id);
@@ -173,11 +199,7 @@ export async function updateTreatment(id: string, input: Partial<TreatmentInput>
 export async function deleteTreatment(id: string): Promise<boolean> {
   const tbl = T();
   if (tbl) {
-    try {
-      await db().send(new DeleteCommand({ TableName: tbl, Key: { id } }));
-    } catch (err) {
-      console.warn("DynamoDB deleteTreatment failed, updating memory:", (err as Error).message);
-    }
+    await db().send(new DeleteCommand({ TableName: tbl, Key: { id } }));
   }
 
   const before = memoryTreatments.length;

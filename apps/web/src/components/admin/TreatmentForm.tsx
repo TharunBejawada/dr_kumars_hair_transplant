@@ -9,6 +9,8 @@ import {
   type TreatmentInput,
   type TreatmentStatus,
   type TreatmentContentSection,
+  type TreatmentFaqItem,
+  type TreatmentFaqSection,
   type ServiceCategoryId,
   serviceCategories,
 } from "@drkumar/shared";
@@ -22,6 +24,7 @@ import {
   FaArrowUp,
   FaArrowUpRightFromSquare,
   FaCheck,
+  FaCircleQuestion,
   FaCloudArrowUp,
   FaEye,
   FaLayerGroup,
@@ -156,6 +159,60 @@ export default function TreatmentForm({ treatment }: { treatment?: Treatment }) 
     setDirty(true);
   }
 
+  // Section 6: Frequently Asked Questions (FAQ)
+  const [faqHeading, setFaqHeading] = useState(
+    treatment?.faqSection?.heading ?? "Frequently Asked Questions"
+  );
+  const [faqItems, setFaqItems] = useState<TreatmentFaqItem[]>(() => {
+    if (treatment?.faqSection?.items && treatment.faqSection.items.length > 0) {
+      return treatment.faqSection.items;
+    }
+    if (Array.isArray(treatment?.faqs) && treatment.faqs.length > 0) {
+      return treatment.faqs;
+    }
+    return [];
+  });
+  const [previewOpenFaq, setPreviewOpenFaq] = useState<string | null>(null);
+
+  function addFaqItem() {
+    setFaqItems((prev) => [
+      ...prev,
+      {
+        id: `faq-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        question: "",
+        answer: "",
+      },
+    ]);
+    setDirty(true);
+  }
+
+  function removeFaqItem(idx: number) {
+    setFaqItems((prev) => prev.filter((_, i) => i !== idx));
+    setDirty(true);
+  }
+
+  function updateFaqItem(idx: number, patch: Partial<TreatmentFaqItem>) {
+    setFaqItems((prev) => {
+      const copy = [...prev];
+      copy[idx] = { ...copy[idx], ...patch };
+      return copy;
+    });
+    setDirty(true);
+  }
+
+  function moveFaqItem(idx: number, dir: -1 | 1) {
+    setFaqItems((prev) => {
+      const nextIdx = idx + dir;
+      if (nextIdx < 0 || nextIdx >= prev.length) return prev;
+      const copy = [...prev];
+      const temp = copy[idx];
+      copy[idx] = copy[nextIdx];
+      copy[nextIdx] = temp;
+      return copy;
+    });
+    setDirty(true);
+  }
+
   // Status & loaders
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [busy, setBusy] = useState(false);
@@ -204,6 +261,22 @@ export default function TreatmentForm({ treatment }: { treatment?: Treatment }) 
     const rawSlug = slug.trim() || slugify(title);
     const cleanSlug = rawSlug.toLowerCase().replace(/^-+|-+$/g, "");
 
+    const validContentSections = contentSections
+      .map((sec) => ({
+        id: sec.id || `sec-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        title: sec.title.trim(),
+        data: sec.data || "",
+      }))
+      .filter((sec) => sec.title.length > 0 || (sec.data && sec.data.trim().length > 0));
+
+    const validFaqItems = faqItems
+      .map((it) => ({
+        id: it.id || `faq-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        question: it.question.trim(),
+        answer: it.answer.trim(),
+      }))
+      .filter((it) => it.question.length > 0 || it.answer.length > 0);
+
     const body: TreatmentInput = {
       serviceCategory,
       title: title.trim(),
@@ -216,8 +289,13 @@ export default function TreatmentForm({ treatment }: { treatment?: Treatment }) 
       seoTitle: seoTitle.trim(),
       metaDescription: metaDescription.trim(),
       metaKeywords: metaKeywords.trim(),
-      contentSections,
-      sections: contentSections,
+      contentSections: validContentSections,
+      sections: validContentSections,
+      faqSection: {
+        heading: faqHeading.trim() || "Frequently Asked Questions",
+        items: validFaqItems,
+      },
+      faqs: validFaqItems,
     };
 
     const res = await fetch(treatment ? `/api/admin/treatments/${treatment.id}` : "/api/admin/treatments", {
@@ -232,8 +310,8 @@ export default function TreatmentForm({ treatment }: { treatment?: Treatment }) 
     if (res?.ok) {
       setDirty(false);
       toast(treatment ? "Treatment updated successfully!" : "Treatment created successfully!");
-      router.push("/admin/treatments");
       router.refresh();
+      window.location.href = "/admin/treatments";
       return;
     }
 
@@ -273,7 +351,7 @@ export default function TreatmentForm({ treatment }: { treatment?: Treatment }) 
         <div className="flex items-center gap-3">
           {treatment?.slug && (
             <a
-              href={`/service/${slug}`}
+              href={`/${serviceCategory}/${slug}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 rounded-lg border border-teal-200 bg-teal-50 px-3.5 py-2 text-[13px] font-semibold text-teal-800 transition hover:bg-teal-100"
@@ -378,7 +456,7 @@ export default function TreatmentForm({ treatment }: { treatment?: Treatment }) 
                 </label>
                 <div className="flex rounded-lg border border-gray-300 focus-within:border-brand overflow-hidden">
                   <span className="bg-gray-50 px-2.5 py-2 text-[12px] text-gray-500 select-none border-r border-gray-200">
-                    /service/
+                    /{serviceCategory}/
                   </span>
                   <input
                     type="text"
@@ -704,6 +782,160 @@ export default function TreatmentForm({ treatment }: { treatment?: Treatment }) 
               </div>
             )}
           </div>
+
+          {/* Card 6: Frequently Asked Questions (FAQ) */}
+          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-xs space-y-5">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <FaCircleQuestion className="size-4 text-brand" />
+                  <h2 className="text-[16px] font-bold text-gray-900">
+                    6. Frequently Asked Questions (FAQ)
+                  </h2>
+                  <span className="text-[11px] font-bold text-brand bg-brand/10 px-2 py-0.5 rounded-full">
+                    Interactive Accordion
+                  </span>
+                </div>
+                <p className="text-[12px] text-gray-500 mt-1">
+                  Add patient FAQs for this treatment. Rendered as an expandable accordion on the live treatment page with FAQPage schema for search engines.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={addFaqItem}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-teal-50 px-3.5 py-1.5 text-[12.5px] font-semibold text-brand border border-teal-200 hover:bg-teal-100 transition shadow-2xs cursor-pointer"
+              >
+                <FaPlus className="size-3" />
+                <span>Add FAQ</span>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-[12px] font-semibold text-gray-700 mb-1">
+                  FAQ Section Heading
+                </label>
+                <input
+                  type="text"
+                  value={faqHeading}
+                  onChange={(e) => {
+                    setFaqHeading(e.target.value);
+                    setDirty(true);
+                  }}
+                  placeholder="Frequently Asked Questions"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[13.5px] font-semibold outline-none focus:border-brand"
+                />
+              </div>
+
+              {faqItems.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50/60 p-8 text-center">
+                  <span className="inline-flex size-10 items-center justify-center rounded-full bg-gray-100 text-gray-400 mb-2">
+                    <FaCircleQuestion className="size-5" />
+                  </span>
+                  <p className="text-[13.5px] font-medium text-gray-700">No FAQ questions added yet</p>
+                  <p className="text-[12px] text-gray-500 max-w-sm mx-auto mt-1 mb-4">
+                    Add patient questions about recovery time, candidate eligibility, procedure discomfort, results timeline, and safety.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={addFaqItem}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-brand px-4 py-2 text-[12.5px] font-semibold text-white hover:bg-brand-2 transition shadow-xs cursor-pointer"
+                  >
+                    <FaPlus className="size-3" />
+                    <span>Add First FAQ</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {faqItems.map((item, idx) => (
+                    <div
+                      key={item.id || idx}
+                      className="rounded-xl border border-gray-200 bg-gray-50/50 p-4 transition-all hover:border-gray-300 space-y-3"
+                    >
+                      {/* FAQ Header & Actions */}
+                      <div className="flex items-center justify-between gap-2 border-b border-gray-200/80 pb-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="size-6 rounded-full bg-brand text-white flex items-center justify-center text-[11px] font-bold shrink-0">
+                            Q{idx + 1}
+                          </span>
+                          <span className="text-[13px] font-semibold text-gray-800 truncate">
+                            {item.question ? item.question : `Question ${idx + 1}`}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => moveFaqItem(idx, -1)}
+                            disabled={idx === 0}
+                            title="Move question up"
+                            className="size-7 rounded border border-gray-200 bg-white text-gray-600 flex items-center justify-center hover:bg-gray-100 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed text-[11px]"
+                          >
+                            <FaArrowUp className="size-3" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => moveFaqItem(idx, 1)}
+                            disabled={idx === faqItems.length - 1}
+                            title="Move question down"
+                            className="size-7 rounded border border-gray-200 bg-white text-gray-600 flex items-center justify-center hover:bg-gray-100 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed text-[11px]"
+                          >
+                            <FaArrowDown className="size-3" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => removeFaqItem(idx)}
+                            title="Remove question"
+                            className="size-7 rounded border border-red-200 bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-100 transition cursor-pointer text-[11px] ml-1"
+                          >
+                            <FaTrash className="size-3" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Question Field */}
+                      <div>
+                        <label className="block text-[12px] font-semibold text-gray-700 mb-1">
+                          Question <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={item.question}
+                          onChange={(e) => updateFaqItem(idx, { question: e.target.value })}
+                          placeholder="e.g. Is the treatment painful or do you use local anaesthesia?"
+                          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[13.5px] font-semibold outline-none focus:border-brand"
+                        />
+                      </div>
+
+                      {/* Answer Field */}
+                      <div>
+                        <label className="block text-[12px] font-semibold text-gray-700 mb-1">
+                          Answer / Clinical Guidance <span className="text-red-500">*</span>
+                        </label>
+                        <textarea
+                          rows={3}
+                          value={item.answer}
+                          onChange={(e) => updateFaqItem(idx, { answer: e.target.value })}
+                          placeholder="Provide a clear, medically factual answer reassuring patients on what to expect..."
+                          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[13px] text-gray-800 leading-relaxed outline-none focus:border-brand"
+                        />
+                      </div>
+                    </div>
+                  ))}
+
+                  <button
+                    type="button"
+                    onClick={addFaqItem}
+                    className="w-full rounded-xl border border-dashed border-teal-300 bg-teal-50/50 py-3 text-[13px] font-semibold text-brand hover:bg-teal-100/70 transition flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <FaPlus className="size-3.5" />
+                    <span>Add Another FAQ Question</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Right Column: Live Visual Preview (5 cols) */}
@@ -745,7 +977,7 @@ export default function TreatmentForm({ treatment }: { treatment?: Treatment }) 
 
                 <div className="pt-2 flex items-center justify-between border-t border-gray-100">
                   <span className="text-[11px] font-mono text-gray-400">
-                    /service/{slug || "slug"}
+                    /{serviceCategory}/{slug || "slug"}
                   </span>
                   <span className="rounded-lg bg-brand px-3 py-1 text-[11px] font-semibold text-white">
                     Know More
@@ -770,7 +1002,7 @@ export default function TreatmentForm({ treatment }: { treatment?: Treatment }) 
                   No content sections added yet.
                 </p>
               ) : (
-                <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
+                <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
                   {contentSections.map((sec, idx) => (
                     <div
                       key={sec.id || idx}
@@ -781,7 +1013,7 @@ export default function TreatmentForm({ treatment }: { treatment?: Treatment }) 
                       </h5>
                       {sec.data ? (
                         <div
-                          className="blog-content text-[11.5px] text-gray-600 leading-relaxed max-h-40 overflow-y-auto"
+                          className="blog-content text-[11.5px] text-gray-600 leading-relaxed max-h-32 overflow-y-auto"
                           dangerouslySetInnerHTML={{ __html: sec.data }}
                         />
                       ) : (
@@ -789,6 +1021,64 @@ export default function TreatmentForm({ treatment }: { treatment?: Treatment }) 
                       )}
                     </div>
                   ))}
+                </div>
+              )}
+            </div>
+
+            {/* Live FAQs Accordion Preview */}
+            <div className="mt-4 border-t border-gray-100 pt-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[12px] font-bold text-gray-700">
+                  FAQs Accordion Preview ({faqItems.length})
+                </span>
+                <span className="text-[10px] uppercase font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
+                  Click to Test
+                </span>
+              </div>
+
+              {faqItems.length === 0 ? (
+                <p className="text-[11px] text-gray-400 italic text-center py-3 border border-dashed border-gray-200 rounded-lg">
+                  No FAQs added yet.
+                </p>
+              ) : (
+                <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1">
+                  <h5 className="text-[12.5px] font-bold text-brand pb-0.5">
+                    {faqHeading || "Frequently Asked Questions"}
+                  </h5>
+                  {faqItems.map((item, idx) => {
+                    const id = item.id || `faq-${idx}`;
+                    const isOpen = previewOpenFaq === id;
+                    return (
+                      <div
+                        key={id}
+                        className="overflow-hidden border border-teal-100/80 rounded-xl shadow-2xs"
+                      >
+                        <button
+                          type="button"
+                          onClick={() => setPreviewOpenFaq(isOpen ? null : id)}
+                          className={`w-full flex items-center justify-between gap-3 p-2.5 text-left transition-colors cursor-pointer select-none text-[12px] font-bold leading-snug ${
+                            isOpen
+                              ? "bg-[#00695c] text-white"
+                              : "bg-[#e8f7f5] text-gray-900 hover:bg-[#d8f2ee]"
+                          }`}
+                        >
+                          <span className="line-clamp-2">{item.question || `Question ${idx + 1}`}</span>
+                          <span
+                            className={`size-3 shrink-0 transition-transform duration-200 text-[9px] ${
+                              isOpen ? "rotate-90 text-white" : "text-teal-700"
+                            }`}
+                          >
+                            ▶
+                          </span>
+                        </button>
+                        {isOpen && (
+                          <div className="bg-white p-2.5 text-[11.5px] text-gray-700 leading-relaxed border-t border-teal-100/60 whitespace-pre-wrap max-h-32 overflow-y-auto">
+                            {item.answer || "No answer text entered yet."}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>

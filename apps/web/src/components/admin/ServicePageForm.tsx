@@ -567,7 +567,7 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
         <div className="flex items-center gap-2">
           {page && (
             <Link
-              href={`/department/${slug}`}
+              href={`/${slug}`}
               target="_blank"
               className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 transition"
             >
@@ -643,7 +643,7 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
               <div>
                 <label className="mb-1 block text-[13px] font-semibold text-gray-700">Page Slug (URL) *</label>
                 <div className="flex items-center rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-[14px] text-gray-500 focus-within:border-brand focus-within:bg-white">
-                  <span>/department/</span>
+                  <span>/</span>
                   <input
                     type="text"
                     value={slug}

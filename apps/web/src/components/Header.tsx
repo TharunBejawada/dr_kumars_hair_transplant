@@ -19,7 +19,7 @@ function buildDepartments(
   return NAV_DEPARTMENTS.map((dept) => {
     const items = (dbTreatments || [])
       .filter((t) => t.serviceCategory === dept.id)
-      .map((t) => ({ name: t.title, href: `/service/${t.slug}` }));
+      .map((t) => ({ name: t.title, href: `/${t.serviceCategory}/${t.slug}` }));
     return { ...dept, treatments: items };
   });
 }

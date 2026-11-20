@@ -5,6 +5,7 @@ import {
   listTreatments,
   TreatmentSlugTakenError,
 } from "@/lib/db/treatments";
+import { revalidatePath } from "next/cache";
 
 export const runtime = "nodejs";
 
@@ -23,6 +24,10 @@ export const POST = withAdmin(async (req) => {
   }
   try {
     const treatment = await createTreatment(parsed.data);
+    revalidatePath("/admin/treatments");
+    revalidatePath(`/${treatment.serviceCategory}/${treatment.slug}`);
+    revalidatePath(`/${treatment.serviceCategory}`);
+    revalidatePath("/services");
     return json({ treatment }, 201);
   } catch (e) {
     if (e instanceof TreatmentSlugTakenError) {
@@ -31,7 +36,7 @@ export const POST = withAdmin(async (req) => {
         409,
       );
     }
-    throw e;
+    console.error("Failed to create treatment:", e);
+    return json({ error: (e as Error).message || "Failed to create treatment" }, 500);
   }
 });
-

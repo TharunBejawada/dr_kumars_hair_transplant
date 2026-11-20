@@ -195,7 +195,7 @@ export default function ServicesTable({ initial }: { initial: ServicePage[] }) {
                     </span>
                   </td>
                   <td className="py-3 px-3 text-[13px] text-gray-600 font-mono">
-                    /department/{page.slug}
+                    /{page.slug}
                   </td>
                   <td className="py-3 px-3 whitespace-nowrap">
                     <span
@@ -209,7 +209,7 @@ export default function ServicesTable({ initial }: { initial: ServicePage[] }) {
                   <td className="py-3 pl-3 pr-4 text-right whitespace-nowrap">
                     <div className="flex items-center justify-end gap-2">
                       <Link
-                        href={`/department/${page.slug}`}
+                        href={`/${page.slug}`}
                         target="_blank"
                         className="rounded-md border border-gray-300 px-2.5 py-1 text-[12px] font-semibold text-gray-700 hover:bg-gray-50"
                         title="View live department page"
