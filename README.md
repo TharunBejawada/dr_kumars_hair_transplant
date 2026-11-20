@@ -17,9 +17,9 @@ Without `APPOINTMENTS_TABLE` set, the appointment API logs submissions to the co
 
 ## Deploy (Amplify Hosting, monorepo)
 1. Create an Amplify app from this repo; set the app root to `apps/web` (uses `amplify.yml`).
-2. The backend phase creates the `Appointments`, `AdminUsers`, `Blogs`, and `Services` DynamoDB tables.
-3. Set env vars in Amplify (see `apps/web/.env.example`): `APPOINTMENTS_TABLE`, `ADMIN_USERS_TABLE`, `BLOGS_TABLE`, `SERVICES_TABLE`, `S3_MEDIA_BUCKET`, `APP_AWS_REGION`, `NEXT_PUBLIC_SITE_URL`, `JWT_SECRET` (min 32 random chars), and for the one-time superadmin bootstrap `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD`.
-4. Attach an IAM **compute role** to the app (Hosting → Compute role). Allow on the four tables (and `.../index/*` of Blogs and Services): `dynamodb:PutItem, GetItem, Query, Scan, UpdateItem, DeleteItem`; and on the media bucket: `s3:PutObject, s3:GetObject` for `blogs/*`.
+2. The backend phase creates the `Appointments`, `AdminUsers`, `Blogs`, `Services`, and `Treatments` DynamoDB tables.
+3. Set env vars in Amplify (see `apps/web/.env.example`): `APPOINTMENTS_TABLE`, `ADMIN_USERS_TABLE`, `BLOGS_TABLE`, `SERVICES_TABLE`, `TREATMENTS_TABLE`, `S3_MEDIA_BUCKET`, `APP_AWS_REGION`, `NEXT_PUBLIC_SITE_URL`, `JWT_SECRET` (min 32 random chars), and for the one-time superadmin bootstrap `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD`.
+4. Attach an IAM **compute role** to the app (Hosting → Compute role). Allow on the five tables (and `.../index/*` of Blogs, Services, and Treatments): `dynamodb:PutItem, GetItem, Query, Scan, UpdateItem, DeleteItem`; and on the media bucket: `s3:PutObject, s3:GetObject` for `blogs/*` and `images/*`.
 5. Recommended: AWS WAF rate-based rule in front of the app.
 
 ## Security notes
