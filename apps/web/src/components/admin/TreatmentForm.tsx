@@ -78,6 +78,7 @@ const SERVICE_PRESETS = [
 export default function TreatmentForm({ treatment }: { treatment?: Treatment }) {
   const router = useRouter();
   const toast = useToast();
+  const isNavigatingRef = useRef(false);
   const [dirty, setDirty] = useState(false);
 
   // Mapped Service: Exactly ONE service category
@@ -229,6 +230,7 @@ export default function TreatmentForm({ treatment }: { treatment?: Treatment }) 
   useEffect(() => {
     if (!dirty) return;
     const h = (e: BeforeUnloadEvent) => {
+      if (isNavigatingRef.current) return;
       e.preventDefault();
       e.returnValue = "";
     };
@@ -308,10 +310,11 @@ export default function TreatmentForm({ treatment }: { treatment?: Treatment }) 
     setBusy(false);
 
     if (res?.ok) {
+      isNavigatingRef.current = true;
       setDirty(false);
       toast(treatment ? "Treatment updated successfully!" : "Treatment created successfully!");
+      router.push("/admin/treatments");
       router.refresh();
-      window.location.href = "/admin/treatments";
       return;
     }
 
@@ -333,6 +336,9 @@ export default function TreatmentForm({ treatment }: { treatment?: Treatment }) 
         <div className="flex items-center gap-3">
           <Link
             href="/admin/treatments"
+            onClick={() => {
+              isNavigatingRef.current = true;
+            }}
             className="inline-flex size-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:bg-gray-50 hover:text-gray-900 shadow-2xs"
             title="Back to Treatments list"
           >
@@ -362,6 +368,9 @@ export default function TreatmentForm({ treatment }: { treatment?: Treatment }) 
           )}
           <Link
             href="/admin/treatments"
+            onClick={() => {
+              isNavigatingRef.current = true;
+            }}
             className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-[13px] font-semibold text-gray-700 transition hover:bg-gray-50"
           >
             Cancel

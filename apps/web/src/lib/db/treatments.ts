@@ -20,6 +20,7 @@ export class TreatmentSlugTakenError extends Error {}
 export const DEFAULT_TREATMENTS: Treatment[] = [];
 
 let memoryTreatments: Treatment[] = [];
+const recentlyDeletedIds = new Set<string>();
 
 export async function getTreatmentBySlug(slug: string): Promise<Treatment | undefined> {
   const normSlug = slug.toLowerCase();
@@ -50,7 +51,7 @@ export async function getTreatment(id: string): Promise<Treatment | undefined> {
   const tbl = T();
   if (tbl) {
     try {
-      const r = await db().send(new GetCommand({ TableName: tbl, Key: { id } }));
+      const r = await db().send(new GetCommand({ TableName: tbl, Key: { id }, ConsistentRead: true }));
       const item = r.Item as (Treatment & { concernsSection?: unknown; itemType?: string }) | undefined;
       if (item && (item.id?.startsWith("trt-") || item.itemType === "treatment" || !item.concernsSection)) {
         return item;
@@ -69,14 +70,26 @@ export async function listTreatments(serviceCategory?: ServiceCategoryId | strin
       const items: Treatment[] = [];
       let key: Record<string, unknown> | undefined;
       do {
-        const r = await db().send(new ScanCommand({ TableName: tbl, ExclusiveStartKey: key }));
+        const r = await db().send(
+          new ScanCommand({
+            TableName: tbl,
+            ExclusiveStartKey: key,
+            ConsistentRead: true,
+          })
+        );
         const scanned = (r.Items ?? []) as (Treatment & { concernsSection?: unknown; itemType?: string })[];
         const filtered = scanned.filter((it) => it.id?.startsWith("trt-") || it.itemType === "treatment");
         items.push(...filtered);
         key = r.LastEvaluatedKey;
       } while (key);
 
-      memoryTreatments = items;
+      const scannedIds = new Set(items.map((it) => it.id));
+      for (const m of memoryTreatments) {
+        if (!scannedIds.has(m.id) && !recentlyDeletedIds.has(m.id)) {
+          items.push(m);
+        }
+      }
+      memoryTreatments = items.filter((it) => !recentlyDeletedIds.has(it.id));
     } catch (err) {
       console.warn("DynamoDB listTreatments failed, using memory store:", (err as Error).message);
     }
@@ -134,7 +147,12 @@ export async function createTreatment(input: TreatmentInput): Promise<Treatment>
     await db().send(new PutCommand({ TableName: tbl, Item: { ...treatment, itemType: "treatment" } }));
   }
 
-  memoryTreatments.push(treatment);
+  const existingIdx = memoryTreatments.findIndex((t) => t.id === treatment.id);
+  if (existingIdx >= 0) {
+    memoryTreatments[existingIdx] = treatment;
+  } else {
+    memoryTreatments.unshift(treatment);
+  }
   return treatment;
 }
 
@@ -197,6 +215,7 @@ export async function updateTreatment(id: string, input: Partial<TreatmentInput>
 }
 
 export async function deleteTreatment(id: string): Promise<boolean> {
+  recentlyDeletedIds.add(id);
   const tbl = T();
   if (tbl) {
     await db().send(new DeleteCommand({ TableName: tbl, Key: { id } }));

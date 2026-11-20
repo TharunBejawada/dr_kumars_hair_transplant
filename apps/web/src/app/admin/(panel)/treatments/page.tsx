@@ -4,6 +4,7 @@ import TreatmentsTable from "@/components/admin/TreatmentsTable";
 import { FaPlus } from "react-icons/fa6";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function TreatmentsAdminPage() {
   const treatments = await listTreatments();

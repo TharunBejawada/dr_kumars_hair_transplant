@@ -9,6 +9,8 @@ import {
 import { revalidatePath } from "next/cache";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export const GET = withAdmin<{ id: string }>(async (_req, _s, { params }) => {
   const treatment = await getTreatment((await params).id);

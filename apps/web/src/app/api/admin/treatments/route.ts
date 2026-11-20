@@ -8,6 +8,8 @@ import {
 import { revalidatePath } from "next/cache";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export const GET = withAdmin(async (req) => {
   const url = new URL(req.url);
