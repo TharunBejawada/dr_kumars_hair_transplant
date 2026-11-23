@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { FaArrowRight } from "react-icons/fa6";
 import { treatmentTabs, type TreatmentTab } from "@/lib/content";
+import { isTreatmentLive, type Treatment } from "@drkumar/shared";
 
 const tabs = Object.keys(treatmentTabs) as TreatmentTab[];
 
@@ -15,11 +15,38 @@ const tabToSlug: Record<TreatmentTab, string> = {
   Body: "/dermatology",
 };
 
-export default function Treatments() {
+const tabToCategory: Record<TreatmentTab, string> = {
+  Hair: "hair",
+  Skin: "skin-cosmetic",
+  "Sti Care": "std",
+  Body: "dermatology",
+};
+
+interface TreatmentsProps {
+  dynamicTreatments?: Treatment[];
+}
+
+export default function Treatments({ dynamicTreatments }: TreatmentsProps) {
   const [active, setActive] = useState<TreatmentTab>("Skin");
+  const [allTreatments, setAllTreatments] = useState<Treatment[]>(dynamicTreatments || []);
   const gridRef = useRef<HTMLUListElement>(null);
   const first = useRef(true);
   const data = treatmentTabs[active];
+
+  // Fetch live treatments to ensure newly added treatments appear dynamically
+  useEffect(() => {
+    if (dynamicTreatments && dynamicTreatments.length > 0) {
+      setAllTreatments(dynamicTreatments);
+    }
+    fetch("/api/treatments")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.treatments && Array.isArray(data.treatments)) {
+          setAllTreatments(data.treatments);
+        }
+      })
+      .catch(() => {});
+  }, [dynamicTreatments]);
 
   // Header nav ("Hair", "STD"…) can switch the tab.
   useEffect(() => {
@@ -37,6 +64,32 @@ export default function Treatments() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !gridRef.current) return;
     gsap.fromTo(gridRef.current.children, { opacity: 0, y: 30, scale: 0.94 }, { opacity: 1, y: 0, scale: 1, duration: 0.6, stagger: 0.08, ease: "power3.out" });
   }, [active]);
+
+  const currentCategory = tabToCategory[active];
+  const dynamicForCategory = allTreatments
+    .filter((t) => t.serviceCategory === currentCategory && isTreatmentLive(t))
+    .map((t) => ({
+      name: t.title,
+      image: t.image,
+      href: `/${t.serviceCategory}/${t.slug}`,
+    }));
+
+  const dynamicNames = new Set(dynamicForCategory.map((d) => d.name.toLowerCase().trim()));
+  const remainingDefaultItems = data.items
+    .filter((it) => !dynamicNames.has(it.name.toLowerCase().trim()))
+    .map((it) => ({
+      name: it.name,
+      image: it.image,
+      href: tabToSlug[active] || "#contact",
+    }));
+
+  const displayItems = dynamicForCategory.length > 0
+    ? [...dynamicForCategory, ...remainingDefaultItems]
+    : data.items.map((it) => ({
+        name: it.name,
+        image: it.image,
+        href: tabToSlug[active] || "#contact",
+      }));
 
   return (
     <section id="treatments" className="mx-auto max-w-[1440px] px-5 pt-14 md:px-8 lg:pt-[57px] xl:px-[110px]">
@@ -73,11 +126,16 @@ export default function Treatments() {
       </div>
 
       <ul ref={gridRef} data-stagger className="mt-[36px] flex flex-wrap justify-center gap-x-5 gap-y-10 lg:justify-between">
-        {data.items.map((item, i) => (
+        {displayItems.map((item, i) => (
           <li key={`${active}-${item.name}`} data-reveal="up" className="group w-[215px] text-center">
-            <a href={tabToSlug[active] || "#contact"} className="relative block h-[307px] w-[215px] cursor-pointer" aria-label={`Explore ${item.name}`}>
+            <a href={item.href} className="relative block h-[307px] w-[215px] cursor-pointer" aria-label={`Explore ${item.name}`}>
               {item.image ? (
-                <Image src={item.image} alt={item.name} width={215} height={307} className="h-full w-full transition-transform duration-500 group-hover:scale-[1.03]" />
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="h-full w-full object-cover rounded-[120px] transition-transform duration-500 group-hover:scale-[1.03]"
+                />
               ) : (
                 <div className="flex h-full w-full items-center justify-center rounded-[120px] bg-gradient-to-b from-brand-light/60 to-brand-2 p-6 text-[20px] font-semibold text-white transition-transform duration-500 group-hover:scale-[1.03]">
                   {item.name}
@@ -91,7 +149,7 @@ export default function Treatments() {
                 <FaArrowRight className="size-[16px]" />
               </span>
             </a>
-            <p className="mt-[38px] text-[16px] leading-[25px]">{item.name}</p>
+            <p className="mt-[38px] text-[16px] leading-[25px] font-medium text-gray-800">{item.name}</p>
           </li>
         ))}
       </ul>

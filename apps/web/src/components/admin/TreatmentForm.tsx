@@ -241,13 +241,17 @@ export default function TreatmentForm({ treatment }: { treatment?: Treatment }) 
   async function onImageSelected(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (!f) return;
+    const previousImage = image;
+    const localPreview = URL.createObjectURL(f);
+    setImage(localPreview);
     setUploadingImage(true);
+    setDirty(true);
     try {
       const publicPath = await uploadImage(f);
       setImage(publicPath);
-      setDirty(true);
       toast("Treatment photo uploaded successfully!");
     } catch (err) {
+      setImage(previousImage);
       toast(err instanceof Error ? err.message : "Upload failed", "error");
     } finally {
       setUploadingImage(false);
@@ -257,6 +261,10 @@ export default function TreatmentForm({ treatment }: { treatment?: Treatment }) 
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (uploadingImage) {
+      toast("Please wait for the photo upload to complete before saving.", "error");
+      return;
+    }
     setBusy(true);
     setErrors({});
 
@@ -284,7 +292,7 @@ export default function TreatmentForm({ treatment }: { treatment?: Treatment }) 
       title: title.trim(),
       slug: cleanSlug,
       summary: summary.trim(),
-      image: image.trim(),
+      image: image.startsWith("blob:") ? (treatment?.image ?? "") : image.trim(),
       imageAlt: imageAlt.trim() || title.trim(),
       status,
       order: Number(order) || 1,
@@ -377,11 +385,19 @@ export default function TreatmentForm({ treatment }: { treatment?: Treatment }) 
           </Link>
           <button
             type="submit"
-            disabled={busy}
+            disabled={busy || uploadingImage}
             className="inline-flex items-center gap-2 rounded-lg bg-brand px-5 py-2 text-[13px] font-semibold text-white shadow-sm transition hover:bg-brand-2 disabled:opacity-50 cursor-pointer"
           >
             <FaCheck className="size-3.5" />
-            <span>{busy ? "Saving..." : treatment ? "Save Changes" : "Create Treatment"}</span>
+            <span>
+              {busy
+                ? "Saving..."
+                : uploadingImage
+                ? "Uploading photo..."
+                : treatment
+                ? "Save Changes"
+                : "Create Treatment"}
+            </span>
           </button>
         </div>
       </div>
@@ -548,9 +564,20 @@ export default function TreatmentForm({ treatment }: { treatment?: Treatment }) 
               <div className="sm:col-span-4">
                 <div className="relative aspect-[4/3] rounded-lg border border-gray-200 bg-gray-50 overflow-hidden flex items-center justify-center">
                   {image ? (
-                    <Image src={image} alt="Treatment preview" fill className="object-cover" sizes="200px" />
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={image}
+                      alt="Treatment preview"
+                      className="h-full w-full object-cover"
+                    />
                   ) : (
                     <span className="text-[11px] text-gray-400">No photo selected</span>
+                  )}
+                  {uploadingImage && (
+                    <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-white text-[12px] font-semibold gap-1.5 backdrop-blur-[1px]">
+                      <span className="size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      <span>Uploading...</span>
+                    </div>
                   )}
                 </div>
               </div>

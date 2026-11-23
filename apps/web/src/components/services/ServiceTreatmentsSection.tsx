@@ -1,15 +1,38 @@
 "use client";
 
-import Image from "next/image";
-import { type ServiceTreatmentsSection, type TreatmentCard } from "@drkumar/shared";
+import Link from "next/link";
+import { type ServiceTreatmentsSection, type Treatment } from "@drkumar/shared";
 
 interface Props {
   treatmentsSection?: ServiceTreatmentsSection;
   serviceCategory?: string;
+  dynamicTreatments?: Treatment[];
 }
 
-export default function ServiceTreatmentsSectionView({ treatmentsSection, serviceCategory }: Props) {
-  if (!treatmentsSection || !treatmentsSection.items || treatmentsSection.items.length === 0) {
+export default function ServiceTreatmentsSectionView({
+  treatmentsSection,
+  serviceCategory,
+  dynamicTreatments,
+}: Props) {
+  const dynamicCards = (dynamicTreatments && dynamicTreatments.length > 0)
+    ? dynamicTreatments.map((t) => ({
+        id: t.id,
+        title: t.title,
+        description: t.summary,
+        image: t.image,
+        ctaText: "Know More",
+        ctaLink: `/${t.serviceCategory}/${t.slug}`,
+      }))
+    : [];
+
+  const dynamicTitles = new Set(dynamicCards.map((c) => c.title.toLowerCase().trim()));
+  const remainingSeedItems = (treatmentsSection?.items ?? []).filter(
+    (item) => !dynamicTitles.has(item.title.toLowerCase().trim())
+  );
+
+  const items = dynamicCards.length > 0 ? [...dynamicCards, ...remainingSeedItems] : (treatmentsSection?.items ?? []);
+
+  if (items.length === 0) {
     return null;
   }
 
@@ -25,17 +48,17 @@ export default function ServiceTreatmentsSectionView({ treatmentsSection, servic
       <div className="mx-auto max-w-[1440px] px-5 sm:px-8 xl:px-[110px]">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto">
-          {treatmentsSection.tagline && (
+          {treatmentsSection?.tagline && (
             <span className="text-[14px] sm:text-[16px] font-bold text-brand tracking-wide">
               {treatmentsSection.tagline}
             </span>
           )}
 
           <h2 className="text-[24px] sm:text-[30px] md:text-[36px] font-bold text-[#111827] tracking-tight mt-1.5 leading-tight">
-            {treatmentsSection.heading || "Explore Our Range of Services"}
+            {treatmentsSection?.heading || "Explore Our Range of Services"}
           </h2>
 
-          {treatmentsSection.description && (
+          {treatmentsSection?.description && (
             <div
               className="blog-content text-[13.5px] sm:text-[15px] text-gray-600 mt-3 leading-relaxed"
               dangerouslySetInnerHTML={{ __html: treatmentsSection.description }}
@@ -45,7 +68,7 @@ export default function ServiceTreatmentsSectionView({ treatmentsSection, servic
 
         {/* Treatment Cards Grid: 4 columns x 2 rows */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6 mt-10 md:mt-12">
-          {treatmentsSection.items.map((item) => (
+          {items.map((item) => (
             <div
               key={item.id}
               className="group flex flex-col overflow-hidden rounded-2xl border border-teal-200/60 bg-white shadow-xs transition-all duration-300 hover:shadow-lg hover:border-brand/40 hover:-translate-y-1"
@@ -53,12 +76,11 @@ export default function ServiceTreatmentsSectionView({ treatmentsSection, servic
               {/* Card Image */}
               <div className="relative aspect-[16/10] w-full overflow-hidden bg-gray-50">
                 {item.image ? (
-                  <Image
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
                     src={item.image}
                     alt={item.title}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                    className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center bg-gray-100 text-[12px] text-gray-400">
@@ -71,7 +93,11 @@ export default function ServiceTreatmentsSectionView({ treatmentsSection, servic
               <div className="flex flex-1 flex-col p-4 sm:p-5 justify-between">
                 <div>
                   <h3 className="text-[15px] sm:text-[16px] font-bold text-brand leading-snug group-hover:text-brand-2 transition-colors">
-                    {item.title}
+                    {item.ctaLink && item.ctaLink.startsWith("/") ? (
+                      <Link href={item.ctaLink}>{item.title}</Link>
+                    ) : (
+                      item.title
+                    )}
                   </h3>
 
                   {item.description && (
@@ -82,13 +108,22 @@ export default function ServiceTreatmentsSectionView({ treatmentsSection, servic
                 </div>
 
                 <div className="mt-4 pt-2">
-                  <a
-                    href={item.ctaLink || "#appointment"}
-                    onClick={(e) => handleCtaClick(e, item.ctaLink)}
-                    className="inline-flex items-center justify-center rounded-lg bg-brand px-4 py-2 text-[12.5px] font-semibold text-white shadow-xs transition hover:bg-brand-2 hover:shadow-sm"
-                  >
-                    {item.ctaText || "Know More"}
-                  </a>
+                  {item.ctaLink && item.ctaLink.startsWith("/") ? (
+                    <Link
+                      href={item.ctaLink}
+                      className="inline-flex items-center justify-center rounded-lg bg-brand px-4 py-2 text-[12.5px] font-semibold text-white shadow-xs transition hover:bg-brand-2 hover:shadow-sm"
+                    >
+                      {item.ctaText || "Know More"}
+                    </Link>
+                  ) : (
+                    <a
+                      href={item.ctaLink || "#appointment"}
+                      onClick={(e) => handleCtaClick(e, item.ctaLink)}
+                      className="inline-flex items-center justify-center rounded-lg bg-brand px-4 py-2 text-[12.5px] font-semibold text-white shadow-xs transition hover:bg-brand-2 hover:shadow-sm"
+                    >
+                      {item.ctaText || "Know More"}
+                    </a>
+                  )}
                 </div>
               </div>
             </div>
@@ -96,7 +131,7 @@ export default function ServiceTreatmentsSectionView({ treatmentsSection, servic
         </div>
 
         {/* Bottom Section Action: View More */}
-        {treatmentsSection.viewMoreText && (
+        {treatmentsSection?.viewMoreText && (
           <div className="mt-10 md:mt-12 text-center">
             <a
               href={treatmentsSection.viewMoreLink || "#appointment"}

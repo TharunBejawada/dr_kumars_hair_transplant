@@ -10,7 +10,8 @@ import ServiceDoctorSectionView from "@/components/services/ServiceDoctorSection
 import ServiceFaqSectionView from "@/components/services/ServiceFaqSection";
 import Appointment from "@/components/Appointment";
 import { getServicePageBySlug } from "@/lib/db/services";
-import { isServicePageLive, serviceCategories } from "@drkumar/shared";
+import { listTreatments } from "@/lib/db/treatments";
+import { isServicePageLive, isTreatmentLive, serviceCategories } from "@drkumar/shared";
 import { siteUrl } from "@/lib/blog-utils";
 import { clinic } from "@/lib/content";
 
@@ -85,6 +86,8 @@ export default async function CategoryDepartmentPage({ params }: Props) {
   if (!page) redirect("/");
 
   const catObj = serviceCategories.find((c) => c.id === page.serviceCategory);
+  const categoryTreatments = await listTreatments(page.serviceCategory).catch(() => []);
+  const liveTreatments = categoryTreatments.filter(isTreatmentLive);
 
   const serviceLd = {
     "@context": "https://schema.org",
@@ -139,10 +142,11 @@ export default async function CategoryDepartmentPage({ params }: Props) {
       )}
 
       {/* Section 3: Treatments / Services Range Grid */}
-      {page.treatmentsSection && (
+      {(page.treatmentsSection || liveTreatments.length > 0) && (
         <ServiceTreatmentsSectionView
           treatmentsSection={page.treatmentsSection}
           serviceCategory={page.serviceCategory}
+          dynamicTreatments={liveTreatments}
         />
       )}
 

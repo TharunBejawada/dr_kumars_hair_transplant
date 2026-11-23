@@ -225,7 +225,12 @@ export default function TreatmentsTable({ initial }: { initial: Treatment[] }) {
                         <div className="flex items-center gap-3">
                           <div className="relative size-12 shrink-0 rounded-lg border border-gray-200 bg-gray-100 overflow-hidden">
                             {t.image ? (
-                              <Image src={t.image} alt={t.title} fill className="object-cover" sizes="48px" />
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={t.image}
+                                alt={t.title}
+                                className="h-full w-full object-cover"
+                              />
                             ) : (
                               <div className="flex h-full w-full items-center justify-center text-[10px] text-gray-400">
                                 No img

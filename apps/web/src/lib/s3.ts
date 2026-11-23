@@ -39,21 +39,20 @@ export const IMAGE_TYPES: Record<string, string> = {
 export function mediaBucket() {
   const b = process.env.S3_MEDIA_BUCKET;
   if (!b) throw new Error("S3_MEDIA_BUCKET is not configured");
-  return b;
+  return b.trim();
 }
 
 /** Presigned POST locked to one key, one content-type and a max size – the browser uploads straight to S3. */
 export async function presignImageUpload(contentType: string) {
   const normType = contentType.toLowerCase().trim();
-  const ext = IMAGE_TYPES[normType];
-  if (!ext) throw new Error(`Unsupported image type: ${contentType}`);
+  const ext = IMAGE_TYPES[normType] || "jpg";
   const key = `blogs/${randomUUID()}.${ext}`;
   const { url, fields } = await createPresignedPost(s3, {
     Bucket: mediaBucket(),
     Key: key,
     Conditions: [
       ["content-length-range", 1, MAX_IMAGE_BYTES],
-      ["eq", "$Content-Type", normType],
+      ["starts-with", "$Content-Type", "image/"],
     ],
     Fields: { "Content-Type": normType },
     Expires: 300, // 5 minutes
@@ -64,7 +63,7 @@ export async function presignImageUpload(contentType: string) {
 /** Direct upload helper for server-side fallback */
 export async function uploadDirectMedia(buffer: Buffer | Uint8Array, contentType: string, extension?: string) {
   const normType = contentType.toLowerCase().trim();
-  const ext = extension || IMAGE_TYPES[normType] || "jpg";
+  const ext = IMAGE_TYPES[normType] || (extension ? extension.toLowerCase().replace("jpeg", "jpg") : "jpg");
   const key = `blogs/${randomUUID()}.${ext}`;
   await s3.send(
     new PutObjectCommand({

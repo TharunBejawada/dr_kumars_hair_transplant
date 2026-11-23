@@ -13,7 +13,7 @@ export async function GET(req: Request) {
     const treatments = all.filter(isTreatmentLive);
     return NextResponse.json(
       { treatments },
-      { headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" } },
+      { headers: { "Cache-Control": "no-store, no-cache, must-revalidate" } },
     );
   } catch (e) {
     console.error("public treatments list failed", e);

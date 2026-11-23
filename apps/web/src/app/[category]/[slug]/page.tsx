@@ -199,6 +199,7 @@ export default async function CategoryTreatmentDetailPage({ params }: Props) {
                       alt={treatment.imageAlt || treatment.title}
                       fill
                       priority
+                      unoptimized
                       className="object-cover object-center"
                       sizes="(max-width: 1024px) 100vw, 480px"
                     />

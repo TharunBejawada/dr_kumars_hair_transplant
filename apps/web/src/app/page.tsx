@@ -37,9 +37,11 @@ const jsonLd = {
 
 export default async function Home() {
   let initialTreatments: { title: string; slug: string; serviceCategory: string }[] = [];
+  let allLiveTreatments: import("@drkumar/shared").Treatment[] = [];
   try {
     const all = await listTreatments();
-    initialTreatments = all.filter(isTreatmentLive).map((t) => ({
+    allLiveTreatments = all.filter(isTreatmentLive);
+    initialTreatments = allLiveTreatments.map((t) => ({
       title: t.title,
       slug: t.slug,
       serviceCategory: t.serviceCategory,
@@ -57,7 +59,7 @@ export default async function Home() {
       <main>
         <Hero />
         <About />
-        <Treatments />
+        <Treatments dynamicTreatments={allLiveTreatments} />
         <Doctor />
         <Conditions />
         <WhyChoose />
