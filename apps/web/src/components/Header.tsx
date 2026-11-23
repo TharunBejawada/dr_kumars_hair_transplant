@@ -195,35 +195,34 @@ export default function Header({ initialTreatments }: HeaderProps) {
 
                 {/* Dropdown Menu on Hover */}
                 <div className="invisible opacity-0 translate-y-1 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-150 absolute top-full left-0 z-50 pt-0.5 pointer-events-none group-hover:pointer-events-auto">
-                  <div className="min-w-[210px] w-max max-w-[290px] bg-[#08322e] shadow-2xl border border-[#0d4d46] overflow-hidden">
-                    <ul>
-                      {dept.treatments.length > 0 ? (
-                        <>
-                          {dept.treatments.map((t, idx) => (
-                            <li
-                              key={t.href}
-                              className={idx < dept.treatments.length - 1 ? "border-b border-white/30" : ""}
-                            >
+                  <div className="min-w-[220px] w-max max-w-[300px] bg-[#08322e] shadow-2xl border border-[#0d4d46] overflow-hidden flex flex-col">
+                    {dept.treatments.length > 0 ? (
+                      <>
+                        <ul className="max-h-[365px] overflow-y-auto overscroll-contain nav-dropdown-scrollbar divide-y divide-white/20">
+                          {dept.treatments.map((t) => (
+                            <li key={t.href}>
                               <Link
                                 href={t.href}
-                                className="block px-4 py-2.5 text-[14.5px] font-normal text-white hover:bg-black/25 hover:text-teal-200 transition-colors"
+                                className="block px-4 py-2.5 text-[14px] font-normal text-white hover:bg-black/25 hover:text-teal-200 transition-colors leading-snug"
                               >
                                 {t.name}
                               </Link>
                             </li>
                           ))}
-                          <li className="border-t border-white/20 bg-black/25">
-                            <Link
-                              href={dept.departmentHref}
-                              onClick={() => pick(dept.tab)}
-                              className="flex items-center justify-between px-4 py-2 text-[12.5px] font-semibold text-teal-300 hover:text-white transition-colors"
-                            >
-                              <span>Explore {dept.label} Department</span>
-                              <FaChevronRight className="size-2.5" />
-                            </Link>
-                          </li>
-                        </>
-                      ) : (
+                        </ul>
+                        <div className="border-t border-white/20 bg-black/30 shrink-0">
+                          <Link
+                            href={dept.departmentHref}
+                            onClick={() => pick(dept.tab)}
+                            className="flex items-center justify-between px-4 py-2.5 text-[12.5px] font-semibold text-teal-300 hover:text-white transition-colors"
+                          >
+                            <span>Explore {dept.label} Department</span>
+                            <FaChevronRight className="size-2.5" />
+                          </Link>
+                        </div>
+                      </>
+                    ) : (
+                      <ul>
                         <li>
                           <Link
                             href={dept.departmentHref}
@@ -234,8 +233,8 @@ export default function Header({ initialTreatments }: HeaderProps) {
                             <FaChevronRight className="size-2.5" />
                           </Link>
                         </li>
-                      )}
-                    </ul>
+                      </ul>
+                    )}
                   </div>
                 </div>
               </li>
@@ -328,21 +327,23 @@ export default function Header({ initialTreatments }: HeaderProps) {
                   </div>
 
                   {isExpanded && (
-                    <ul className="pl-4 pb-2 space-y-1.5 border-l-2 border-brand/50 ml-2">
+                    <div className="pl-4 pb-2 border-l-2 border-brand/50 ml-2">
                       {dept.treatments.length > 0 ? (
                         <>
-                          {dept.treatments.map((t) => (
-                            <li key={t.name}>
-                              <Link
-                                href={t.href}
-                                onClick={() => setOpen(false)}
-                                className="block py-1 text-[13.5px] text-teal-100 hover:text-white"
-                              >
-                                {t.name}
-                              </Link>
-                            </li>
-                          ))}
-                          <li className="pt-1">
+                          <ul className="max-h-[280px] overflow-y-auto overscroll-contain nav-dropdown-scrollbar space-y-1.5 pr-1">
+                            {dept.treatments.map((t) => (
+                              <li key={t.name}>
+                                <Link
+                                  href={t.href}
+                                  onClick={() => setOpen(false)}
+                                  className="block py-1 text-[13.5px] text-teal-100 hover:text-white"
+                                >
+                                  {t.name}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                          <div className="pt-2">
                             <Link
                               href={dept.departmentHref}
                               onClick={() => setOpen(false)}
@@ -350,20 +351,18 @@ export default function Header({ initialTreatments }: HeaderProps) {
                             >
                               Explore {dept.label} Department →
                             </Link>
-                          </li>
+                          </div>
                         </>
                       ) : (
-                        <li>
-                          <Link
-                            href={dept.departmentHref}
-                            onClick={() => setOpen(false)}
-                            className="block text-[12.5px] font-bold text-teal-300 py-1"
-                          >
-                            Explore {dept.label} Department →
-                          </Link>
-                        </li>
+                        <Link
+                          href={dept.departmentHref}
+                          onClick={() => setOpen(false)}
+                          className="block text-[12.5px] font-bold text-teal-300 py-1"
+                        >
+                          Explore {dept.label} Department →
+                        </Link>
                       )}
-                    </ul>
+                    </div>
                   )}
                 </li>
               );
