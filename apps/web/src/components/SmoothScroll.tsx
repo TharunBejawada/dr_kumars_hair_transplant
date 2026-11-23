@@ -13,7 +13,20 @@ export default function SmoothScroll() {
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    const lenis = new Lenis({ duration: 1.15, easing: (t) => 1 - Math.pow(1 - t, 4), smoothWheel: true });
+    const lenis = new Lenis({
+      duration: 1.15,
+      easing: (t) => 1 - Math.pow(1 - t, 4),
+      smoothWheel: true,
+      prevent: (node) => {
+        if (!node || node.nodeType !== 1) return false;
+        const el = node as Element;
+        return Boolean(
+          el.closest("[data-lenis-prevent]") ||
+          el.closest(".nav-dropdown-scrollbar") ||
+          el.closest("[role='dialog']")
+        );
+      },
+    });
     setLenis(lenis);
     lenis.on("scroll", ScrollTrigger.update);
     const tick = (time: number) => lenis.raf(time * 1000);

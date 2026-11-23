@@ -160,20 +160,20 @@ export default function Header({ initialTreatments }: HeaderProps) {
           {/* Desktop Navigation */}
           <ul className="hidden items-center gap-[22px] xl:gap-[32px] 2xl:gap-[38px] lg:flex">
             {/* 1. Home */}
-            <li>
+            <li className="py-[11px]">
               <ScrollLink
                 href={link("#home")}
-                className="relative block py-[11px] text-[16px] xl:text-[17px] font-medium leading-[27px] after:absolute after:inset-x-0 after:bottom-[6px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 hover:after:scale-x-100"
+                className="relative inline-block text-[16px] xl:text-[17px] font-medium leading-[27px] after:absolute after:inset-x-0 after:-bottom-[2px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 hover:after:scale-x-100"
               >
                 Home
               </ScrollLink>
             </li>
 
             {/* 2. About Us */}
-            <li>
+            <li className="py-[11px]">
               <Link
                 href="/about"
-                className="relative block py-[11px] text-[16px] xl:text-[17px] font-medium leading-[27px] after:absolute after:inset-x-0 after:bottom-[6px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 hover:after:scale-x-100"
+                className="relative inline-block text-[16px] xl:text-[17px] font-medium leading-[27px] after:absolute after:inset-x-0 after:-bottom-[2px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 hover:after:scale-x-100"
               >
                 About Us
               </Link>
@@ -186,7 +186,7 @@ export default function Header({ initialTreatments }: HeaderProps) {
                   <Link
                     href={dept.departmentHref}
                     onClick={() => pick(dept.tab)}
-                    className="relative block text-[16px] xl:text-[17px] font-medium leading-[27px] after:absolute after:inset-x-0 after:bottom-[6px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 group-hover:after:scale-x-100"
+                    className="relative inline-block text-[16px] xl:text-[17px] font-medium leading-[27px] after:absolute after:inset-x-0 after:-bottom-[2px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 group-hover:after:scale-x-100"
                   >
                     {dept.label}
                   </Link>
@@ -194,11 +194,23 @@ export default function Header({ initialTreatments }: HeaderProps) {
                 </div>
 
                 {/* Dropdown Menu on Hover */}
-                <div className="invisible opacity-0 translate-y-1 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-150 absolute top-full left-0 z-50 pt-0.5 pointer-events-none group-hover:pointer-events-auto">
+                <div
+                  data-lenis-prevent
+                  data-lenis-prevent-wheel
+                  data-lenis-prevent-touch
+                  onWheel={(e) => e.stopPropagation()}
+                  className="invisible opacity-0 translate-y-1 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-150 absolute top-full left-0 z-50 pt-0.5 pointer-events-none group-hover:pointer-events-auto"
+                >
                   <div className="min-w-[220px] w-max max-w-[300px] bg-[#08322e] shadow-2xl border border-[#0d4d46] overflow-hidden flex flex-col">
                     {dept.treatments.length > 0 ? (
                       <>
-                        <ul className="max-h-[365px] overflow-y-auto overscroll-contain nav-dropdown-scrollbar divide-y divide-white/20">
+                        <ul
+                          data-lenis-prevent
+                          data-lenis-prevent-wheel
+                          data-lenis-prevent-touch
+                          onWheel={(e) => e.stopPropagation()}
+                          className="max-h-[365px] overflow-y-auto overscroll-contain nav-dropdown-scrollbar divide-y divide-white/20"
+                        >
                           {dept.treatments.map((t) => (
                             <li key={t.href}>
                               <Link
@@ -241,30 +253,30 @@ export default function Header({ initialTreatments }: HeaderProps) {
             ))}
 
             {/* 7. Blog */}
-            <li>
+            <li className="py-[11px]">
               <Link
                 href="/blogs"
-                className="relative block py-[11px] text-[16px] xl:text-[17px] font-medium leading-[27px] after:absolute after:inset-x-0 after:bottom-[6px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 hover:after:scale-x-100"
+                className="relative inline-block text-[16px] xl:text-[17px] font-medium leading-[27px] after:absolute after:inset-x-0 after:-bottom-[2px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 hover:after:scale-x-100"
               >
                 Blog
               </Link>
             </li>
 
             {/* 8. Gallery */}
-            <li>
+            <li className="py-[11px]">
               <ScrollLink
                 href={link("#results")}
-                className="relative block py-[11px] text-[16px] xl:text-[17px] font-medium leading-[27px] after:absolute after:inset-x-0 after:bottom-[6px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 hover:after:scale-x-100"
+                className="relative inline-block text-[16px] xl:text-[17px] font-medium leading-[27px] after:absolute after:inset-x-0 after:-bottom-[2px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 hover:after:scale-x-100"
               >
                 Gallery
               </ScrollLink>
             </li>
 
             {/* 9. Contact Us */}
-            <li>
+            <li className="py-[11px]">
               <ScrollLink
                 href={link("#contact")}
-                className="relative block py-[11px] text-[16px] xl:text-[17px] font-medium leading-[27px] after:absolute after:inset-x-0 after:bottom-[6px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 hover:after:scale-x-100"
+                className="relative inline-block text-[16px] xl:text-[17px] font-medium leading-[27px] after:absolute after:inset-x-0 after:-bottom-[2px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 hover:after:scale-x-100"
               >
                 Contact Us
               </ScrollLink>
@@ -274,7 +286,12 @@ export default function Header({ initialTreatments }: HeaderProps) {
 
         {/* Mobile Navigation Drawer */}
         {open && (
-          <ul className="absolute inset-x-0 top-[50px] bg-[#072d29] px-5 py-3 shadow-2xl lg:hidden max-h-[80vh] overflow-y-auto divide-y divide-white/10 z-50">
+          <ul
+            data-lenis-prevent
+            data-lenis-prevent-wheel
+            data-lenis-prevent-touch
+            className="absolute inset-x-0 top-[50px] bg-[#072d29] px-5 py-3 shadow-2xl lg:hidden max-h-[80vh] overflow-y-auto overscroll-contain nav-dropdown-scrollbar divide-y divide-white/10 z-50"
+          >
             <li>
               <ScrollLink
                 href={link("#home")}
