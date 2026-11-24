@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { FaChevronDown, FaChevronRight, FaPhone } from "react-icons/fa6";
 import { clinic } from "@/lib/content";
@@ -22,6 +22,111 @@ function buildDepartments(
       .map((t) => ({ name: t.title, href: `/${t.serviceCategory}/${t.slug}` }));
     return { ...dept, treatments: items };
   });
+}
+
+function DepartmentNavItem({
+  dept,
+  pick,
+}: {
+  dept: NavDepartmentMenu;
+  pick: (tab?: string) => void;
+}) {
+  const itemRef = useRef<HTMLLIElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
+
+  useEffect(() => {
+    const itemEl = itemRef.current;
+    if (!itemEl) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      // 1. Completely isolate wheel scrolling on the menu from the background application
+      e.preventDefault();
+      e.stopPropagation();
+
+      // 2. Smoothly scroll the dropdown treatment list
+      const listEl = listRef.current;
+      if (listEl) {
+        listEl.scrollTop += e.deltaY;
+      }
+    };
+
+    // { passive: false } allows calling e.preventDefault() to block window / Lenis scroll
+    itemEl.addEventListener("wheel", handleWheel, { passive: false });
+    return () => {
+      itemEl.removeEventListener("wheel", handleWheel);
+    };
+  }, []);
+
+  return (
+    <li ref={itemRef} className="relative group py-[11px]">
+      <div className="flex items-center gap-1.5 cursor-pointer">
+        <Link
+          href={dept.departmentHref}
+          onClick={() => pick(dept.tab)}
+          className="relative inline-block text-[16px] xl:text-[17px] font-medium leading-[27px] after:absolute after:inset-x-0 after:-bottom-[3px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 group-hover:after:scale-x-100"
+        >
+          {dept.label}
+        </Link>
+        <FaChevronDown className="size-2.5 text-white/80 transition-transform duration-200 group-hover:rotate-180 group-hover:text-white" />
+      </div>
+
+      {/* Dropdown Menu on Hover */}
+      <div
+        data-lenis-prevent
+        data-lenis-prevent-wheel
+        data-lenis-prevent-touch
+        className="invisible opacity-0 translate-y-1 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-150 absolute top-full left-0 z-50 pt-0.5 pointer-events-none group-hover:pointer-events-auto"
+      >
+        <div className="min-w-[220px] w-max max-w-[300px] bg-[#08322e] shadow-2xl border border-[#0d4d46] overflow-hidden flex flex-col">
+          {dept.treatments.length > 0 ? (
+            <>
+              <ul
+                ref={listRef}
+                data-lenis-prevent
+                data-lenis-prevent-wheel
+                data-lenis-prevent-touch
+                className="max-h-[410px] min-h-0 flex-1 overflow-y-auto overscroll-contain nav-dropdown-scrollbar divide-y divide-white/20"
+              >
+                {dept.treatments.map((t) => (
+                  <li key={t.href}>
+                    <Link
+                      href={t.href}
+                      className="block px-4 py-2.5 text-[14px] font-normal text-white hover:bg-black/25 hover:text-teal-200 transition-colors leading-snug"
+                    >
+                      {t.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <div className="border-t border-white/20 bg-black/30 shrink-0">
+                <Link
+                  href={dept.departmentHref}
+                  onClick={() => pick(dept.tab)}
+                  className="flex items-center justify-between px-4 py-2.5 text-[12.5px] font-semibold text-teal-300 hover:text-white transition-colors"
+                >
+                  <span>Explore {dept.label} Department</span>
+                  <FaChevronRight className="size-2.5" />
+                </Link>
+              </div>
+            </>
+          ) : (
+            <ul>
+              <li>
+                <Link
+                  href={dept.departmentHref}
+                  onClick={() => pick(dept.tab)}
+                  className="flex items-center justify-between px-4 py-3 text-[13.5px] font-medium text-white/95 hover:bg-black/20 hover:text-teal-200 transition-colors"
+                >
+                  <span>Explore {dept.label} Department</span>
+                  <FaChevronRight className="size-2.5" />
+                </Link>
+              </li>
+            </ul>
+          )}
+        </div>
+      </div>
+    </li>
+  );
 }
 
 export default function Header({ initialTreatments }: HeaderProps) {
@@ -163,7 +268,7 @@ export default function Header({ initialTreatments }: HeaderProps) {
             <li className="py-[11px]">
               <ScrollLink
                 href={link("#home")}
-                className="relative inline-block text-[16px] xl:text-[17px] font-medium leading-[27px] after:absolute after:inset-x-0 after:-bottom-[2px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 hover:after:scale-x-100"
+                className="relative inline-block text-[16px] xl:text-[17px] font-medium leading-[27px] after:absolute after:inset-x-0 after:-bottom-[3px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 hover:after:scale-x-100"
               >
                 Home
               </ScrollLink>
@@ -173,7 +278,7 @@ export default function Header({ initialTreatments }: HeaderProps) {
             <li className="py-[11px]">
               <Link
                 href="/about"
-                className="relative inline-block text-[16px] xl:text-[17px] font-medium leading-[27px] after:absolute after:inset-x-0 after:-bottom-[2px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 hover:after:scale-x-100"
+                className="relative inline-block text-[16px] xl:text-[17px] font-medium leading-[27px] after:absolute after:inset-x-0 after:-bottom-[3px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 hover:after:scale-x-100"
               >
                 About Us
               </Link>
@@ -181,82 +286,14 @@ export default function Header({ initialTreatments }: HeaderProps) {
 
             {/* 3–6. Departments with Dynamic Hover Dropdown Menus from DB */}
             {departments.map((dept) => (
-              <li key={dept.id} className="relative group py-[11px]">
-                <div className="flex items-center gap-1.5 cursor-pointer">
-                  <Link
-                    href={dept.departmentHref}
-                    onClick={() => pick(dept.tab)}
-                    className="relative inline-block text-[16px] xl:text-[17px] font-medium leading-[27px] after:absolute after:inset-x-0 after:-bottom-[2px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 group-hover:after:scale-x-100"
-                  >
-                    {dept.label}
-                  </Link>
-                  <FaChevronDown className="size-2.5 text-white/80 transition-transform duration-200 group-hover:rotate-180 group-hover:text-white" />
-                </div>
-
-                {/* Dropdown Menu on Hover */}
-                <div
-                  data-lenis-prevent
-                  data-lenis-prevent-wheel
-                  data-lenis-prevent-touch
-                  onWheel={(e) => e.stopPropagation()}
-                  className="invisible opacity-0 translate-y-1 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-150 absolute top-full left-0 z-50 pt-0.5 pointer-events-none group-hover:pointer-events-auto"
-                >
-                  <div className="min-w-[220px] w-max max-w-[300px] bg-[#08322e] shadow-2xl border border-[#0d4d46] overflow-hidden flex flex-col">
-                    {dept.treatments.length > 0 ? (
-                      <>
-                        <ul
-                          data-lenis-prevent
-                          data-lenis-prevent-wheel
-                          data-lenis-prevent-touch
-                          onWheel={(e) => e.stopPropagation()}
-                          className="max-h-[365px] overflow-y-auto overscroll-contain nav-dropdown-scrollbar divide-y divide-white/20"
-                        >
-                          {dept.treatments.map((t) => (
-                            <li key={t.href}>
-                              <Link
-                                href={t.href}
-                                className="block px-4 py-2.5 text-[14px] font-normal text-white hover:bg-black/25 hover:text-teal-200 transition-colors leading-snug"
-                              >
-                                {t.name}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                        <div className="border-t border-white/20 bg-black/30 shrink-0">
-                          <Link
-                            href={dept.departmentHref}
-                            onClick={() => pick(dept.tab)}
-                            className="flex items-center justify-between px-4 py-2.5 text-[12.5px] font-semibold text-teal-300 hover:text-white transition-colors"
-                          >
-                            <span>Explore {dept.label} Department</span>
-                            <FaChevronRight className="size-2.5" />
-                          </Link>
-                        </div>
-                      </>
-                    ) : (
-                      <ul>
-                        <li>
-                          <Link
-                            href={dept.departmentHref}
-                            onClick={() => pick(dept.tab)}
-                            className="flex items-center justify-between px-4 py-3 text-[13.5px] font-medium text-white/95 hover:bg-black/20 hover:text-teal-200 transition-colors"
-                          >
-                            <span>Explore {dept.label} Department</span>
-                            <FaChevronRight className="size-2.5" />
-                          </Link>
-                        </li>
-                      </ul>
-                    )}
-                  </div>
-                </div>
-              </li>
+              <DepartmentNavItem key={dept.id} dept={dept} pick={pick} />
             ))}
 
             {/* 7. Blog */}
             <li className="py-[11px]">
               <Link
                 href="/blogs"
-                className="relative inline-block text-[16px] xl:text-[17px] font-medium leading-[27px] after:absolute after:inset-x-0 after:-bottom-[2px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 hover:after:scale-x-100"
+                className="relative inline-block text-[16px] xl:text-[17px] font-medium leading-[27px] after:absolute after:inset-x-0 after:-bottom-[3px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 hover:after:scale-x-100"
               >
                 Blog
               </Link>
@@ -266,7 +303,7 @@ export default function Header({ initialTreatments }: HeaderProps) {
             <li className="py-[11px]">
               <ScrollLink
                 href={link("#results")}
-                className="relative inline-block text-[16px] xl:text-[17px] font-medium leading-[27px] after:absolute after:inset-x-0 after:-bottom-[2px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 hover:after:scale-x-100"
+                className="relative inline-block text-[16px] xl:text-[17px] font-medium leading-[27px] after:absolute after:inset-x-0 after:-bottom-[3px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 hover:after:scale-x-100"
               >
                 Gallery
               </ScrollLink>
@@ -276,7 +313,7 @@ export default function Header({ initialTreatments }: HeaderProps) {
             <li className="py-[11px]">
               <ScrollLink
                 href={link("#contact")}
-                className="relative inline-block text-[16px] xl:text-[17px] font-medium leading-[27px] after:absolute after:inset-x-0 after:-bottom-[2px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 hover:after:scale-x-100"
+                className="relative inline-block text-[16px] xl:text-[17px] font-medium leading-[27px] after:absolute after:inset-x-0 after:-bottom-[3px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 hover:after:scale-x-100"
               >
                 Contact Us
               </ScrollLink>

@@ -1,5 +1,7 @@
 import { DeleteCommand, GetCommand, PutCommand, QueryCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
 import { randomUUID } from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
 import {
   isServicePageLive,
   type ServicePage,
@@ -10,7 +12,35 @@ import {
 import { cleanHtml } from "../sanitize";
 import { db } from "../dynamo";
 
-const T = () => process.env.SERVICES_TABLE;
+function getTableName(): string | undefined {
+  if (process.env.SERVICES_TABLE) return process.env.SERVICES_TABLE;
+
+  try {
+    const candidates = [
+      path.join(process.cwd(), "amplify_outputs.json"),
+      path.join(process.cwd(), "apps/web/amplify_outputs.json"),
+    ];
+    for (const p of candidates) {
+      if (fs.existsSync(p)) {
+        const parsed = JSON.parse(fs.readFileSync(p, "utf-8"));
+        if (parsed?.custom?.servicesTable) return parsed.custom.servicesTable;
+      }
+    }
+  } catch {}
+
+  return undefined;
+}
+
+const T = () => getTableName();
+
+export function isServiceItem(item: unknown): item is ServicePage {
+  if (!item || typeof item !== "object") return false;
+  const p = item as Record<string, unknown>;
+  if (p.id === "config-llms-txt") return false;
+  if (typeof p.id === "string" && p.id.startsWith("trt-")) return false;
+  if (p.itemType === "treatment") return false;
+  return Boolean(p.slug || p.serviceCategory);
+}
 
 export class SlugTakenError extends Error {}
 
@@ -740,13 +770,16 @@ export async function getServicePageBySlug(slug: string): Promise<ServicePage | 
         }),
       );
       const items = (r.Items ?? []) as (ServicePage & { itemType?: string })[];
-      const item = items.find((p) => !p.id?.startsWith("trt-") && p.concernsSection);
+      const item = items.find(isServiceItem);
       if (item) return item;
     } catch (err) {
       console.warn("DynamoDB getServicePageBySlug query failed, using fallback:", (err as Error).message);
     }
   }
-  return memoryStore.find((p) => p.slug.toLowerCase() === normSlug);
+  return (
+    memoryStore.find((p) => p.slug.toLowerCase() === normSlug) ||
+    DEFAULT_SERVICE_PAGES.find((p) => p.slug.toLowerCase() === normSlug)
+  );
 }
 
 export async function getServicePage(id: string): Promise<ServicePage | undefined> {
@@ -755,12 +788,12 @@ export async function getServicePage(id: string): Promise<ServicePage | undefine
     try {
       const r = await db().send(new GetCommand({ TableName: tbl, Key: { id } }));
       const item = r.Item as (ServicePage & { itemType?: string }) | undefined;
-      if (item && !item.id?.startsWith("trt-") && item.concernsSection) return item;
+      if (item && isServiceItem(item)) return item;
     } catch (err) {
       console.warn("DynamoDB getServicePage failed, using fallback:", (err as Error).message);
     }
   }
-  return memoryStore.find((p) => p.id === id);
+  return memoryStore.find((p) => p.id === id) || DEFAULT_SERVICE_PAGES.find((p) => p.id === id);
 }
 
 export async function listServicePages(category?: ServiceCategoryId | string): Promise<ServicePage[]> {
@@ -772,29 +805,37 @@ export async function listServicePages(category?: ServiceCategoryId | string): P
       do {
         const r = await db().send(new ScanCommand({ TableName: tbl, ExclusiveStartKey: key }));
         const scanned = (r.Items ?? []) as (ServicePage & { itemType?: string })[];
-        const serviceOnly = scanned.filter((p) => !p.id?.startsWith("trt-") && p.concernsSection);
+        const serviceOnly = scanned.filter(isServiceItem);
         items.push(...serviceOnly);
         key = r.LastEvaluatedKey;
       } while (key);
 
-      if (items.length > 0) {
-        // Sync memoryStore
-        memoryStore = items;
-      } else {
-        // If table is completely empty, seed default pages into DB
-        for (const p of DEFAULT_SERVICE_PAGES) {
+      // Auto-seed any missing default service categories (hair, skin-cosmetic, dermatology, std)
+      const existingSlugs = new Set(items.map((it) => it.slug?.toLowerCase()).filter(Boolean));
+      for (const p of DEFAULT_SERVICE_PAGES) {
+        if (!existingSlugs.has(p.slug.toLowerCase())) {
           try {
             await db().send(new PutCommand({ TableName: tbl, Item: p }));
             items.push(p);
-          } catch {
-            // ignore seed errors
+            existingSlugs.add(p.slug.toLowerCase());
+          } catch (seedErr) {
+            console.warn(`Failed to auto-seed default service ${p.slug}:`, (seedErr as Error).message);
+            items.push(p);
           }
         }
-        if (items.length === 0) items.push(...DEFAULT_SERVICE_PAGES);
-        memoryStore = items;
       }
+
+      memoryStore = items;
     } catch (err) {
       console.warn("DynamoDB listServicePages scan failed, using fallback:", (err as Error).message);
+    }
+  }
+
+  // Ensure all 4 default service pages are in memoryStore if not already present
+  const inMemorySlugs = new Set(memoryStore.map((p) => p.slug?.toLowerCase()).filter(Boolean));
+  for (const p of DEFAULT_SERVICE_PAGES) {
+    if (!inMemorySlugs.has(p.slug.toLowerCase())) {
+      memoryStore.push(p);
     }
   }
 
@@ -842,17 +883,13 @@ export async function createServicePage(rawInput: ServicePageInput): Promise<Ser
 
   const tbl = T();
   if (tbl) {
-    try {
-      await db().send(
-        new PutCommand({
-          TableName: tbl,
-          Item: page,
-          ConditionExpression: "attribute_not_exists(id)",
-        }),
-      );
-    } catch (err) {
-      console.warn("DynamoDB createServicePage failed, saving to memory fallback:", (err as Error).message);
-    }
+    await db().send(
+      new PutCommand({
+        TableName: tbl,
+        Item: page,
+        ConditionExpression: "attribute_not_exists(id)",
+      }),
+    );
   }
 
   // Update memoryStore
@@ -885,11 +922,7 @@ export async function updateServicePage(id: string, rawInput: ServicePageInput):
 
   const tbl = T();
   if (tbl) {
-    try {
-      await db().send(new PutCommand({ TableName: tbl, Item: page }));
-    } catch (err) {
-      console.warn("DynamoDB updateServicePage failed, updating memory fallback:", (err as Error).message);
-    }
+    await db().send(new PutCommand({ TableName: tbl, Item: page }));
   }
 
   const idx = memoryStore.findIndex((p) => p.id === id);
@@ -902,11 +935,7 @@ export async function updateServicePage(id: string, rawInput: ServicePageInput):
 export async function deleteServicePage(id: string): Promise<void> {
   const tbl = T();
   if (tbl) {
-    try {
-      await db().send(new DeleteCommand({ TableName: tbl, Key: { id } }));
-    } catch (err) {
-      console.warn("DynamoDB deleteServicePage failed:", (err as Error).message);
-    }
+    await db().send(new DeleteCommand({ TableName: tbl, Key: { id } }));
   }
   memoryStore = memoryStore.filter((p) => p.id !== id);
 }
