@@ -88,9 +88,9 @@ export default function Appointment({ gapAbove = 31, gapBelow = 23 }: { gapAbove
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Open Dr. Kumar's clinic location in Google Maps"
-          className="block overflow-hidden rounded-[16px] border-4 border-white bg-white shadow-[0_0_4px_rgba(0,0,0,0.25)] lg:h-[438px]"
+          className="block h-[320px] overflow-hidden rounded-[16px] border-4 border-white bg-white shadow-[0_0_4px_rgba(0,0,0,0.25)] sm:h-[380px] lg:h-[438px]"
         >
-          <Image src="/images/map.webp" alt="Map showing Dr. Kumar's Skin & Hair Transplant Center, Kondapur, Hyderabad" width={598} height={438} className="h-full w-full object-cover" />
+          <Image src="/images/map.webp" alt="Map showing Dr. Kumar's Skin & Hair Transplant Center, Kondapur, Hyderabad" width={598} height={438} className="h-full w-full object-cover object-left" />
         </a>
       </div>
     </section>
