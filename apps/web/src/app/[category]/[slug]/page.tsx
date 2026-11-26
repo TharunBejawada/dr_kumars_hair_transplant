@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { permanentRedirect, redirect } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import PublicShell from "@/components/PublicShell";
 import TreatmentHeroCta from "@/components/treatments/TreatmentHeroCta";
@@ -193,15 +192,12 @@ export default async function CategoryTreatmentDetailPage({ params }: Props) {
                   aria-hidden
                 />
                 <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[28px] border-4 border-white bg-gray-100 shadow-xl">
-                  {treatment.image ? (
-                    <Image
-                      src={treatment.image}
+                  {treatment.image && treatment.image.trim().length > 0 ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={treatment.image.trim()}
                       alt={treatment.imageAlt || treatment.title}
-                      fill
-                      priority
-                      unoptimized
-                      className="object-cover object-center"
-                      sizes="(max-width: 1024px) 100vw, 480px"
+                      className="h-full w-full object-cover object-center"
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center text-gray-400">
@@ -284,20 +280,20 @@ export default async function CategoryTreatmentDetailPage({ params }: Props) {
                           href={`/${item.serviceCategory}/${item.slug}`}
                           className="group flex items-center justify-between gap-3 text-gray-700 hover:text-brand transition"
                         >
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            {item.image ? (
-                              <div className="relative size-9 shrink-0 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
-                                <Image
-                                  src={item.image}
+                          <div className="flex items-center gap-3 min-w-0">
+                            {item.image && item.image.trim().length > 0 ? (
+                              <div className="relative size-11 shrink-0 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  src={item.image.trim()}
                                   alt={item.title}
-                                  fill
-                                  className="object-cover"
-                                  sizes="36px"
+                                  className="h-full w-full object-cover"
+                                  loading="lazy"
                                 />
                               </div>
                             ) : (
-                              <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-teal-50 text-brand">
-                                <FaNotesMedical className="size-3.5" />
+                              <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-teal-50 text-brand">
+                                <FaNotesMedical className="size-4" />
                               </div>
                             )}
                             <div className="min-w-0">
