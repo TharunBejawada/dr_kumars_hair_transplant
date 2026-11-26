@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { FaChevronDown, FaChevronRight, FaPhone } from "react-icons/fa6";
 import { clinic } from "@/lib/content";
-import { NAV_DEPARTMENTS, type NavDepartmentMenu } from "@/lib/nav-treatments";
+import { NAV_DEPARTMENTS, cleanTreatmentName, type NavDepartmentMenu } from "@/lib/nav-treatments";
 import ScrollLink from "./ScrollLink";
 
 interface HeaderProps {
@@ -19,7 +19,7 @@ function buildDepartments(
   return NAV_DEPARTMENTS.map((dept) => {
     const items = (dbTreatments || [])
       .filter((t) => t.serviceCategory === dept.id)
-      .map((t) => ({ name: t.title, href: `/${t.serviceCategory}/${t.slug}` }));
+      .map((t) => ({ name: cleanTreatmentName(t.title), href: `/${t.serviceCategory}/${t.slug}` }));
     return { ...dept, treatments: items };
   });
 }

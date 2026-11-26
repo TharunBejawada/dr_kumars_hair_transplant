@@ -5,6 +5,7 @@ import { gsap } from "gsap";
 import { FaArrowRight } from "react-icons/fa6";
 import { treatmentTabs, type TreatmentTab } from "@/lib/content";
 import { isTreatmentLive, type Treatment } from "@drkumar/shared";
+import { cleanTreatmentName } from "@/lib/nav-treatments";
 
 const tabs = Object.keys(treatmentTabs) as TreatmentTab[];
 
@@ -69,7 +70,7 @@ export default function Treatments({ dynamicTreatments }: TreatmentsProps) {
   const dynamicForCategory = allTreatments
     .filter((t) => t.serviceCategory === currentCategory && isTreatmentLive(t))
     .map((t) => ({
-      name: t.title,
+      name: cleanTreatmentName(t.title),
       image: t.image,
       href: `/${t.serviceCategory}/${t.slug}`,
     }));
