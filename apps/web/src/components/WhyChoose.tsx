@@ -8,16 +8,14 @@ export default function WhyChoose() {
         At Dr. Kumar&apos;s Skin &amp; Hair Transplant Center, our approach combines medical knowledge, individual attention, and clear communication to support informed treatment decisions.
       </p>
       <ul data-stagger className="mt-[33px] grid gap-x-[33px] gap-y-[22px] text-left md:grid-cols-2 xl:w-[1209px]">
-        {whyChoose.map((w, i) => (
+        {whyChoose.map((w) => (
           <li
             key={w.title}
             data-reveal="up"
-            className={`h-auto md:h-[132px] rounded-[8px] border px-[40px] py-[25px] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(11,147,136,0.2)] ${
-              i === 0 ? "border-brand-3 bg-brand-3 text-white" : "border-brand bg-white"
-            }`}
+            className="group h-auto rounded-[8px] border border-brand bg-white px-[40px] py-[25px] transition-all duration-300 hover:-translate-y-1 hover:border-brand-3 hover:bg-brand-3 hover:text-white hover:shadow-[0_10px_25px_rgba(11,147,136,0.2)] md:h-[132px]"
           >
-            <h3 className={`text-[18px] font-semibold leading-[28px] ${i === 0 ? "text-white" : "text-brand"}`}>{w.title}</h3>
-            <p className="mt-[3px] max-w-[492px] text-[16px] leading-[25px]">{w.text}</p>
+            <h3 className="text-[18px] font-semibold leading-[28px] text-brand transition-colors duration-300 group-hover:text-white">{w.title}</h3>
+            <p className="mt-[3px] max-w-[492px] text-[16px] leading-[25px] transition-colors duration-300 group-hover:text-white">{w.text}</p>
           </li>
         ))}
       </ul>
