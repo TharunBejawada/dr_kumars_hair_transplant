@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { FaRegCalendarCheck } from "react-icons/fa6";
 import { type ServiceDoctorSection } from "@drkumar/shared";
 
@@ -40,17 +39,15 @@ export default function ServiceDoctorSectionView({ section }: Props) {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-          {/* Left Column: Doctor Portrait Card */}
+          {/* Left Column: Doctor Portrait */}
           <div className="lg:col-span-5 flex justify-center">
-            <div className="relative w-full max-w-[440px] aspect-square rounded-2xl md:rounded-3xl overflow-hidden bg-white shadow-xs">
-              <Image
+            <div className="relative w-full max-w-[440px] flex justify-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src={section.image || "/images/doctor-specialist.webp"}
                 alt={section.imageAlt || section.name || "Dr. Ashok Kumar"}
-                fill
-                priority
-                unoptimized
-                sizes="(max-width: 1024px) 100vw, 42vw"
-                className="object-contain object-center rounded-2xl md:rounded-3xl"
+                className="w-full h-auto object-contain"
+                loading="lazy"
               />
             </div>
           </div>

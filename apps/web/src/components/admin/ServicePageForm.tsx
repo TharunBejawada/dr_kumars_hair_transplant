@@ -2185,11 +2185,12 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
                   )}
 
                   <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
-                    {/* Left Doctor Card Photo */}
+                    {/* Left Doctor Photo */}
                     {doctorImage && (
                       <div className="sm:col-span-5 flex justify-center">
-                        <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-white shadow-2xs">
-                          <Image src={doctorImage} alt="Doctor" fill className="object-contain object-center rounded-xl" sizes="150px" />
+                        <div className="relative w-full max-w-[180px] flex justify-center">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={doctorImage} alt="Doctor" className="w-full h-auto object-contain" />
                         </div>
                       </div>
                     )}
