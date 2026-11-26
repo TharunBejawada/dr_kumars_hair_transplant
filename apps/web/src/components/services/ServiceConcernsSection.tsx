@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { type ServiceConcernsSection } from "@drkumar/shared";
 
 export default function ServiceConcernsSectionView({
@@ -55,12 +54,12 @@ export default function ServiceConcernsSectionView({
                   <div key={item.id || item.title} className="group flex flex-col items-center text-center">
                     <div className="relative size-20 sm:size-24 rounded-full overflow-hidden border-2 border-teal-100 bg-[#eef8f7] shadow-sm transition-all duration-300 group-hover:scale-105 group-hover:border-brand group-hover:shadow-md">
                       {item.image ? (
-                        <Image
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
                           src={item.image}
                           alt={item.title}
-                          fill
-                          className="object-cover object-center transition-transform duration-500 group-hover:scale-110"
-                          sizes="96px"
+                          className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-110"
+                          loading="lazy"
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center text-[11px] text-brand font-semibold px-2">
@@ -84,12 +83,12 @@ export default function ServiceConcernsSectionView({
                 {/* Top Card Image */}
                 {sideCard?.image && (
                   <div className="relative w-full h-52 sm:h-60 rounded-2xl overflow-hidden bg-white shadow-inner mb-5">
-                    <Image
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
                       src={sideCard.image}
                       alt="Consultation Specialist"
-                      fill
-                      className="object-cover object-top"
-                      sizes="(max-width: 1024px) 100vw, 420px"
+                      className="h-full w-full object-cover object-top"
+                      loading="lazy"
                     />
                   </div>
                 )}

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -187,6 +186,8 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
   async function onHeroFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (!f) return;
+    const localPreview = URL.createObjectURL(f);
+    setImage(localPreview);
     setUploadingHero(true);
     try {
       const publicPath = await uploadImage(f);
@@ -204,6 +205,8 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
   async function onSideCardFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (!f) return;
+    const localPreview = URL.createObjectURL(f);
+    setSideCardImage(localPreview);
     setUploadingSide(true);
     try {
       const publicPath = await uploadImage(f);
@@ -221,6 +224,12 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
   async function onConcernItemFileSelected(idx: number, e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (!f) return;
+    const localPreview = URL.createObjectURL(f);
+    setConcernItems((prev) => {
+      const copy = [...prev];
+      copy[idx] = { ...copy[idx], image: localPreview };
+      return copy;
+    });
     setUploadingItemIdx(idx);
     try {
       const publicPath = await uploadImage(f);
@@ -307,6 +316,8 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
   async function onTreatmentFileSelected(idx: number, e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (!f) return;
+    const localPreview = URL.createObjectURL(f);
+    updateTreatmentCard(idx, { image: localPreview });
     setUploadingTreatmentIdx(idx);
     try {
       const publicPath = await uploadImage(f);
@@ -349,6 +360,8 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
   async function onAssessmentImageSelected(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (!f) return;
+    const localPreview = URL.createObjectURL(f);
+    setAssessmentImage(localPreview);
     setUploadingAssessmentImage(true);
     try {
       const publicPath = await uploadImage(f);
@@ -366,6 +379,8 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
   async function onDoctorImageSelected(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (!f) return;
+    const localPreview = URL.createObjectURL(f);
+    setDoctorImage(localPreview);
     setUploadingDoctorImage(true);
     try {
       const publicPath = await uploadImage(f);
@@ -726,7 +741,8 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
               <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
                 <div className="relative h-28 w-44 shrink-0 overflow-hidden rounded-lg border-2 border-dashed border-gray-300 bg-white flex items-center justify-center">
                   {image ? (
-                    <Image src={image} alt="Preview" fill className="object-cover" sizes="176px" />
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={image} alt="Preview" className="h-full w-full object-cover" />
                   ) : (
                     <span className="text-[12px] text-gray-400">No Image</span>
                   )}
@@ -872,7 +888,8 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
                     {/* Circle Image preview & picker */}
                     <div className="relative size-14 shrink-0 rounded-full overflow-hidden border border-gray-300 bg-white shadow-sm flex items-center justify-center">
                       {item.image ? (
-                        <Image src={item.image} alt={item.title} fill className="object-cover" sizes="56px" />
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
                       ) : (
                         <span className="text-[10px] text-gray-400">No img</span>
                       )}
@@ -938,9 +955,10 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
 
               <div className="space-y-3 rounded-lg bg-teal-50/50 p-3.5 border border-teal-100">
                 <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-                  <div className="relative h-20 w-32 shrink-0 rounded-lg overflow-hidden border border-teal-200 bg-white">
+                  <div className="relative h-20 w-32 shrink-0 rounded-lg overflow-hidden border border-teal-200 bg-white flex items-center justify-center">
                     {sideCardImage ? (
-                      <Image src={sideCardImage} alt="Card image" fill className="object-cover object-top" sizes="128px" />
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={sideCardImage} alt="Card image" className="h-full w-full object-cover object-top" />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-[10px] text-gray-400">
                         No image
@@ -1125,7 +1143,8 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
                       {/* Image Thumbnail & Upload */}
                       <div className="relative aspect-[16/10] w-28 shrink-0 rounded-lg overflow-hidden border border-gray-300 bg-white shadow-2xs">
                         {item.image ? (
-                          <Image src={item.image} alt={item.title} fill className="object-cover" sizes="112px" />
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center text-[10px] text-gray-400">
                             No image
@@ -1328,7 +1347,8 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
                 <div className="mt-2 flex items-center gap-4">
                   <div className="relative aspect-[4/3.8] w-24 shrink-0 rounded-xl overflow-hidden border border-gray-300 bg-white shadow-2xs">
                     {assessmentImage ? (
-                      <Image src={assessmentImage} alt="Assessment" fill className="object-cover" sizes="96px" />
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={assessmentImage} alt="Assessment" className="h-full w-full object-cover" />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-[11px] text-gray-400">
                         No image
@@ -1576,7 +1596,8 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
                 <div className="mt-2 flex items-center gap-4">
                   <div className="relative aspect-[4/4] w-24 shrink-0 rounded-xl overflow-hidden border border-gray-300 bg-white shadow-2xs">
                     {doctorImage ? (
-                      <Image src={doctorImage} alt="Doctor" fill className="object-contain object-bottom" sizes="96px" />
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={doctorImage} alt="Doctor" className="h-full w-full object-contain object-bottom" />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-[11px] text-gray-400">
                         No image
@@ -1922,13 +1943,11 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
                   {/* Background Image Layer */}
                   {image && (
                     <div className="absolute inset-0 z-0">
-                      <Image
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
                         src={image}
                         alt="Preview"
-                        fill
-                        unoptimized
-                        className="object-cover object-right"
-                        sizes="420px"
+                        className="h-full w-full object-cover object-right"
                       />
                     </div>
                   )}
@@ -1989,9 +2008,10 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
                     <div className="grid grid-cols-4 gap-2 pt-1">
                       {concernItems.slice(0, 8).map((item) => (
                         <div key={item.id} className="flex flex-col items-center text-center">
-                          <div className="relative size-12 rounded-full overflow-hidden border border-teal-200 bg-teal-50 shadow-xs">
+                          <div className="relative size-12 rounded-full overflow-hidden border border-teal-200 bg-teal-50 shadow-xs flex items-center justify-center">
                             {item.image ? (
-                              <Image src={item.image} alt={item.title} fill className="object-cover" sizes="48px" />
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
                             ) : (
                               <div className="w-full h-full bg-teal-100/50 flex items-center justify-center text-[9px] text-teal-600">●</div>
                             )}
@@ -2012,8 +2032,9 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
                   {(sideCardText1 || sideCardText2 || sideCardImage) && (
                     <div className="rounded-xl bg-[#ecfaf7] border border-[#cbece6] p-3.5 space-y-2 mt-3">
                       {sideCardImage && (
-                        <div className="relative w-full h-28 rounded-lg overflow-hidden bg-white shadow-inner">
-                          <Image src={sideCardImage} alt="Specialist" fill className="object-cover object-top" sizes="300px" />
+                        <div className="relative w-full h-28 rounded-lg overflow-hidden bg-white shadow-inner flex items-center justify-center">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={sideCardImage} alt="Specialist" className="h-full w-full object-cover object-top" />
                         </div>
                       )}
                       {sideCardText1 && <p className="text-[11.5px] text-gray-700 line-clamp-2">{sideCardText1}</p>}
@@ -2063,9 +2084,10 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
                           key={item.id}
                           className="flex flex-col overflow-hidden rounded-xl border border-teal-200/60 bg-white shadow-2xs"
                         >
-                          <div className="relative aspect-[16/10] w-full bg-gray-50 overflow-hidden">
+                          <div className="relative aspect-[16/10] w-full bg-gray-50 overflow-hidden flex items-center justify-center">
                             {item.image && (
-                              <Image src={item.image} alt={item.title} fill className="object-cover" sizes="120px" />
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
                             )}
                           </div>
                           <div className="p-2 flex flex-1 flex-col justify-between">
@@ -2113,8 +2135,9 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
                     {/* Left Scalp Image */}
                     {assessmentImage && (
                       <div className="sm:col-span-5 flex justify-center">
-                        <div className="relative w-full aspect-[4/3.8] rounded-xl overflow-hidden border border-white shadow-xs bg-white">
-                          <Image src={assessmentImage} alt="Assessment" fill className="object-cover" sizes="150px" />
+                        <div className="relative w-full aspect-[4/3.8] rounded-xl overflow-hidden border border-white shadow-xs bg-white flex items-center justify-center">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={assessmentImage} alt="Assessment" className="h-full w-full object-cover" />
                         </div>
                       </div>
                     )}
