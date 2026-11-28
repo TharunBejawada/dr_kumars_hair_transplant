@@ -7,6 +7,7 @@ import {
   type ServicePage,
   type ServicePageInput,
   type ServiceCategoryId,
+  type ServiceContentSection,
   serviceCategories,
 } from "@drkumar/shared";
 import { cleanHtml } from "../sanitize";
@@ -122,6 +123,14 @@ export async function listLiveServicePages(category?: ServiceCategoryId | string
 }
 
 function sanitizeServicePageInput(input: ServicePageInput): ServicePageInput {
+  const sanitizedContentSections: ServiceContentSection[] = (input.contentSections ?? [])
+    .map((s) => ({
+      id: s.id || `sec-${randomUUID().slice(0, 8)}`,
+      title: (s.title ?? "").trim(),
+      description: cleanHtml(s.description ?? ""),
+    }))
+    .filter((s) => s.title.length > 0 || s.description.length > 0);
+
   return {
     ...input,
     concernsSection: input.concernsSection
@@ -133,6 +142,7 @@ function sanitizeServicePageInput(input: ServicePageInput): ServicePageInput {
     assessmentSection: input.assessmentSection
       ? { ...input.assessmentSection, description: cleanHtml(input.assessmentSection.description) }
       : undefined,
+    contentSections: sanitizedContentSections,
   };
 }
 

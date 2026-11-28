@@ -255,6 +255,14 @@ export const serviceDoctorSectionSchema = z.object({
 });
 export type ServiceDoctorSection = z.infer<typeof serviceDoctorSectionSchema>;
 
+/* ──── Clinical / Rich Text Content Sections for Services (Above FAQs) ──── */
+export const serviceContentSectionSchema = z.object({
+  id: z.string().default(() => Math.random().toString(36).slice(2, 9)),
+  title: z.string().trim().max(300).default(""),
+  description: z.string().max(200_000).default(""), // Rich text HTML content
+});
+export type ServiceContentSection = z.infer<typeof serviceContentSectionSchema>;
+
 /* ──── Section 6: Frequently Asked Questions (FAQ) ──── */
 export const serviceFaqItemSchema = z.object({
   id: z.string().default(() => Math.random().toString(36).slice(2, 9)),
@@ -303,6 +311,9 @@ export const servicePageInputSchema = z.object({
 
   /* Section 5: Specialist / Doctor Profile */
   doctorSection: serviceDoctorSectionSchema.optional(),
+
+  /* Dynamic Rich-Text Content Sections (Above FAQs) */
+  contentSections: z.array(serviceContentSectionSchema).optional().default([]),
 
   /* Section 6: Frequently Asked Questions */
   faqSection: serviceFaqSectionSchema.optional(),

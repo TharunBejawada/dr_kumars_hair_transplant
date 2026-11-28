@@ -7,6 +7,7 @@ import ServiceConcernsSectionView from "@/components/services/ServiceConcernsSec
 import ServiceTreatmentsSectionView from "@/components/services/ServiceTreatmentsSection";
 import ServiceAssessmentSectionView from "@/components/services/ServiceAssessmentSection";
 import ServiceDoctorSectionView from "@/components/services/ServiceDoctorSection";
+import ServiceContentSectionsView from "@/components/services/ServiceContentSections";
 import ServiceFaqSectionView from "@/components/services/ServiceFaqSection";
 import Appointment from "@/components/Appointment";
 import { getServicePageBySlug } from "@/lib/db/services";
@@ -158,6 +159,11 @@ export default async function CategoryDepartmentPage({ params }: Props) {
       {/* Section 5: Specialist / Doctor Profile */}
       {page.doctorSection && (
         <ServiceDoctorSectionView section={page.doctorSection} />
+      )}
+
+      {/* Dynamic Content Sections (Above FAQs) */}
+      {page.contentSections && page.contentSections.length > 0 && (
+        <ServiceContentSectionsView sections={page.contentSections} />
       )}
 
       {/* Section 6: Frequently Asked Questions (FAQ) */}

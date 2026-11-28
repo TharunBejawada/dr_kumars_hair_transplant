@@ -8,6 +8,8 @@ import {
   FaCloudArrowUp,
   FaEye,
   FaArrowLeft,
+  FaArrowUp,
+  FaArrowDown,
   FaPlus,
   FaTrash,
   FaLayerGroup,
@@ -26,6 +28,7 @@ import {
   type FactorItem,
   type ServiceAssessmentSection,
   type ServiceDoctorSection,
+  type ServiceContentSection,
   type ServiceFaqItem,
   type ServiceFaqSection,
 } from "@drkumar/shared";
@@ -143,13 +146,16 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
   const [doctorCtaLink, setDoctorCtaLink] = useState(initDoctor?.ctaLink ?? "");
   const [uploadingDoctorImage, setUploadingDoctorImage] = useState(false);
 
+  // Dynamic Content Sections (Above FAQs) Fields
+  const [contentSections, setContentSections] = useState<ServiceContentSection[]>(page?.contentSections ?? []);
+
   // Section 6: Frequently Asked Questions (FAQ) Fields
   const initFaq = page?.faqSection;
   const [faqHeading, setFaqHeading] = useState(initFaq?.heading ?? "");
   const [faqItems, setFaqItems] = useState<ServiceFaqItem[]>(initFaq?.items ?? []);
 
   // Preview tab selection
-  const [previewTab, setPreviewTab] = useState<"section1" | "section2" | "section3" | "section4" | "section5" | "section6" | "full">("full");
+  const [previewTab, setPreviewTab] = useState<"section1" | "section2" | "section3" | "section4" | "section5" | "content" | "section6" | "full">("full");
   const [previewOpenFaq, setPreviewOpenFaq] = useState<string | null>(null); // Initially all questions closed
 
   // Publishing & SEO
@@ -395,6 +401,46 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
     }
   }
 
+  // Dynamic Content Sections Handlers (Above FAQs)
+  function addContentSection() {
+    setContentSections((prev) => [
+      ...prev,
+      {
+        id: "sec_" + Math.random().toString(36).slice(2, 7),
+        title: "",
+        description: "",
+      },
+    ]);
+    setDirty(true);
+  }
+
+  function removeContentSection(idx: number) {
+    setContentSections((prev) => prev.filter((_, i) => i !== idx));
+    setDirty(true);
+  }
+
+  function updateContentSection(idx: number, patch: Partial<ServiceContentSection>) {
+    setContentSections((prev) => {
+      const copy = [...prev];
+      copy[idx] = { ...copy[idx], ...patch };
+      return copy;
+    });
+    setDirty(true);
+  }
+
+  function moveContentSection(idx: number, dir: -1 | 1) {
+    setContentSections((prev) => {
+      const target = idx + dir;
+      if (target < 0 || target >= prev.length) return prev;
+      const copy = [...prev];
+      const temp = copy[idx];
+      copy[idx] = copy[target];
+      copy[target] = temp;
+      return copy;
+    });
+    setDirty(true);
+  }
+
   // Section 6: FAQ Handlers
   function addFaqItem() {
     setFaqItems((prev) => [
@@ -505,6 +551,14 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
         }
       : undefined;
 
+    const validContentSections = contentSections
+      .map((s) => ({
+        id: s.id || "sec_" + Math.random().toString(36).slice(2, 7),
+        title: s.title.trim(),
+        description: s.description.trim(),
+      }))
+      .filter((s) => s.title.length > 0 || s.description.length > 0);
+
     const validFaqs = faqItems.filter((f) => f.question.trim().length > 0 && f.answer.trim().length > 0);
     const hasFaqData = faqHeading.trim().length > 0 || validFaqs.length > 0;
     const faqSection: ServiceFaqSection | undefined = hasFaqData
@@ -531,6 +585,7 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
       ...(treatmentsSection ? { treatmentsSection } : {}),
       ...(assessmentSection ? { assessmentSection } : {}),
       ...(doctorSection ? { doctorSection } : {}),
+      contentSections: validContentSections,
       ...(faqSection ? { faqSection } : {}),
       sections: page?.sections ?? {},
     };
@@ -1701,6 +1756,137 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
             </div>
           </section>
 
+          {/* Dynamic Content Sections (Above FAQs) */}
+          <section className="rounded-xl bg-white p-5 shadow-sm border border-gray-200">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-3 mb-4">
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2 py-0.5 rounded">
+                  Content Sections (Above FAQs)
+                </span>
+                <h2 className="text-[17px] font-bold text-gray-900 mt-1">
+                  Additional Content Sections
+                </h2>
+                <p className="text-[12.5px] text-gray-500">
+                  Rich text sections with custom titles and formatting placed directly above FAQs.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={addContentSection}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-brand px-3.5 py-1.5 text-[12.5px] font-semibold text-white hover:bg-brand-2 transition shadow-xs cursor-pointer"
+              >
+                <FaPlus className="size-3" />
+                <span>Add Section</span>
+              </button>
+            </div>
+
+            {contentSections.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50/60 p-8 text-center">
+                <span className="inline-flex size-10 items-center justify-center rounded-full bg-gray-100 text-gray-400 mb-2">
+                  <FaLayerGroup className="size-5" />
+                </span>
+                <p className="text-[13.5px] font-medium text-gray-700">No content sections added yet</p>
+                <p className="text-[12px] text-gray-500 max-w-sm mx-auto mt-1 mb-4">
+                  Add custom rich-text sections such as Clinical Insights, Treatment Methodology, or Care Guidelines.
+                </p>
+                <button
+                  type="button"
+                  onClick={addContentSection}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-brand px-4 py-2 text-[12.5px] font-semibold text-white hover:bg-brand-2 transition shadow-xs cursor-pointer"
+                >
+                  <FaPlus className="size-3" />
+                  <span>Add First Section</span>
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {contentSections.map((sec, idx) => (
+                  <div
+                    key={sec.id || idx}
+                    className="rounded-xl border border-gray-200 bg-gray-50/50 p-4 transition-all hover:border-gray-300"
+                  >
+                    {/* Header */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 mb-3 pb-2 border-b border-gray-200/80">
+                      <div className="flex items-center gap-2">
+                        <span className="size-6 rounded-full bg-brand text-white flex items-center justify-center text-[11px] font-bold">
+                          {idx + 1}
+                        </span>
+                        <span className="text-[13px] font-bold text-gray-800">
+                          {sec.title ? sec.title : `Section ${idx + 1}`}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => moveContentSection(idx, -1)}
+                          disabled={idx === 0}
+                          title="Move up"
+                          className="size-7 rounded border border-gray-200 bg-white text-gray-600 flex items-center justify-center hover:bg-gray-100 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed text-[11px]"
+                        >
+                          <FaArrowUp className="size-3" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveContentSection(idx, 1)}
+                          disabled={idx === contentSections.length - 1}
+                          title="Move down"
+                          className="size-7 rounded border border-gray-200 bg-white text-gray-600 flex items-center justify-center hover:bg-gray-100 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed text-[11px]"
+                        >
+                          <FaArrowDown className="size-3" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeContentSection(idx)}
+                          title="Remove section"
+                          className="size-7 rounded border border-red-200 bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-100 transition cursor-pointer text-[11px] ml-1"
+                        >
+                          <FaTrash className="size-3" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Title */}
+                    <div className="mb-3">
+                      <label className="block text-[12px] font-semibold text-gray-700 mb-1">
+                        Section Title
+                      </label>
+                      <input
+                        type="text"
+                        value={sec.title}
+                        onChange={(e) => updateContentSection(idx, { title: e.target.value })}
+                        placeholder="e.g. Clinical Examination & Procedure Methodology"
+                        className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[13.5px] font-semibold outline-none focus:border-brand"
+                      />
+                    </div>
+
+                    {/* Rich Text Editor */}
+                    <div>
+                      <label className="block text-[12px] font-semibold text-gray-700 mb-1">
+                        Section Description (Rich Text)
+                      </label>
+                      <RichTextEditor
+                        value={sec.description}
+                        onChange={(html) => updateContentSection(idx, { description: html })}
+                        minHeight={150}
+                      />
+                    </div>
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={addContentSection}
+                  className="w-full rounded-xl border border-dashed border-teal-300 bg-teal-50/50 py-3 text-[13px] font-semibold text-brand hover:bg-teal-100/70 transition flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <FaPlus className="size-3.5" />
+                  <span>Add Another Content Section</span>
+                </button>
+              </div>
+            )}
+          </section>
+
           {/* Section 6: Frequently Asked Questions (FAQ) */}
           <section className="rounded-xl bg-white p-5 shadow-sm border border-gray-200">
             <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
@@ -1876,7 +2062,7 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
             </div>
 
             {/* Preview Section Switcher Tabs */}
-            <div className="grid grid-cols-4 sm:grid-cols-7 gap-1 mb-3 rounded-lg bg-gray-100 p-1">
+            <div className="grid grid-cols-4 sm:grid-cols-8 gap-1 mb-3 rounded-lg bg-gray-100 p-1">
               <button
                 type="button"
                 onClick={() => setPreviewTab("full")}
@@ -1924,6 +2110,14 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
                   }`}
               >
                 Specialist
+              </button>
+              <button
+                type="button"
+                onClick={() => setPreviewTab("content")}
+                className={`rounded py-1 text-[11px] font-bold transition ${previewTab === "content" ? "bg-white text-brand shadow-xs" : "text-gray-600 hover:text-gray-900"
+                  }`}
+              >
+                Content
               </button>
               <button
                 type="button"
@@ -2255,6 +2449,44 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
                 </div>
               )}
 
+              {/* CONTENT SECTIONS LIVE PREVIEW */}
+              {(previewTab === "content" || previewTab === "full") && (
+                <div className="p-4 sm:p-5 bg-white space-y-3.5 border-t border-gray-100">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-teal-700 bg-teal-100/60 px-2 py-0.5 rounded w-fit block">
+                    Content Sections (Above FAQs)
+                  </span>
+
+                  {contentSections.length > 0 ? (
+                    <div className="space-y-3 pt-1">
+                      {contentSections.map((sec, idx) => (
+                        <div
+                          key={sec.id || idx}
+                          className="rounded-xl border border-teal-100/70 bg-gradient-to-b from-[#f9fdfc] to-white p-3 shadow-2xs space-y-1.5"
+                        >
+                          {sec.title && (
+                            <h5 className="text-[12.5px] font-bold text-gray-900 border-b border-teal-100/80 pb-1">
+                              {sec.title}
+                            </h5>
+                          )}
+                          {sec.description ? (
+                            <div
+                              className="blog-content text-[11px] text-gray-700 leading-relaxed max-h-36 overflow-y-auto"
+                              dangerouslySetInnerHTML={{ __html: sec.description }}
+                            />
+                          ) : (
+                            <p className="text-[10px] text-gray-400 italic">No description content</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-[10px] text-gray-400 italic py-2 text-center border border-dashed border-gray-200 rounded-lg">
+                      No additional content sections added
+                    </p>
+                  )}
+                </div>
+              )}
+
               {/* SECTION 6 LIVE PREVIEW */}
               {(previewTab === "section6" || previewTab === "full") && (
                 <div className="p-4 sm:p-5 bg-[#f0faf9] space-y-3 border-t border-teal-100">
@@ -2317,7 +2549,7 @@ export default function ServicePageForm({ page }: { page?: ServicePage }) {
             </div>
 
             <div className="mt-4 rounded-lg bg-teal-50/70 p-3 text-[12px] text-teal-900 border border-teal-100">
-              <p className="font-semibold">✨ Sections 1, 2, 3, 4, 5 &amp; 6 integrated:</p>
+              <p className="font-semibold">✨ Sections 1, 2, 3, 4, 5, Content Sections &amp; FAQs integrated:</p>
               <p className="mt-0.5 text-teal-800">
                 Any changes made on the left form update this real-time preview and public pages immediately.
               </p>
