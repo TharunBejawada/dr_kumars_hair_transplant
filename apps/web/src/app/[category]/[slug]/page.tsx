@@ -267,6 +267,8 @@ export default async function CategoryTreatmentDetailPage({ params }: Props) {
                     <span>Other {catObj?.label} Treatments</span>
                     <Link
                       href={departmentHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="text-[12px] font-semibold text-brand hover:underline"
                     >
                       View All
@@ -278,6 +280,8 @@ export default async function CategoryTreatmentDetailPage({ params }: Props) {
                       <li key={item.id} className="py-2.5 first:pt-1 last:pb-0">
                         <Link
                           href={`/${item.serviceCategory}/${item.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="group flex items-center justify-between gap-3 text-gray-700 hover:text-brand transition"
                         >
                           <div className="flex items-center gap-3 min-w-0">

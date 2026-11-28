@@ -129,7 +129,13 @@ export default function Treatments({ dynamicTreatments }: TreatmentsProps) {
       <ul ref={gridRef} data-stagger className="mt-[36px] flex flex-wrap justify-center gap-x-5 gap-y-10 lg:justify-between">
         {displayItems.map((item, i) => (
           <li key={`${active}-${item.name}`} data-reveal="up" className="group w-[215px] text-center">
-            <a href={item.href} className="relative block h-[307px] w-[215px] cursor-pointer" aria-label={`Explore ${item.name}`}>
+            <a
+              href={item.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative block h-[307px] w-[215px] cursor-pointer"
+              aria-label={`Explore ${item.name}`}
+            >
               {item.image ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -158,6 +164,8 @@ export default function Treatments({ dynamicTreatments }: TreatmentsProps) {
       <div className="mt-[39px] text-center">
         <a
           href={tabToSlug[active] || "#contact"}
+          target={tabToSlug[active] ? "_blank" : undefined}
+          rel={tabToSlug[active] ? "noopener noreferrer" : undefined}
           data-reveal="up"
           className="inline-flex h-[40px] items-center justify-center rounded-[5px] bg-brand-2 px-[28px] text-[18px] font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand hover:shadow-lg"
         >

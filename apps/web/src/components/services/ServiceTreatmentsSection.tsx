@@ -94,7 +94,7 @@ export default function ServiceTreatmentsSectionView({
                 <div>
                   <h3 className="text-[15px] sm:text-[16px] font-bold text-brand leading-snug group-hover:text-brand-2 transition-colors">
                     {item.ctaLink && item.ctaLink.startsWith("/") ? (
-                      <Link href={item.ctaLink}>{item.title}</Link>
+                      <Link href={item.ctaLink} target="_blank" rel="noopener noreferrer">{item.title}</Link>
                     ) : (
                       item.title
                     )}
@@ -111,6 +111,8 @@ export default function ServiceTreatmentsSectionView({
                   {item.ctaLink && item.ctaLink.startsWith("/") ? (
                     <Link
                       href={item.ctaLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="inline-flex items-center justify-center rounded-lg bg-brand px-4 py-2 text-[12.5px] font-semibold text-white shadow-xs transition hover:bg-brand-2 hover:shadow-sm"
                     >
                       {item.ctaText || "Know More"}

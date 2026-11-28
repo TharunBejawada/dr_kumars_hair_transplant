@@ -42,6 +42,8 @@ function DepartmentColumn({ dept, gap }: { dept: NavDepartmentMenu; gap?: number
     <div style={{ marginTop: gap ?? 0 }}>
       <Link
         href={dept.departmentHref}
+        target="_blank"
+        rel="noopener noreferrer"
         className="group inline-flex items-center gap-2 hover:text-teal-200 transition-colors"
       >
         <h3 className="text-[24px] font-semibold leading-[37px] group-hover:underline">
@@ -54,6 +56,8 @@ function DepartmentColumn({ dept, gap }: { dept: NavDepartmentMenu; gap?: number
             <li key={t.href} className="flex gap-[10px] before:content-['•'] before:text-[14px]">
               <Link
                 href={t.href}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="hover:underline hover:text-teal-200 transition-colors line-clamp-1"
               >
                 {t.name}
@@ -64,6 +68,8 @@ function DepartmentColumn({ dept, gap }: { dept: NavDepartmentMenu; gap?: number
           <li className="flex gap-[10px] before:content-['•'] before:text-[14px]">
             <Link
               href={dept.departmentHref}
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-white/80 hover:underline hover:text-teal-200 transition-colors text-[16px]"
             >
               Explore {dept.label} Treatments →

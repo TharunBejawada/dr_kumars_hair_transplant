@@ -62,6 +62,8 @@ function DepartmentNavItem({
       <div className="flex items-center gap-1.5 cursor-pointer">
         <Link
           href={dept.departmentHref}
+          target="_blank"
+          rel="noopener noreferrer"
           onClick={() => pick(dept.tab)}
           className="relative inline-block text-[16px] xl:text-[17px] font-medium leading-[27px] after:absolute after:inset-x-0 after:-bottom-[3px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 group-hover:after:scale-x-100"
         >
@@ -91,6 +93,8 @@ function DepartmentNavItem({
                   <li key={t.href}>
                     <Link
                       href={t.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="block px-4 py-2.5 text-[14px] font-normal text-white hover:bg-black/25 hover:text-teal-200 transition-colors leading-snug"
                     >
                       {t.name}
@@ -101,6 +105,8 @@ function DepartmentNavItem({
               <div className="border-t border-white/20 bg-black/30 shrink-0">
                 <Link
                   href={dept.departmentHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   onClick={() => pick(dept.tab)}
                   className="flex items-center justify-between px-4 py-2.5 text-[12.5px] font-semibold text-teal-300 hover:text-white transition-colors"
                 >
@@ -114,6 +120,8 @@ function DepartmentNavItem({
               <li>
                 <Link
                   href={dept.departmentHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   onClick={() => pick(dept.tab)}
                   className="flex items-center justify-between px-4 py-3 text-[13.5px] font-medium text-white/95 hover:bg-black/20 hover:text-teal-200 transition-colors"
                 >
@@ -278,6 +286,8 @@ export default function Header({ initialTreatments }: HeaderProps) {
             <li className="py-[11px]">
               <Link
                 href="/about"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="relative inline-block text-[16px] xl:text-[17px] font-medium leading-[27px] after:absolute after:inset-x-0 after:-bottom-[3px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 hover:after:scale-x-100"
               >
                 About Us
@@ -293,6 +303,8 @@ export default function Header({ initialTreatments }: HeaderProps) {
             <li className="py-[11px]">
               <Link
                 href="/blogs"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="relative inline-block text-[16px] xl:text-[17px] font-medium leading-[27px] after:absolute after:inset-x-0 after:-bottom-[3px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 hover:after:scale-x-100"
               >
                 Blog
@@ -341,6 +353,8 @@ export default function Header({ initialTreatments }: HeaderProps) {
             <li>
               <Link
                 href="/about"
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={() => setOpen(false)}
                 className="block py-2.5 text-[16px] font-medium text-white"
               >
@@ -356,6 +370,8 @@ export default function Header({ initialTreatments }: HeaderProps) {
                   <div className="flex items-center justify-between py-2">
                     <Link
                       href={dept.departmentHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       onClick={() => {
                         pick(dept.tab);
                         setOpen(false);
@@ -389,6 +405,8 @@ export default function Header({ initialTreatments }: HeaderProps) {
                               <li key={t.name}>
                                 <Link
                                   href={t.href}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
                                   onClick={() => setOpen(false)}
                                   className="block py-1 text-[13.5px] text-teal-100 hover:text-white"
                                 >
@@ -400,6 +418,8 @@ export default function Header({ initialTreatments }: HeaderProps) {
                           <div className="pt-2">
                             <Link
                               href={dept.departmentHref}
+                              target="_blank"
+                              rel="noopener noreferrer"
                               onClick={() => setOpen(false)}
                               className="block text-[12px] font-bold text-teal-300"
                             >
@@ -410,6 +430,8 @@ export default function Header({ initialTreatments }: HeaderProps) {
                       ) : (
                         <Link
                           href={dept.departmentHref}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           onClick={() => setOpen(false)}
                           className="block text-[12.5px] font-bold text-teal-300 py-1"
                         >
@@ -425,6 +447,8 @@ export default function Header({ initialTreatments }: HeaderProps) {
             <li>
               <Link
                 href="/blogs"
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={() => setOpen(false)}
                 className="block py-2.5 text-[16px] font-medium text-white"
               >

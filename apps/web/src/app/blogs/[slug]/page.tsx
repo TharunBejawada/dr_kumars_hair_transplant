@@ -117,7 +117,7 @@ export default async function BlogPage({ params }: Props) {
             <ul className="mt-6 grid gap-6 md:grid-cols-3">
               {related.map((r) => (
                 <li key={r.id} className="rounded-[12px] bg-white p-5 shadow-[0_1px_4px_rgba(0,0,0,0.25)] transition-all hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(11,147,136,0.25)]">
-                  <Link href={`/blogs/${r.url}`} className="block"><h3 className="text-[17px] font-semibold leading-[25px] hover:text-brand">{r.blogTitle}</h3><p className="mt-2 text-[13px] text-gray-500">{displayDate(r)}</p></Link>
+                  <Link href={`/blogs/${r.url}`} target="_blank" rel="noopener noreferrer" className="block"><h3 className="text-[17px] font-semibold leading-[25px] hover:text-brand">{r.blogTitle}</h3><p className="mt-2 text-[13px] text-gray-500">{displayDate(r)}</p></Link>
                 </li>
               ))}
             </ul>

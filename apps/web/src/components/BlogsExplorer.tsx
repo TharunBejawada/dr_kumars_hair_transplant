@@ -36,7 +36,7 @@ export default function BlogsExplorer({ blogs }: { blogs: BlogCard[] }) {
         <ul className="mt-8 grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
           {shown.slice(0, visible).map((b) => (
             <li key={b.url} className="group overflow-hidden rounded-[12px] bg-white shadow-[0_1px_4px_rgba(0,0,0,0.25)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_12px_28px_rgba(11,147,136,0.25)]">
-              <Link href={`/blogs/${b.url}`} className="block h-full">
+              <Link href={`/blogs/${b.url}`} target="_blank" rel="noopener noreferrer" className="block h-full">
                 <div className="aspect-[16/10] overflow-hidden bg-mint">
                   {b.image ? (
                     // eslint-disable-next-line @next/next/no-img-element
